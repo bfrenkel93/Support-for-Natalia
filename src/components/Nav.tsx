@@ -1,10 +1,10 @@
 const LINKS = [
   { href: "#calendar", label: "Calendar" },
   { href: "#kids", label: "For the Kids" },
+  { href: "#things-to-do", label: "Things to Do" },
   { href: "#support", label: "For Natalia" },
   { href: "#events", label: "Events" },
   { href: "#stories", label: "Stories" },
-  { href: "#help", label: "Other Ways" },
 ];
 
 export default function Nav() {

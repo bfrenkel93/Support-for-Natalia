@@ -8,7 +8,7 @@ import MealHelp from "@/components/MealHelp";
 import StorySection from "@/components/StorySection";
 import GiftsSection from "@/components/GiftsSection";
 import Reveal from "@/components/Reveal";
-import RichText from "@/components/RichText";
+import WeekendIdeas from "@/components/WeekendIdeas";
 import { getSettings } from "@/lib/settings";
 import { getBookings } from "@/lib/bookings";
 import { getActivityIdeas } from "@/lib/ideas";
@@ -60,10 +60,13 @@ export default async function Home() {
           </a>
         </SectionShell>
 
-        {/* 02 · For Natalia — context + meal help */}
+        {/* 02 · Things to Do Together */}
+        <WeekendIdeas bookings={visibleBookings} number="02" />
+
+        {/* 03 · For Natalia — context + meal help */}
         <SectionShell
           id="support"
-          number="02"
+          number="03"
           label="For Natalia"
           title="Support for Natalia"
           subtitle={settings.support_subtitle}
@@ -78,12 +81,12 @@ export default async function Home() {
           </a>
         </SectionShell>
 
-        {/* 03 · The shared calendar */}
+        {/* 04 · The shared calendar */}
         <section id="calendar" className="section-anchor bg-parchment py-24 sm:py-32">
           <div className="mx-auto max-w-content px-6 sm:px-10">
             <Reveal>
               <div className="flex items-center gap-4">
-                <span className="section-num">03</span>
+                <span className="section-num">04</span>
                 <span className="eyebrow">Sign up</span>
               </div>
               <h2 className="mt-6 max-w-measure font-serif text-[2rem] font-light leading-tight text-ink sm:text-[2.6rem]">
@@ -101,32 +104,19 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* 04 · Events */}
+        {/* 05 · Events */}
         <EventsSection
           events={events}
           settings={settings}
           familyAddress={familyAddress}
-          number="04"
+          number="05"
         />
 
-        {/* 05 · Give a Gift */}
-        <GiftsSection gifts={gifts} settings={settings} number="05" />
+        {/* 06 · Give a Gift */}
+        <GiftsSection gifts={gifts} settings={settings} number="06" />
 
-        {/* 06 · Stories */}
-        <StorySection settings={settings} number="06" />
-
-        {/* 07 · Other ways to help */}
-        <SectionShell
-          id="help"
-          number="07"
-          label="Other Ways"
-          title="Other Ways to Help"
-          tone="parchment"
-        >
-          <div className="text-[1.02rem] leading-[1.9]">
-            <RichText text={settings.other_ways} />
-          </div>
-        </SectionShell>
+        {/* 07 · Stories */}
+        <StorySection settings={settings} number="07" />
       </main>
 
       <Footer settings={settings} />
@@ -141,16 +131,6 @@ function Footer({ settings }: { settings: Record<string, string> }) {
         <p className="whitespace-pre-line font-serif text-xl font-light leading-relaxed text-parchment/90">
           {settings.footer_note}
         </p>
-        {settings.contact_email && (
-          <p className="mt-6 text-[0.72rem] uppercase tracking-wide text-parchment/50">
-            <a
-              href={`mailto:${settings.contact_email}`}
-              className="underline decoration-parchment/30 underline-offset-4 transition-colors hover:text-parchment"
-            >
-              {settings.contact_email}
-            </a>
-          </p>
-        )}
       </div>
     </footer>
   );

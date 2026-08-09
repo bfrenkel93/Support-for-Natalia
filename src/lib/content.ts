@@ -16,7 +16,7 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
 
   kids_subtitle: "Showing up for them, month after month",
   kids_intro:
-    "One thing we would especially love to create is a consistent connection between the kids and the people who knew and loved their dad.\n\nOnce a month, we would love for one of Joe's friends to take a weekend to spend some time with the kids. It does not need to be anything elaborate. Take them to lunch, a game, the beach, an activity, or simply spend time together.\n\nThe purpose is less about what you do and more about continuing to show up.\n\nWe hope these visits give the kids another way to remain connected to Joe's world, his friendships, his stories, and the people who loved him.",
+    "One thing we would especially love to create is a consistent connection between the kids and the people who knew and loved their dad.\n\nOnce a month, we would love for one of Joe's friends to take a weekend to spend some time with the kids. It does not need to be anything elaborate. Take them to lunch, a game, a museum, an activity, or simply spend time together.\n\nThe purpose is less about what you do and more about continuing to show up.\n\nWe hope these visits give the kids another way to remain connected to Joe's world, his friendships, his stories, and the people who loved him.",
   kids_choose_note:
     "Select any open weekend below that works for you. Once a weekend is chosen, it will be marked as claimed so we can keep the visits spread throughout the year.",
 
@@ -84,7 +84,6 @@ export const SETTING_LABELS: Record<string, string> = {
   events_confirmation: "Message shown after someone RSVPs to an event",
   allergy_note: "Allergy note (shown in the meals area)",
   family_address: "Family address (for maps & meal delivery)",
-  other_ways: "“Other ways to help” text",
   confirmation_message: "Confirmation message (shown after someone signs up)",
   stories_title: "“Tell the Kids a Story” heading",
   stories_body: "“Tell the Kids a Story” body",
@@ -96,7 +95,6 @@ export const SETTING_LABELS: Record<string, string> = {
   pay_cashapp: "Cash App cashtag (without the $)",
   pay_zelle: "Zelle phone or email",
   gifts_confirmation: "Message shown after someone chips in",
-  contact_email: "Contact email (shown in footer)",
   footer_note: "Footer note",
 };
 
@@ -111,6 +109,7 @@ export const MULTILINE_SETTINGS = new Set([
   "allergy_note",
   "other_ways",
   "confirmation_message",
+  "other_ways",
   "stories_body",
   "stories_privacy",
   "stories_confirmation",
