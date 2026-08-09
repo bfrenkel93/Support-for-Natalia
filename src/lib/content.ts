@@ -16,7 +16,7 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
 
   kids_subtitle: "Showing up for them, month after month",
   kids_intro:
-    "One thing we would especially love to create is a consistent connection between the kids and the people who knew and loved their dad.\n\nOnce a month, one of Joe's friends will take a weekend to spend some time with the kids. It does not need to be anything elaborate. Take them to lunch, a game, the beach, an activity, or simply spend time together.\n\nThe purpose is less about what you do and more about continuing to show up.\n\nWe hope these visits give the kids another way to remain connected to Joe's world, his friendships, his stories, and the people who loved him.",
+    "One thing we would especially love to create is a consistent connection between the kids and the people who knew and loved their dad.\n\nOnce a month, we would love for one of Joe's friends to take a weekend to spend some time with the kids. It does not need to be anything elaborate. Take them to lunch, a game, the beach, an activity, or simply spend time together.\n\nThe purpose is less about what you do and more about continuing to show up.\n\nWe hope these visits give the kids another way to remain connected to Joe's world, his friendships, his stories, and the people who loved him.",
   kids_choose_note:
     "Select any open weekend below that works for you. Once a weekend is chosen, it will be marked as claimed so we can keep the visits spread throughout the year.",
 
