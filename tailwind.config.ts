@@ -37,6 +37,13 @@ const config: Config = {
           soft: "#E5DCCA",
           strong: "#C6B99F",
         },
+        // Muted, earthy colour-coding for the shared calendar's sign-up kinds.
+        kind: {
+          kids: "#7A8B5E", // time with the kids — olive green
+          meal: "#6E8A94", // meal for Natalia — dusty blue
+          visit: "#B0785A", // visit / company — warm terracotta
+          errand: "#8A7CA0", // errand / help — muted plum
+        },
       },
       fontFamily: {
         serif: ["var(--font-serif)", "Spectral", "Georgia", "serif"],

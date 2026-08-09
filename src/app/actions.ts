@@ -2,14 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { getSupabase, type Slot } from "@/lib/supabase";
+import { getSupabase, type BookingKind } from "@/lib/supabase";
 import { getSettings, DEFAULT_SETTINGS } from "@/lib/settings";
 import {
-  sendClaimNotification,
   sendMemoryNotification,
   sendRsvpNotification,
   sendGiftNotification,
+  sendBookingNotification,
 } from "@/lib/email";
+import { KIND_LABEL } from "@/lib/bookings";
 import { stripJpegMetadata } from "@/lib/image";
 import {
   saveMemory,
@@ -19,33 +20,51 @@ import {
   type IncomingFile,
 } from "@/lib/memories";
 
-export type ClaimState = {
-  ok: boolean;
-  message: string;
-  slotId?: string;
-};
+// -------------------------------------------------------------------
+// Bookings: the open shared sign-up calendar.
+// -------------------------------------------------------------------
 
-export async function claimSlot(
-  _prev: ClaimState,
+export type BookingState = { ok: boolean; message: string };
+
+const VALID_KINDS: BookingKind[] = ["kids", "meal", "visit", "errand"];
+
+function prettyDate(ymd: string): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+export async function addBooking(
+  _prev: BookingState,
   formData: FormData
-): Promise<ClaimState> {
-  const slotId = String(formData.get("slotId") || "").trim();
+): Promise<BookingState> {
+  const eventDate = String(formData.get("event_date") || "").trim();
+  const kind = String(formData.get("kind") || "").trim() as BookingKind;
   const name = String(formData.get("name") || "").trim();
   const email = String(formData.get("email") || "").trim();
   const note = String(formData.get("note") || "").trim();
   const isPrivate = formData.get("private") === "on";
 
-  if (!slotId) {
-    return { ok: false, message: "Something went wrong. Please refresh." };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(eventDate)) {
+    return { ok: false, message: "Please choose a day first." };
+  }
+  if (!VALID_KINDS.includes(kind)) {
+    return { ok: false, message: "Please choose what you'd like to do." };
   }
   if (!name) {
-    return { ok: false, message: "Please add your name.", slotId };
+    return { ok: false, message: "Please add your name." };
   }
   if (name.length > 120) {
-    return { ok: false, message: "That name looks too long.", slotId };
+    return { ok: false, message: "That name looks too long." };
   }
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { ok: false, message: "That email doesn't look right.", slotId };
+    return { ok: false, message: "That email doesn't look right." };
   }
 
   const supabase = getSupabase();
@@ -53,67 +72,79 @@ export async function claimSlot(
     return {
       ok: false,
       message: "Sign-ups aren't connected yet. Please check back soon.",
-      slotId,
     };
   }
 
-  // Atomic claim: only succeeds if the row is still unclaimed. Postgres
-  // evaluates `.eq("claimed", false)` inside the UPDATE, so two people
-  // clicking at the same time can never both win — the second gets 0 rows.
-  const { data, error } = await supabase
-    .from("slots")
-    .update({
-      claimed: true,
-      claimed_name: name,
-      claimed_email: email || null,
-      claimed_note: note || null,
-      claimed_private: isPrivate,
-      claimed_at: new Date().toISOString(),
-    })
-    .eq("id", slotId)
-    .eq("claimed", false)
-    .select();
+  // Kids weekends are a request that Natalia confirms; everything else is instant.
+  const requested = kind === "kids";
+  const status = requested ? "requested" : "confirmed";
+
+  const { error } = await supabase.from("bookings").insert({
+    event_date: eventDate,
+    kind,
+    status,
+    name,
+    email: email || null,
+    note: note || null,
+    private: isPrivate,
+  });
 
   if (error) {
-    console.error("[claimSlot] update failed:", error);
+    // 23505 = unique violation → the one-meal-per-day rule.
+    if ((error as { code?: string }).code === "23505") {
+      return {
+        ok: false,
+        message:
+          "A meal is already booked for that day — please pick another day, or choose a visit instead.",
+      };
+    }
+    console.error("[addBooking] insert failed:", error);
     return {
       ok: false,
       message: "Sorry — we couldn't save that. Please try again.",
-      slotId,
     };
   }
 
-  if (!data || data.length === 0) {
-    revalidatePath("/");
-    return {
-      ok: false,
-      message: "Ah — someone just grabbed this one. Please pick another.",
-      slotId,
-    };
+  // Build an absolute base URL for the dashboard link in the email.
+  let baseUrl = process.env.SITE_URL || "";
+  try {
+    const h = headers();
+    const host = h.get("x-forwarded-host") || h.get("host") || "";
+    const proto = h.get("x-forwarded-proto") || "https";
+    if (!baseUrl && host) baseUrl = `${proto}://${host}`;
+  } catch {
+    // ignore
   }
 
-  // Notify the family (never blocks the sign-up if email is misconfigured).
-  await sendClaimNotification({
-    slot: data[0] as Slot,
+  await sendBookingNotification({
+    kindLabel: KIND_LABEL[kind],
+    dateLabel: prettyDate(eventDate),
     name,
     email,
     note,
-    isPrivate,
+    requested,
+    baseUrl,
   });
 
-  // Use the editable confirmation message (falls back to the default).
+  revalidatePath("/");
+
+  if (requested) {
+    return {
+      ok: true,
+      message:
+        "Your request has been sent to Natalia. She'll confirm this weekend or suggest another — thank you for offering to show up for the kids. 💛",
+    };
+  }
+
   let confirmation = DEFAULT_SETTINGS.confirmation_message;
   try {
     const settings = await getSettings();
-    if (settings.confirmation_message) {
-      confirmation = settings.confirmation_message;
-    }
+    if (settings.confirmation_message) confirmation = settings.confirmation_message;
   } catch {
     // keep default
   }
 
-  revalidatePath("/");
-  return { ok: true, message: confirmation, slotId };
+  return { ok: true, message: confirmation };
 }
 
 // -------------------------------------------------------------------

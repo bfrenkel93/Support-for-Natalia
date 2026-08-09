@@ -1,43 +1,40 @@
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
-import SlotSection from "@/components/SlotSection";
-import CalendarView from "@/components/CalendarView";
+import SectionShell from "@/components/SectionShell";
+import BookingCalendar from "@/components/BookingCalendar";
+import IdeasList from "@/components/IdeasList";
 import EventsSection from "@/components/EventsSection";
 import MealHelp from "@/components/MealHelp";
 import StorySection from "@/components/StorySection";
 import GiftsSection from "@/components/GiftsSection";
-import SectionShell from "@/components/SectionShell";
+import Reveal from "@/components/Reveal";
 import RichText from "@/components/RichText";
 import { getSettings } from "@/lib/settings";
+import { getBookings } from "@/lib/bookings";
+import { getActivityIdeas } from "@/lib/ideas";
 import { getEvents } from "@/lib/events";
 import { getGifts } from "@/lib/gifts";
-import { getSupabase, isSupabaseConfigured, type Slot } from "@/lib/supabase";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
-// Always render fresh so newly-claimed slots show up immediately.
 export const dynamic = "force-dynamic";
 
-async function getSlots(): Promise<Slot[]> {
-  const supabase = getSupabase();
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from("slots")
-    .select("*")
-    .order("sort_order", { ascending: true })
-    .order("event_date", { ascending: true });
-  if (error || !data) return [];
-  return data as Slot[];
-}
-
 export default async function Home() {
-  const [settings, slots, events, gifts] = await Promise.all([
+  const [settings, bookings, ideas, events, gifts] = await Promise.all([
     getSettings(),
-    getSlots(),
+    getBookings(),
+    getActivityIdeas(),
     getEvents(),
     getGifts(),
   ]);
-  const kids = slots.filter((s) => s.category === "kids");
-  const support = slots.filter((s) => s.category === "support");
+
   const familyAddress = settings.family_address || "";
+  // The public calendar shows everything except declined requests.
+  const visibleBookings = bookings.filter((b) => b.status !== "declined");
+  const eventMarkers = events.map((e) => ({
+    id: e.id,
+    title: e.title,
+    event_date: e.event_date,
+  }));
 
   return (
     <>
@@ -47,56 +44,81 @@ export default async function Home() {
 
         {!isSupabaseConfigured() && <SetupNotice />}
 
-        <CalendarView slots={slots} events={events} />
-
-        <SlotSection
+        {/* 01 · For the Kids — context + ideas */}
+        <SectionShell
           id="kids"
           number="01"
           label="For the Kids"
           title="Visits for the Kids"
           subtitle={settings.kids_subtitle}
           intro={settings.kids_intro}
-          chooseNote={settings.kids_choose_note}
-          slots={kids}
-          emptyText="No open weekends listed just yet — please check back soon."
           tone="parchment"
-          familyAddress={familyAddress}
-        />
+        >
+          <IdeasList ideas={ideas} />
+          <a href="#calendar" className="btn mt-12 inline-flex">
+            Request a weekend →
+          </a>
+        </SectionShell>
 
-        <EventsSection
-          events={events}
-          settings={settings}
-          familyAddress={familyAddress}
-          number="02"
-        />
-
-        <SlotSection
+        {/* 02 · For Natalia — context + meal help */}
+        <SectionShell
           id="support"
-          number="03"
+          number="02"
           label="For Natalia"
           title="Support for Natalia"
           subtitle={settings.support_subtitle}
           intro={settings.support_intro}
-          chooseNote={settings.support_choose_note}
-          slots={support}
-          emptyText="No open days listed just yet — please check back soon."
-          tone="parchment"
+          tone="ivory"
+        >
+          {familyAddress && (
+            <MealHelp address={familyAddress} allergyNote={settings.allergy_note} />
+          )}
+          <a href="#calendar" className="btn mt-4 inline-flex">
+            Sign up on the calendar →
+          </a>
+        </SectionShell>
+
+        {/* 03 · The shared calendar */}
+        <section id="calendar" className="section-anchor bg-parchment py-24 sm:py-32">
+          <div className="mx-auto max-w-content px-6 sm:px-10">
+            <Reveal>
+              <div className="flex items-center gap-4">
+                <span className="section-num">03</span>
+                <span className="eyebrow">Sign up</span>
+              </div>
+              <h2 className="mt-6 max-w-measure font-serif text-[2rem] font-light leading-tight text-ink sm:text-[2.6rem]">
+                The Calendar
+              </h2>
+              <p className="mt-4 max-w-measure text-[1.02rem] leading-[1.85] text-ink-soft">
+                Choose any open day to bring a meal, stop by for a visit, run an
+                errand, or request a weekend with the kids. You&apos;ll see
+                what&apos;s already covered so it stays nicely spread out.
+              </p>
+            </Reveal>
+            <div className="mt-12">
+              <BookingCalendar bookings={visibleBookings} events={eventMarkers} />
+            </div>
+          </div>
+        </section>
+
+        {/* 04 · Events */}
+        <EventsSection
+          events={events}
+          settings={settings}
           familyAddress={familyAddress}
-          allergyNote={settings.allergy_note}
-          extra={
-            familyAddress ? (
-              <MealHelp address={familyAddress} allergyNote={settings.allergy_note} />
-            ) : null
-          }
+          number="04"
         />
 
-        <GiftsSection gifts={gifts} settings={settings} number="04" />
+        {/* 05 · Give a Gift */}
+        <GiftsSection gifts={gifts} settings={settings} number="05" />
 
-        <StorySection settings={settings} number="05" />
+        {/* 06 · Stories */}
+        <StorySection settings={settings} number="06" />
 
+        {/* 07 · Other ways to help */}
         <SectionShell
           id="help"
-          number="06"
+          number="07"
           label="Other Ways"
           title="Other Ways to Help"
           tone="parchment"

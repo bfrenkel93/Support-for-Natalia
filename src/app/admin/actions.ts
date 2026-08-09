@@ -8,10 +8,22 @@ import {
   isAdmin,
   setAdminCookie,
 } from "@/lib/auth";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase, type Booking } from "@/lib/supabase";
 import { deleteMemoryEverywhere } from "@/lib/memories";
+import { sendRequestDecision } from "@/lib/email";
 
 export type AdminState = { ok: boolean; message: string };
+
+function prettyDate(ymd: string): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
 
 // ---- Auth ----------------------------------------------------------
 
@@ -71,9 +83,76 @@ export async function saveSettings(
   return { ok: true, message: "Saved. Your changes are live. 💛" };
 }
 
-// ---- Slots ---------------------------------------------------------
+// ---- Bookings (the shared calendar) --------------------------------
 
-export async function addSlot(
+export async function deleteBooking(formData: FormData): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  await supabase.from("bookings").delete().eq("id", id);
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
+export async function confirmBooking(formData: FormData): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+
+  const { data } = await supabase
+    .from("bookings")
+    .update({ status: "confirmed" })
+    .eq("id", id)
+    .select()
+    .single();
+
+  const b = data as Booking | null;
+  if (b?.email) {
+    await sendRequestDecision({
+      to: b.email,
+      confirmed: true,
+      dateLabel: prettyDate(b.event_date),
+    });
+  }
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
+export async function declineBooking(formData: FormData): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  const note = String(formData.get("note") || "").trim() || null;
+
+  const { data } = await supabase
+    .from("bookings")
+    .update({ status: "declined" })
+    .eq("id", id)
+    .select()
+    .single();
+
+  const b = data as Booking | null;
+  if (b?.email) {
+    await sendRequestDecision({
+      to: b.email,
+      confirmed: false,
+      dateLabel: prettyDate(b.event_date),
+      note,
+    });
+  }
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
+// ---- Activity ideas ------------------------------------------------
+
+export async function addIdea(
   _prev: AdminState,
   formData: FormData
 ): Promise<AdminState> {
@@ -81,45 +160,36 @@ export async function addSlot(
   const supabase = getSupabase();
   if (!supabase) return { ok: false, message: "Database isn't connected." };
 
-  const category = String(formData.get("category") || "");
+  const title = String(formData.get("title") || "").trim();
   const event_date = String(formData.get("event_date") || "").trim() || null;
-  const label = String(formData.get("label") || "").trim() || null;
-  const description =
-    String(formData.get("description") || "").trim() || null;
+  const location = String(formData.get("location") || "").trim() || null;
+  const url = String(formData.get("url") || "").trim() || null;
+  const note = String(formData.get("note") || "").trim() || null;
   const sort_order = Number(formData.get("sort_order") || 0) || 0;
 
-  if (category !== "kids" && category !== "support") {
-    return { ok: false, message: "Pick a section." };
-  }
-  if (!event_date && !label) {
-    return { ok: false, message: "Add a date or a label so people know when." };
-  }
+  if (!title) return { ok: false, message: "Give the idea a name." };
 
-  const { error } = await supabase.from("slots").insert({
-    category,
-    event_date,
-    label,
-    description,
-    sort_order,
-  });
+  const { error } = await supabase
+    .from("activity_ideas")
+    .insert({ title, event_date, location, url, note, sort_order });
 
   if (error) {
-    console.error("[addSlot]", error);
-    return { ok: false, message: "Couldn't add that slot." };
+    console.error("[addIdea]", error);
+    return { ok: false, message: "Couldn't add that idea." };
   }
 
   revalidatePath("/");
   revalidatePath("/admin");
-  return { ok: true, message: "Slot added." };
+  return { ok: true, message: "Idea added." };
 }
 
-export async function deleteSlot(formData: FormData): Promise<void> {
+export async function deleteIdea(formData: FormData): Promise<void> {
   requireAdmin();
   const supabase = getSupabase();
   if (!supabase) return;
   const id = String(formData.get("id") || "");
   if (!id) return;
-  await supabase.from("slots").delete().eq("id", id);
+  await supabase.from("activity_ideas").delete().eq("id", id);
   revalidatePath("/");
   revalidatePath("/admin");
 }
@@ -248,26 +318,5 @@ export async function deleteMemory(formData: FormData): Promise<void> {
   const id = String(formData.get("id") || "");
   if (!id) return;
   await deleteMemoryEverywhere(id);
-  revalidatePath("/admin");
-}
-
-export async function unclaimSlot(formData: FormData): Promise<void> {
-  requireAdmin();
-  const supabase = getSupabase();
-  if (!supabase) return;
-  const id = String(formData.get("id") || "");
-  if (!id) return;
-  await supabase
-    .from("slots")
-    .update({
-      claimed: false,
-      claimed_name: null,
-      claimed_email: null,
-      claimed_note: null,
-      claimed_private: false,
-      claimed_at: null,
-    })
-    .eq("id", id);
-  revalidatePath("/");
   revalidatePath("/admin");
 }

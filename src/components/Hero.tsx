@@ -1,4 +1,5 @@
 import RichText from "./RichText";
+import HeroImage from "./HeroImage";
 import type { Settings } from "@/lib/content";
 
 /** Emphasize a lone ampersand in the title with a serif italic. */
@@ -28,21 +29,7 @@ export default function Hero({ settings }: { settings: Settings }) {
         {/* Photograph — large, full-bleed feeling, no rounded frame. */}
         <div className="animate-fade-up lg:col-span-7">
           <div className="relative aspect-[5/4] w-full overflow-hidden bg-limestone shadow-quiet sm:aspect-[16/11]">
-            {photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={photo}
-                alt="Natalia and the kids"
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-limestone to-sand/70 text-taupe">
-                <span className="h-10 w-10 rounded-full border border-taupe/50" />
-                <span className="text-[0.62rem] uppercase tracking-label">
-                  A family photograph
-                </span>
-              </div>
-            )}
+            <HeroImage src={photo || "/hero.jpg"} />
           </div>
         </div>
 

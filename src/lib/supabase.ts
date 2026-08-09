@@ -45,6 +45,32 @@ export type Slot = {
   created_at: string;
 };
 
+export type BookingKind = "kids" | "meal" | "visit" | "errand";
+export type BookingStatus = "requested" | "confirmed" | "declined";
+
+export type Booking = {
+  id: string;
+  event_date: string; // YYYY-MM-DD
+  kind: BookingKind;
+  status: BookingStatus;
+  name: string;
+  email: string | null;
+  note: string | null;
+  private: boolean;
+  created_at: string;
+};
+
+export type ActivityIdea = {
+  id: string;
+  title: string;
+  event_date: string | null;
+  location: string | null;
+  url: string | null;
+  note: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
 export type EventRsvp = {
   id: string;
   event_id: string;

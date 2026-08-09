@@ -1,89 +1,223 @@
 import { adminPasswordIsSet, isAdmin } from "@/lib/auth";
-import { getSupabase, isSupabaseConfigured, type Slot } from "@/lib/supabase";
+import { isSupabaseConfigured } from "@/lib/supabase";
 import { getSettings } from "@/lib/settings";
+import { getBookings, KIND_LABEL } from "@/lib/bookings";
+import { getActivityIdeas } from "@/lib/ideas";
+import { getEvents } from "@/lib/events";
+import { getGifts } from "@/lib/gifts";
+import { attachSignedUrls, listMemories } from "@/lib/memories";
 import {
+  confirmBooking,
+  declineBooking,
+  deleteBooking,
   deleteEvent,
   deleteGift,
-  deleteSlot,
+  deleteIdea,
   logout,
   removePledge,
   removeRsvp,
-  unclaimSlot,
 } from "./actions";
-import { attachSignedUrls, listMemories } from "@/lib/memories";
-import { getEvents } from "@/lib/events";
-import { getGifts } from "@/lib/gifts";
 import LoginForm from "@/components/admin/LoginForm";
 import SettingsForm from "@/components/admin/SettingsForm";
-import AddSlotForm from "@/components/admin/AddSlotForm";
 import AddEventForm from "@/components/admin/AddEventForm";
 import AddGiftForm from "@/components/admin/AddGiftForm";
+import AddIdeaForm from "@/components/admin/AddIdeaForm";
 import MemoryList from "@/components/MemoryList";
 
 export const dynamic = "force-dynamic";
 
-const SECTION_TITLE: Record<Slot["category"], string> = {
-  kids: "Visits for the Kids",
-  support: "Support for Natalia",
-};
+function fmt(ymd: string): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+const H2 = "font-serif text-2xl font-light text-ink";
+const CARD = "mt-4 overflow-hidden rounded-sm border border-line";
+const PANEL = "mt-4 rounded-sm border border-line bg-bone/40 p-5";
+const DEL =
+  "rounded-sm border border-line-strong px-3 py-1.5 text-[0.68rem] uppercase tracking-wide text-ink-soft hover:bg-bone";
 
 export default async function AdminPage() {
   if (!isAdmin()) {
     return <LoginForm passwordSet={adminPasswordIsSet()} />;
   }
 
-  const settings = await getSettings();
-  const slots = await getAllSlots();
-  const kids = slots.filter((s) => s.category === "kids");
-  const support = slots.filter((s) => s.category === "support");
-  const claimedCount = slots.filter((s) => s.claimed).length;
+  const [settings, bookings, ideas, events, gifts, memories] = await Promise.all([
+    getSettings(),
+    getBookings(),
+    getActivityIdeas(),
+    getEvents(),
+    getGifts(),
+    listMemories().then(attachSignedUrls),
+  ]);
 
-  const memories = await attachSignedUrls(await listMemories());
+  const pending = bookings.filter((b) => b.status === "requested");
+  const confirmed = bookings.filter((b) => b.status === "confirmed");
   const memoryPhotoCount = memories.reduce((n, m) => n + m.media.length, 0);
-  const events = await getEvents();
-  const gifts = await getGifts();
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="mx-auto max-w-4xl px-6 py-12 sm:px-10">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl text-ink">Family admin</h1>
-          <p className="mt-1 text-ink-soft">
-            {slots.length} slots · {claimedCount} claimed
-          </p>
+          <p className="eyebrow mb-2">Private dashboard</p>
+          <h1 className="font-serif text-3xl font-light text-ink">Family admin</h1>
         </div>
-        <div className="flex items-center gap-3">
-          <a
-            href="/"
-            className="text-sm text-bronze underline underline-offset-2"
-          >
-            View the page ↗
-          </a>
+        <div className="flex items-center gap-5">
+          <a href="/" className="btn-link">View the page ↗</a>
           <form action={logout}>
-            <button className="rounded-full border border-line px-4 py-2 text-sm text-ink-soft hover:bg-bone">
-              Log out
-            </button>
+            <button className={DEL}>Log out</button>
           </form>
         </div>
       </div>
 
       {!isSupabaseConfigured() && (
-        <p className="mt-6 rounded-sm border border-line-strong bg-bone/60 px-5 py-4 text-sm text-bronze">
-          Supabase isn&apos;t connected yet, so changes can&apos;t be saved. Set
-          <code> NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+        <p className="mt-6 border-l-2 border-bronze/50 bg-bone/60 px-5 py-4 text-sm text-ink-soft">
+          Supabase isn&apos;t connected yet, so changes can&apos;t be saved. Set{" "}
+          <code>NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
           <code>SUPABASE_SERVICE_ROLE_KEY</code>, then reload.
         </p>
       )}
 
-      {/* Memories — private stories & photos for the kids */}
-      <section className="mt-10">
+      {/* Weekend requests awaiting confirmation */}
+      <section className="mt-12">
+        <h2 className={H2}>
+          Weekend requests
+          {pending.length > 0 && (
+            <span className="ml-3 align-middle text-sm text-bronze">
+              {pending.length} awaiting you
+            </span>
+          )}
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Friends requesting a weekend with the kids. Confirm, or decline with a
+          note suggesting another weekend (they&apos;ll get an email).
+        </p>
+        <div className={CARD}>
+          {pending.length === 0 ? (
+            <p className="bg-bone/40 px-5 py-6 text-ink-soft">
+              No requests waiting right now.
+            </p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {pending.map((b) => (
+                <li key={b.id} className="bg-bone/40 px-5 py-4">
+                  <p className="font-medium text-ink">
+                    {b.name}
+                    <span className="ml-2 text-sm font-normal text-ink-soft">
+                      {fmt(b.event_date)}
+                    </span>
+                  </p>
+                  {b.email && <p className="text-sm text-ink-soft">{b.email}</p>}
+                  {b.note && <p className="mt-1 text-sm italic text-ink-soft">“{b.note}”</p>}
+                  <div className="mt-3 flex flex-wrap items-end gap-3">
+                    <form action={confirmBooking}>
+                      <input type="hidden" name="id" value={b.id} />
+                      <button className="btn">Confirm</button>
+                    </form>
+                    <form action={declineBooking} className="flex items-end gap-2">
+                      <input type="hidden" name="id" value={b.id} />
+                      <input
+                        name="note"
+                        placeholder="Suggest another weekend (optional)"
+                        className="field w-64 max-w-full"
+                      />
+                      <button className={DEL}>Decline</button>
+                    </form>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+
+      {/* Confirmed sign-ups on the calendar */}
+      <section className="mt-12">
+        <h2 className={H2}>Calendar sign-ups</h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Everything currently on the shared calendar. Remove anything that
+          changes.
+        </p>
+        <div className={CARD}>
+          {confirmed.length === 0 ? (
+            <p className="bg-bone/40 px-5 py-6 text-ink-soft">Nothing booked yet.</p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {confirmed.map((b) => (
+                <li
+                  key={b.id}
+                  className="flex flex-col gap-2 bg-bone/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="font-medium text-ink">
+                      {fmt(b.event_date)} · {KIND_LABEL[b.kind]}
+                    </p>
+                    <p className="text-sm text-ink-soft">
+                      {b.private ? "Someone (private)" : b.name}
+                      {b.email && ` · ${b.email}`}
+                      {b.note && ` · “${b.note}”`}
+                    </p>
+                  </div>
+                  <form action={deleteBooking} className="shrink-0">
+                    <input type="hidden" name="id" value={b.id} />
+                    <button className={DEL}>Remove</button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+
+      {/* Ideas for time with the kids */}
+      <section className="mt-12">
+        <h2 className={H2}>Ideas for the kids</h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Outings shown as inspiration in the “For the Kids” section.
+        </p>
+        <div className={CARD}>
+          {ideas.length === 0 ? (
+            <p className="bg-bone/40 px-5 py-6 text-ink-soft">No ideas yet.</p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {ideas.map((idea) => (
+                <li
+                  key={idea.id}
+                  className="flex items-center justify-between gap-3 bg-bone/40 px-5 py-4"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium text-ink">{idea.title}</p>
+                    <p className="text-sm text-ink-soft">
+                      {idea.event_date ? `${fmt(idea.event_date)} · ` : ""}
+                      {idea.location}
+                    </p>
+                  </div>
+                  <form action={deleteIdea} className="shrink-0">
+                    <input type="hidden" name="id" value={idea.id} />
+                    <button className={DEL}>Remove</button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className={PANEL}>
+          <AddIdeaForm />
+        </div>
+      </section>
+
+      {/* Memories */}
+      <section className="mt-12">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="font-serif text-xl text-ink">
+            <h2 className={H2}>
               Memories of Joe{" "}
-              <span className="text-base font-normal text-ink-soft">
-                (private)
-              </span>
+              <span className="text-base text-ink-soft">(private)</span>
             </h2>
             <p className="mt-1 text-sm text-ink-soft">
               {memories.length} shared · {memoryPhotoCount} photo
@@ -91,10 +225,7 @@ export default async function AdminPage() {
             </p>
           </div>
           {memories.length > 0 && (
-            <a
-              href="/api/memories/export"
-              className="rounded-full border border-line px-4 py-2 text-sm text-ink-soft hover:bg-bone"
-            >
+            <a href="/api/memories/export" className={DEL}>
               Export stories ↓
             </a>
           )}
@@ -104,93 +235,22 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      {/* Slots by section */}
-      {(["kids", "support"] as const).map((category) => {
-        const list = category === "kids" ? kids : support;
-        return (
-          <section key={category} className="mt-10">
-            <h2 className="font-serif text-xl text-ink">
-              {SECTION_TITLE[category]}
-            </h2>
-            <div className="mt-4 overflow-hidden rounded-sm border border-line">
-              {list.length === 0 ? (
-                <p className="bg-bone/40 px-5 py-6 text-ink-soft">
-                  No slots yet — add one below.
-                </p>
-              ) : (
-                <ul className="divide-y divide-line">
-                  {list.map((slot) => (
-                    <li
-                      key={slot.id}
-                      className="flex flex-col gap-3 bg-bone/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="min-w-0">
-                        <p className="font-semibold text-ink">
-                          {slot.label ||
-                            slot.event_date ||
-                            "(no date/label)"}
-                        </p>
-                        {slot.description && (
-                          <p className="text-sm text-ink-soft">
-                            {slot.description}
-                          </p>
-                        )}
-                        {slot.claimed ? (
-                          <p className="mt-1 text-sm text-bronze">
-                            ✓ {slot.claimed_name || "Claimed"}
-                            {slot.claimed_email && ` · ${slot.claimed_email}`}
-                            {slot.claimed_private && " · (private)"}
-                            {slot.claimed_note && ` · “${slot.claimed_note}”`}
-                          </p>
-                        ) : (
-                          <p className="mt-1 text-sm text-ink-soft">Open</p>
-                        )}
-                      </div>
-                      <div className="flex shrink-0 items-center gap-2">
-                        {slot.claimed && (
-                          <form action={unclaimSlot}>
-                            <input type="hidden" name="id" value={slot.id} />
-                            <button className="rounded-full border border-line px-3 py-1.5 text-sm text-ink-soft hover:bg-bone">
-                              Reopen
-                            </button>
-                          </form>
-                        )}
-                        <form action={deleteSlot}>
-                          <input type="hidden" name="id" value={slot.id} />
-                          <button className="rounded-full border border-line-strong px-3 py-1.5 text-sm text-bronze hover:bg-bone">
-                            Delete
-                          </button>
-                        </form>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </section>
-        );
-      })}
-
       {/* Events */}
       <section className="mt-12">
-        <h2 className="font-serif text-xl text-ink">
-          Events — Come Cheer Them On
-        </h2>
+        <h2 className={H2}>Events — Come Cheer Them On</h2>
         <p className="mt-1 text-sm text-ink-soft">
           Games, recitals, milestones. Anyone can RSVP; names show on the page.
         </p>
-        <div className="mt-4 overflow-hidden rounded-sm border border-line">
+        <div className={CARD}>
           {events.length === 0 ? (
-            <p className="bg-bone/40 px-5 py-6 text-ink-soft">
-              No events yet — add one below.
-            </p>
+            <p className="bg-bone/40 px-5 py-6 text-ink-soft">No events yet.</p>
           ) : (
             <ul className="divide-y divide-line">
               {events.map((ev) => (
                 <li key={ev.id} className="bg-bone/40 px-5 py-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
-                      <p className="font-semibold text-ink">{ev.title}</p>
+                      <p className="font-medium text-ink">{ev.title}</p>
                       <p className="text-sm text-ink-soft">
                         {ev.event_date || "(no date)"}
                         {ev.event_time ? ` · ${ev.event_time}` : ""}
@@ -199,72 +259,56 @@ export default async function AdminPage() {
                     </div>
                     <form action={deleteEvent} className="shrink-0">
                       <input type="hidden" name="id" value={ev.id} />
-                      <button className="rounded-full border border-line-strong px-3 py-1.5 text-sm text-bronze hover:bg-bone">
-                        Delete event
-                      </button>
+                      <button className={DEL}>Delete event</button>
                     </form>
                   </div>
-                  <div className="mt-2">
-                    <p className="text-xs uppercase tracking-wide text-ink-soft">
-                      {ev.rsvps.length} coming
-                    </p>
-                    {ev.rsvps.length > 0 && (
-                      <ul className="mt-1 flex flex-wrap gap-2">
-                        {ev.rsvps.map((r) => (
-                          <li
-                            key={r.id}
-                            className="flex items-center gap-1.5 rounded-full bg-bone px-2.5 py-1 text-sm text-bronze"
-                          >
-                            <span title={r.note || undefined}>{r.name}</span>
-                            <form action={removeRsvp}>
-                              <input type="hidden" name="id" value={r.id} />
-                              <button
-                                className="text-ink-faint hover:text-bronze"
-                                title="Remove"
-                              >
-                                ✕
-                              </button>
-                            </form>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
+                  {ev.rsvps.length > 0 && (
+                    <ul className="mt-2 flex flex-wrap gap-2">
+                      {ev.rsvps.map((r) => (
+                        <li
+                          key={r.id}
+                          className="flex items-center gap-1.5 rounded-sm bg-bone px-2.5 py-1 text-sm text-ink-soft"
+                        >
+                          <span title={r.note || undefined}>{r.name}</span>
+                          <form action={removeRsvp}>
+                            <input type="hidden" name="id" value={r.id} />
+                            <button className="text-ink-faint hover:text-bronze" title="Remove">
+                              ✕
+                            </button>
+                          </form>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>
           )}
         </div>
-        <div className="mt-4 rounded-sm border border-line bg-bone/40 p-5">
+        <div className={PANEL}>
           <AddEventForm />
         </div>
       </section>
 
       {/* Gifts */}
       <section className="mt-12">
-        <h2 className="font-serif text-xl text-ink">Gifts — Give a Gift</h2>
+        <h2 className={H2}>Gifts — Give a Gift</h2>
         <p className="mt-1 text-sm text-ink-soft">
-          Ideas like a private-chef week, a massage, or a manicure. Your Venmo,
-          Cash App, and Zelle show at the top of this section — edit them under
-          “Edit page text” below.
+          Your Venmo, Cash App, and Zelle show at the top of that section — edit
+          them under “Edit page text” below.
         </p>
-        <div className="mt-4 overflow-hidden rounded-sm border border-line">
+        <div className={CARD}>
           {gifts.length === 0 ? (
-            <p className="bg-bone/40 px-5 py-6 text-ink-soft">
-              No gifts yet — add one below.
-            </p>
+            <p className="bg-bone/40 px-5 py-6 text-ink-soft">No gifts yet.</p>
           ) : (
             <ul className="divide-y divide-line">
               {gifts.map((g) => {
-                const total = g.pledges.reduce(
-                  (s, p) => s + (p.amount || 0),
-                  0
-                );
+                const total = g.pledges.reduce((s, p) => s + (p.amount || 0), 0);
                 return (
                   <li key={g.id} className="bg-bone/40 px-5 py-4">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
-                        <p className="font-semibold text-ink">
+                        <p className="font-medium text-ink">
                           {g.title}
                           {g.cost != null && (
                             <span className="ml-2 text-sm font-normal text-ink-soft">
@@ -279,9 +323,7 @@ export default async function AdminPage() {
                       </div>
                       <form action={deleteGift} className="shrink-0">
                         <input type="hidden" name="id" value={g.id} />
-                        <button className="rounded-full border border-line-strong px-3 py-1.5 text-sm text-bronze hover:bg-bone">
-                          Delete gift
-                        </button>
+                        <button className={DEL}>Delete gift</button>
                       </form>
                     </div>
                     {g.pledges.length > 0 && (
@@ -289,19 +331,15 @@ export default async function AdminPage() {
                         {g.pledges.map((p) => (
                           <li
                             key={p.id}
-                            className="flex items-center gap-1.5 rounded-full bg-bone px-2.5 py-1 text-sm text-bronze"
+                            className="flex items-center gap-1.5 rounded-sm bg-bone px-2.5 py-1 text-sm text-ink-soft"
                           >
                             <span title={p.note || undefined}>
                               {p.name}
-                              {p.amount != null &&
-                                ` · $${p.amount.toLocaleString("en-US")}`}
+                              {p.amount != null && ` · $${p.amount.toLocaleString("en-US")}`}
                             </span>
                             <form action={removePledge}>
                               <input type="hidden" name="id" value={p.id} />
-                              <button
-                                className="text-ink-faint hover:text-bronze"
-                                title="Remove"
-                              >
+                              <button className="text-ink-faint hover:text-bronze" title="Remove">
                                 ✕
                               </button>
                             </form>
@@ -315,26 +353,19 @@ export default async function AdminPage() {
             </ul>
           )}
         </div>
-        <div className="mt-4 rounded-sm border border-line bg-bone/40 p-5">
+        <div className={PANEL}>
           <AddGiftForm />
-        </div>
-      </section>
-
-      {/* Add a slot */}
-      <section className="mt-12">
-        <h2 className="font-serif text-xl text-ink">Add a slot</h2>
-        <div className="mt-4 rounded-sm border border-line bg-bone/40 p-5">
-          <AddSlotForm />
         </div>
       </section>
 
       {/* Edit text */}
       <section className="mt-12">
-        <h2 className="font-serif text-xl text-ink">Edit page text</h2>
+        <h2 className={H2}>Edit page text</h2>
         <p className="mt-1 text-sm text-ink-soft">
-          Change the intro, section copy, and footer — no code needed.
+          Change the intro, section copy, payment handles, photo, and footer — no
+          code needed.
         </p>
-        <div className="mt-4 rounded-sm border border-line bg-bone/40 p-5">
+        <div className={PANEL}>
           <SettingsForm settings={settings} />
         </div>
       </section>
@@ -342,17 +373,4 @@ export default async function AdminPage() {
       <div className="h-16" />
     </div>
   );
-}
-
-async function getAllSlots(): Promise<Slot[]> {
-  const supabase = getSupabase();
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from("slots")
-    .select("*")
-    .order("category", { ascending: true })
-    .order("sort_order", { ascending: true })
-    .order("event_date", { ascending: true });
-  if (error || !data) return [];
-  return data as Slot[];
 }

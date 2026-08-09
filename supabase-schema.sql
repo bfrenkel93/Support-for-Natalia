@@ -165,12 +165,17 @@ create table if not exists public.bookings (
   id          uuid primary key default gen_random_uuid(),
   event_date  date not null,
   kind        text not null check (kind in ('kids', 'meal', 'visit', 'errand')),
+  -- 'confirmed' = instant (meals/visits/errands). Kids weekends start as
+  -- 'requested' until Natalia confirms; she can also 'declined' them.
+  status      text not null default 'confirmed' check (status in ('requested', 'confirmed', 'declined')),
   name        text not null,
   email       text,
   note        text,
   private     boolean not null default false,  -- show "Someone" instead of the name
   created_at  timestamptz not null default now()
 );
+-- If the table already existed, make sure the status column is present:
+alter table public.bookings add column if not exists status text not null default 'confirmed';
 
 create index if not exists bookings_date_idx on public.bookings (event_date);
 
@@ -188,6 +193,31 @@ insert into public.bookings (event_date, kind, name, note) values
   ('2026-09-12', 'kids',  'Marcus', 'Taking them to the game'),
   ('2026-09-16', 'meal',  'Dana',   'Bringing lasagna around 6'),
   ('2026-09-18', 'visit', 'Aunt Kim', 'Afternoon coffee')
+on conflict do nothing;
+
+-- ==================================================================
+-- ACTIVITY IDEAS — inspiration for time with the kids (Disney on Ice, a
+-- ball game, the zoo…). Admin-managed; shown in the "For the Kids" section.
+-- ==================================================================
+create table if not exists public.activity_ideas (
+  id          uuid primary key default gen_random_uuid(),
+  title       text not null,
+  event_date  date,
+  location    text,
+  url         text,
+  note        text,
+  sort_order  integer not null default 0,
+  created_at  timestamptz not null default now()
+);
+
+alter table public.activity_ideas enable row level security;
+
+-- Example ideas (Boston area) — edit the dates, places and links in /admin.
+insert into public.activity_ideas (title, event_date, location, note, sort_order) values
+  ('Disney on Ice', '2026-11-14', 'TD Garden, Boston', 'Example idea — update the date & add a ticket link.', 1),
+  ('Red Sox game', '2026-06-20', 'Fenway Park', 'Example idea — check the schedule for a good date.', 2),
+  ('Franklin Park Zoo', null, 'Boston', 'Any weekend — a relaxed, easy outing.', 3),
+  ('Boston Children''s Museum', null, 'Seaport, Boston', 'Great on a rainy day.', 4)
 on conflict do nothing;
 
 -- ==================================================================

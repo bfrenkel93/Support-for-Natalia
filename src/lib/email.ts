@@ -95,6 +95,110 @@ export async function sendClaimNotification(args: NotifyArgs): Promise<void> {
   }
 }
 
+/**
+ * Notifies the family of a calendar sign-up. When `requested` is true (a kids
+ * weekend awaiting Natalia's confirmation), the email asks her to confirm or
+ * suggest another weekend in the dashboard. Sent to NOTIFY_EMAIL + NATALIA_EMAIL.
+ */
+export async function sendBookingNotification(args: {
+  kindLabel: string;
+  dateLabel: string;
+  name: string;
+  email?: string | null;
+  note?: string | null;
+  requested?: boolean;
+  baseUrl?: string;
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from =
+    process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
+  const recipients = Array.from(
+    new Set(
+      [process.env.NOTIFY_EMAIL, process.env.NATALIA_EMAIL].filter(
+        Boolean
+      ) as string[]
+    )
+  );
+  if (!apiKey || recipients.length === 0) return;
+
+  const { kindLabel, dateLabel, name, email, note, requested, baseUrl } = args;
+  const link = baseUrl ? `${baseUrl.replace(/\/$/, "")}/admin` : "";
+
+  const subject = requested
+    ? `Weekend request: ${name} — ${dateLabel}`
+    : `Calendar sign-up: ${name} — ${kindLabel}`;
+
+  const lead = requested
+    ? `${name} would love to spend the weekend of ${dateLabel} with the kids. Confirm it, or suggest another weekend, in your dashboard.`
+    : `${name} signed up for ${kindLabel} on ${dateLabel}.`;
+
+  const text = [
+    lead,
+    email ? `Email: ${email}` : "",
+    note ? `Note: ${note}` : "",
+    link ? `\nOpen your dashboard: ${link}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const html = `
+    <div style="font-family: Georgia, serif; color: #3E3A33; line-height: 1.6;">
+      <h2 style="color:#8B6A43; margin-bottom: 4px;">${
+        requested ? "A weekend request 💛" : "New calendar sign-up 💛"
+      }</h2>
+      <p>${escapeHtml(lead)}</p>
+      ${note ? `<p>Note: ${escapeHtml(note)}</p>` : ""}
+      ${email ? `<p style="color:#6E6858;font-size:14px;">${escapeHtml(email)}</p>` : ""}
+      ${
+        link
+          ? `<p><a href="${escapeHtml(link)}" style="display:inline-block;background:#2A2620;color:#F7F4ED;text-decoration:none;padding:10px 18px;border-radius:2px;font-weight:600;">Open the dashboard</a></p>`
+          : ""
+      }
+    </div>`;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({ from, to: recipients, subject, text, html });
+  } catch (err) {
+    console.error("[email] Failed to send booking notification:", err);
+  }
+}
+
+/**
+ * Emails a friend back after Natalia confirms or declines their weekend
+ * request. No-op if they didn't leave an email.
+ */
+export async function sendRequestDecision(args: {
+  to: string;
+  confirmed: boolean;
+  dateLabel: string;
+  note?: string | null;
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from =
+    process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
+  if (!apiKey || !args.to) return;
+
+  const { to, confirmed, dateLabel, note } = args;
+  const subject = confirmed
+    ? `Your weekend with the kids is confirmed — ${dateLabel}`
+    : `About the weekend of ${dateLabel}`;
+  const body = confirmed
+    ? `Wonderful — you're confirmed to spend the weekend of ${dateLabel} with the kids. Thank you for showing up for them.${note ? `\n\nA note from Natalia: ${note}` : ""}`
+    : `Thank you so much for offering to spend the weekend of ${dateLabel} with the kids. That particular weekend doesn't work, but please pick another — it would mean the world.${note ? `\n\nA note from Natalia: ${note}` : ""}`;
+
+  const html = `<div style="font-family: Georgia, serif; color:#3E3A33; line-height:1.6;"><p>${escapeHtml(
+    body
+  ).replace(/\n/g, "<br>")}</p></div>`;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({ from, to, subject, text: body, html });
+  } catch (err) {
+    console.error("[email] Failed to send request decision:", err);
+  }
+}
+
 /** Notifies the family when someone chips in toward a gift. Fails silently. */
 export async function sendGiftNotification(args: {
   giftTitle: string;
