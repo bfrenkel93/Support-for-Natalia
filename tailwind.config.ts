@@ -8,11 +8,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm architectural neutrals — sun-warmed, never pastel, never bright white.
-        parchment: "#F3EEE3", // page base
-        ivory: "#F7F2E8", // lightest surface
-        limestone: "#ECE4D4",
-        bone: "#EEE8DB",
+        // Warm architectural neutrals — a soft, warm off-white base.
+        parchment: "#F7F4ED", // page base (off-white)
+        ivory: "#FBF9F3", // lightest surface
+        limestone: "#EEE8DB",
+        bone: "#F2EDE2",
         sand: "#E1D7C1",
         mushroom: "#CBBEA5",
         taupe: "#A99B84",
