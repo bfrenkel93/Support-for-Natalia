@@ -196,6 +196,56 @@ insert into public.bookings (event_date, kind, name, note) values
 on conflict do nothing;
 
 -- ==================================================================
+-- FAMILY_EVENTS — an AUTOMATED cache of dated Boston-area special events
+-- (Ticketmaster, etc.). Refreshed weekly by a Vercel Cron job — you never
+-- edit this table by hand. Public queries read only future, non-hidden,
+-- family-suitable rows. `is_featured` = admin "pin"; `is_hidden` = admin hide.
+-- ==================================================================
+create table if not exists public.family_events (
+  id                uuid primary key default gen_random_uuid(),
+  source            text not null,
+  external_id       text not null,
+  source_url        text,
+  official_url      text,
+  title             text not null,
+  short_description text,
+  description       text,
+  venue             text,
+  city              text,
+  state             text,
+  start_date        date,
+  end_date          date,
+  start_time        text,
+  category          text,
+  age_label         text,
+  family_score      integer not null default 0,
+  quality_score     integer not null default 0,
+  image_url         text,
+  is_special_event  boolean not null default true,
+  is_featured       boolean not null default false,
+  is_hidden         boolean not null default false,
+  last_verified_at  timestamptz,
+  created_at        timestamptz not null default now(),
+  updated_at        timestamptz not null default now(),
+  unique (source, external_id)
+);
+
+create index if not exists family_events_dates_idx on public.family_events (start_date, end_date);
+alter table public.family_events enable row level security;
+
+-- Per-source health for the admin panel and failure isolation.
+create table if not exists public.event_sources (
+  source           text primary key,
+  last_attempted_at timestamptz,
+  last_success_at  timestamptz,
+  events_found     integer not null default 0,
+  events_imported  integer not null default 0,
+  error_message    text,
+  status           text not null default 'unknown'
+);
+alter table public.event_sources enable row level security;
+
+-- ==================================================================
 -- ACTIVITY IDEAS — inspiration for time with the kids (Disney on Ice, a
 -- ball game, the zoo…). Admin-managed; shown in the "For the Kids" section.
 -- ==================================================================

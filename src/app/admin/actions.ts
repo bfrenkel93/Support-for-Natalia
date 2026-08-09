@@ -11,6 +11,7 @@ import {
 import { getSupabase, type Booking } from "@/lib/supabase";
 import { deleteMemoryEverywhere } from "@/lib/memories";
 import { sendRequestDecision } from "@/lib/email";
+import { ingestEvents } from "@/lib/weekend/ingest";
 
 export type AdminState = { ok: boolean; message: string };
 
@@ -148,6 +149,45 @@ export async function declineBooking(formData: FormData): Promise<void> {
   }
   revalidatePath("/");
   revalidatePath("/admin");
+}
+
+// ---- Weekend Ideas: automated events cache -------------------------
+
+export async function refreshEventsNow(): Promise<void> {
+  requireAdmin();
+  await ingestEvents();
+  revalidatePath("/");
+  revalidatePath("/weekend-ideas");
+  revalidatePath("/admin");
+}
+
+async function setEventFlag(
+  formData: FormData,
+  field: "is_hidden" | "is_featured",
+  value: boolean
+): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  await supabase.from("family_events").update({ [field]: value }).eq("id", id);
+  revalidatePath("/");
+  revalidatePath("/weekend-ideas");
+  revalidatePath("/admin");
+}
+
+export async function hideEvent(formData: FormData): Promise<void> {
+  await setEventFlag(formData, "is_hidden", true);
+}
+export async function unhideEvent(formData: FormData): Promise<void> {
+  await setEventFlag(formData, "is_hidden", false);
+}
+export async function pinEvent(formData: FormData): Promise<void> {
+  await setEventFlag(formData, "is_featured", true);
+}
+export async function unpinEvent(formData: FormData): Promise<void> {
+  await setEventFlag(formData, "is_featured", false);
 }
 
 // ---- Activity ideas ------------------------------------------------

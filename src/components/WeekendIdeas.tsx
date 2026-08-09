@@ -1,6 +1,7 @@
 import type { Booking } from "@/lib/supabase";
 import { upcomingWeekends, dateInWeekend } from "@/lib/weekend/weekends";
 import { buildWeekendGroups } from "@/lib/weekend/recommend";
+import { getSpecialByWeekend } from "@/lib/weekend/cache";
 import WeekendIdeaGroup from "./WeekendIdeaGroup";
 import Reveal from "./Reveal";
 
@@ -26,7 +27,7 @@ function heading(index: number): string | undefined {
  * next handful of weekends, drawn from the curated Boston list (and, once the
  * Ticketmaster key is set, dated special events). Self-maintaining.
  */
-export default function WeekendIdeas({
+export default async function WeekendIdeas({
   bookings,
   number,
 }: {
@@ -34,9 +35,11 @@ export default function WeekendIdeas({
   number?: string;
 }) {
   const weekends = upcomingWeekends(3);
+  const specialByWeekend = await getSpecialByWeekend(weekends);
   const groups = buildWeekendGroups({
     weekends,
     coveredWeekendKeys: coveredKeys(bookings, weekends),
+    specialByWeekend,
   });
 
   return (

@@ -6,6 +6,7 @@ import { getActivityIdeas } from "@/lib/ideas";
 import { getEvents } from "@/lib/events";
 import { getGifts } from "@/lib/gifts";
 import { attachSignedUrls, listMemories } from "@/lib/memories";
+import { getEventsStatus, getAdminEvents } from "@/lib/weekend/cache";
 import {
   confirmBooking,
   declineBooking,
@@ -13,9 +14,14 @@ import {
   deleteEvent,
   deleteGift,
   deleteIdea,
+  hideEvent,
   logout,
+  pinEvent,
+  refreshEventsNow,
   removePledge,
   removeRsvp,
+  unhideEvent,
+  unpinEvent,
 } from "./actions";
 import LoginForm from "@/components/admin/LoginForm";
 import SettingsForm from "@/components/admin/SettingsForm";
@@ -47,14 +53,17 @@ export default async function AdminPage() {
     return <LoginForm passwordSet={adminPasswordIsSet()} />;
   }
 
-  const [settings, bookings, ideas, events, gifts, memories] = await Promise.all([
-    getSettings(),
-    getBookings(),
-    getActivityIdeas(),
-    getEvents(),
-    getGifts(),
-    listMemories().then(attachSignedUrls),
-  ]);
+  const [settings, bookings, ideas, events, gifts, memories, eventsStatus, cachedEvents] =
+    await Promise.all([
+      getSettings(),
+      getBookings(),
+      getActivityIdeas(),
+      getEvents(),
+      getGifts(),
+      listMemories().then(attachSignedUrls),
+      getEventsStatus(),
+      getAdminEvents(),
+    ]);
 
   const pending = bookings.filter((b) => b.status === "requested");
   const confirmed = bookings.filter((b) => b.status === "confirmed");
@@ -209,6 +218,83 @@ export default async function AdminPage() {
         <div className={PANEL}>
           <AddIdeaForm />
         </div>
+      </section>
+
+      {/* Weekend Ideas — automatic events cache */}
+      <section className="mt-12">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className={H2}>Weekend Ideas — automatic</h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              {eventsStatus.upcomingCount} upcoming special events cached ·
+              refreshes weekly. You never add these by hand — just hide anything
+              you don&apos;t want, or pin a favorite.
+            </p>
+          </div>
+          <form action={refreshEventsNow}>
+            <button className="btn">Refresh events now</button>
+          </form>
+        </div>
+
+        <div className="mt-4 rounded-sm border border-line bg-bone/40 px-5 py-4 text-sm text-ink-soft">
+          {eventsStatus.sources.length === 0 ? (
+            <p>No refresh has run yet. Add a Ticketmaster key and click “Refresh events now.”</p>
+          ) : (
+            <ul className="space-y-1">
+              {eventsStatus.sources.map((s) => (
+                <li key={s.source}>
+                  <span className="uppercase tracking-wide text-ink">{s.source}</span>{" "}
+                  · {s.status}
+                  {s.last_success_at
+                    ? ` · last success ${new Date(s.last_success_at).toLocaleString("en-US")}`
+                    : ""}
+                  {s.error_message ? ` · ${s.error_message}` : ""}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {cachedEvents.length > 0 && (
+          <div className={CARD}>
+            <ul className="divide-y divide-line">
+              {cachedEvents.map((e) => (
+                <li
+                  key={e.id}
+                  className={`flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between ${
+                    e.is_hidden ? "bg-bone/20 opacity-60" : "bg-bone/40"
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium text-ink">
+                      {e.title}
+                      {e.is_featured && (
+                        <span className="ml-2 text-[0.62rem] uppercase tracking-wide text-bronze">
+                          pinned
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-sm text-ink-soft">
+                      {e.start_date ? fmt(e.start_date) : "(no date)"}
+                      {e.venue ? ` · ${e.venue}` : ""} · q{e.quality_score}/f
+                      {e.family_score}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <form action={e.is_featured ? unpinEvent : pinEvent}>
+                      <input type="hidden" name="id" value={e.id} />
+                      <button className={DEL}>{e.is_featured ? "Unpin" : "Pin"}</button>
+                    </form>
+                    <form action={e.is_hidden ? unhideEvent : hideEvent}>
+                      <input type="hidden" name="id" value={e.id} />
+                      <button className={DEL}>{e.is_hidden ? "Unhide" : "Hide"}</button>
+                    </form>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
 
       {/* Memories */}

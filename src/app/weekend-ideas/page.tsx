@@ -3,6 +3,7 @@ import WeekendIdeasExplorer from "@/components/WeekendIdeasExplorer";
 import { getBookings } from "@/lib/bookings";
 import { upcomingWeekends, dateInWeekend } from "@/lib/weekend/weekends";
 import { buildWeekendGroups } from "@/lib/weekend/recommend";
+import { getSpecialByWeekend } from "@/lib/weekend/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,12 @@ export default async function WeekendIdeasPage() {
     if (confirmedKids.some((b) => dateInWeekend(b.event_date, w))) covered.add(w.key);
   }
 
-  const groups = buildWeekendGroups({ weekends, coveredWeekendKeys: covered });
+  const specialByWeekend = await getSpecialByWeekend(weekends);
+  const groups = buildWeekendGroups({
+    weekends,
+    coveredWeekendKeys: covered,
+    specialByWeekend,
+  });
 
   return (
     <>
