@@ -1,11 +1,19 @@
 import { adminPasswordIsSet, isAdmin } from "@/lib/auth";
 import { getSupabase, isSupabaseConfigured, type Slot } from "@/lib/supabase";
 import { getSettings } from "@/lib/settings";
-import { deleteSlot, logout, unclaimSlot } from "./actions";
+import {
+  deleteEvent,
+  deleteSlot,
+  logout,
+  removeRsvp,
+  unclaimSlot,
+} from "./actions";
 import { attachSignedUrls, listMemories } from "@/lib/memories";
+import { getEvents } from "@/lib/events";
 import LoginForm from "@/components/admin/LoginForm";
 import SettingsForm from "@/components/admin/SettingsForm";
 import AddSlotForm from "@/components/admin/AddSlotForm";
+import AddEventForm from "@/components/admin/AddEventForm";
 import MemoryList from "@/components/MemoryList";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +36,7 @@ export default async function AdminPage() {
 
   const memories = await attachSignedUrls(await listMemories());
   const memoryPhotoCount = memories.reduce((n, m) => n + m.media.length, 0);
+  const events = await getEvents();
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
@@ -156,6 +165,75 @@ export default async function AdminPage() {
           </section>
         );
       })}
+
+      {/* Events */}
+      <section className="mt-12">
+        <h2 className="font-serif text-xl text-ink">
+          Events — Come Cheer Them On
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Games, recitals, milestones. Anyone can RSVP; names show on the page.
+        </p>
+        <div className="mt-4 overflow-hidden rounded-xl2 border border-line">
+          {events.length === 0 ? (
+            <p className="bg-cream-soft px-5 py-6 text-ink-soft">
+              No events yet — add one below.
+            </p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {events.map((ev) => (
+                <li key={ev.id} className="bg-cream-soft px-5 py-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-ink">{ev.title}</p>
+                      <p className="text-sm text-ink-soft">
+                        {ev.event_date || "(no date)"}
+                        {ev.event_time ? ` · ${ev.event_time}` : ""}
+                        {ev.location ? ` · ${ev.location}` : ""}
+                      </p>
+                    </div>
+                    <form action={deleteEvent} className="shrink-0">
+                      <input type="hidden" name="id" value={ev.id} />
+                      <button className="rounded-full border border-clay/30 px-3 py-1.5 text-sm text-clay-dark hover:bg-clay/10">
+                        Delete event
+                      </button>
+                    </form>
+                  </div>
+                  <div className="mt-2">
+                    <p className="text-xs uppercase tracking-wide text-ink-soft">
+                      {ev.rsvps.length} coming
+                    </p>
+                    {ev.rsvps.length > 0 && (
+                      <ul className="mt-1 flex flex-wrap gap-2">
+                        {ev.rsvps.map((r) => (
+                          <li
+                            key={r.id}
+                            className="flex items-center gap-1.5 rounded-full bg-clay/10 px-2.5 py-1 text-sm text-clay-dark"
+                          >
+                            <span title={r.note || undefined}>{r.name}</span>
+                            <form action={removeRsvp}>
+                              <input type="hidden" name="id" value={r.id} />
+                              <button
+                                className="text-clay-dark/70 hover:text-clay-dark"
+                                title="Remove"
+                              >
+                                ✕
+                              </button>
+                            </form>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className="mt-4 rounded-xl2 border border-line bg-cream-soft p-5">
+          <AddEventForm />
+        </div>
+      </section>
 
       {/* Add a slot */}
       <section className="mt-12">

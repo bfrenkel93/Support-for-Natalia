@@ -44,7 +44,8 @@ create table if not exists public.settings (
 -- Seed default copy (safe to re-run — existing rows are left untouched).
 insert into public.settings (key, value) values
   ('site_title',        'For Natalia & the Kids'),
-  ('hero_kicker',       ''),
+  ('hero_kicker',       'For the people who love them'),
+  ('hero_image_url',    ''),
   ('intro_title',       'For Natalia & the Kids'),
   ('intro_message',     E'In the wake of Joe''s passing, so many people have asked how they can show up for Natalia and the kids.\n\nThere is no way to fill the space Joe leaves behind. But there are ways to surround the people he loved most with presence, friendship, consistency, and care.\n\nThis page is simply a way to help us do that together.\n\nRather than everyone reaching out at once, or Natalia having to coordinate what she needs, we''re creating a gentle rhythm of support around the family for the months ahead.\n\nChoose whatever feels natural to you. A weekend with the kids. Dinner with Natalia. A visit, an errand, or simply some company.\n\nThank you for loving them.'),
   ('kids_subtitle',     'Showing up for them, month after month'),
@@ -53,6 +54,10 @@ insert into public.settings (key, value) values
   ('support_subtitle',  'Being there after everything gets quiet'),
   ('support_intro',     E'In the first days and weeks after a loss, people gather quickly. Over time, life inevitably begins moving again for everyone around the person who is grieving.\n\nGrief does not move quite that fast.\n\nWe want to make sure Natalia continues to feel surrounded in the weeks and months ahead, without ever having to be the one asking people to come.\n\nThis can look however you want it to look.\n\nBring dinner. Sit with her for an hour. Take her out for coffee or a walk. Come watch a show. Help with something around the house. Stop by with no agenda at all.\n\nYou do not need to fix anything or find the right words.\n\nJust come.'),
   ('support_choose_note', E'Choose an open date below. You can leave a note letting Natalia know what you''re thinking, or simply sign up and decide later.'),
+  ('events_subtitle',   'Show up for the little big moments'),
+  ('events_intro',      E'The kids have games, recitals, and everyday milestones that mean the world when familiar faces are in the crowd. When Natalia adds one here, add your name so they look up and see they''re surrounded.\n\nEveryone is welcome at these — the more the better.'),
+  ('events_empty',      E'No events on the calendar right now. When there''s a game or a milestone to show up for, it''ll appear here.'),
+  ('events_confirmation', E'You''re on the list — thank you for showing up for them. 💛'),
   ('allergy_note',      E'One important note for anyone bringing food: Alexander is allergic to cashews and pistachios. Please avoid both, and check labels for “may contain” warnings. Thank you for keeping him safe. 💛'),
   ('family_address',    '10 Mechanic Street, Newton, MA'),
   ('other_ways',        E'There are many ways to support a family after a loss, and sometimes the smallest practical things make the biggest difference.\n\nIf a scheduled visit is not right for you, you can still help by:\n\n• Sending a meal or restaurant gift card\n• Helping with groceries or errands\n• Offering rides or help with the kids\n• Dropping off something you know the family loves\n• Checking in months from now, not only today\n• Sharing stories, photos, or memories of Joe\n• Remembering important dates and milestones\n• Simply continuing to include Natalia and the kids in your life\n\nThere is no perfect way to support someone through grief.\nPresence matters most.'),
@@ -103,6 +108,40 @@ create index if not exists memory_media_memory_idx on public.memory_media (memor
 -- RLS on, no public policies -> the anon key can read/write nothing.
 alter table public.memories enable row level security;
 alter table public.memory_media enable row level security;
+
+-- ==================================================================
+-- EVENTS — "Come Cheer Them On". Many people can RSVP to one event;
+-- attendee names are shown on the (private) page. Managed from /admin.
+-- ==================================================================
+create table if not exists public.events (
+  id           uuid primary key default gen_random_uuid(),
+  title        text not null,
+  event_date   date,
+  event_time   text,
+  location     text,
+  description  text,
+  sort_order   integer not null default 0,
+  created_at   timestamptz not null default now()
+);
+
+create table if not exists public.event_rsvps (
+  id          uuid primary key default gen_random_uuid(),
+  event_id    uuid not null references public.events(id) on delete cascade,
+  name        text not null,
+  email       text,
+  note        text,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists event_rsvps_event_idx on public.event_rsvps (event_id);
+
+alter table public.events enable row level security;
+alter table public.event_rsvps enable row level security;
+
+insert into public.events (title, event_date, event_time, location, description, sort_order) values
+  ('Sophia''s soccer game', '2026-09-19', '10:00 AM', 'Newton South field', 'Come cheer her on — the more familiar faces, the better!', 1),
+  ('School fall concert', '2026-10-02', '6:30 PM', 'Newton Elementary auditorium', 'The kids are performing — let''s pack the room.', 2)
+on conflict do nothing;
 
 -- ------------------------------------------------------------------
 -- PRIVATE storage bucket for memory photos.

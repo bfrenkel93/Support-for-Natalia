@@ -1,4 +1,4 @@
-import type { Slot } from "./supabase";
+import type { Slot, FamilyEvent } from "./supabase";
 
 /**
  * Builds "Add to calendar" data for a slot. Events are all-day:
@@ -79,6 +79,45 @@ export function getCalendarInfo(
     endYmd,
     googleUrl,
     icsPath: `/api/calendar/${slot.id}`,
+  };
+}
+
+/** Calendar info for a family event (all-day; time/place folded into details). */
+export function getEventCalendarInfo(
+  event: FamilyEvent,
+  familyAddress: string
+): CalendarInfo | null {
+  if (!event.event_date) return null;
+
+  const [y, m, d] = event.event_date.split("-").map(Number);
+  if (!y || !m || !d) return null;
+
+  const startYmd = ymdCompact(y, m, d);
+  const endYmd = addDaysCompact(event.event_date, 1);
+
+  const title = event.title || "Family event";
+  const detailParts: string[] = [];
+  if (event.event_time) detailParts.push(`Time: ${event.event_time}`);
+  if (event.description) detailParts.push(event.description);
+  detailParts.push("Come cheer them on! 💛");
+  const details = detailParts.join("\n\n");
+  const location = event.location || familyAddress || "";
+
+  const googleUrl =
+    "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+    `&text=${encodeURIComponent(title)}` +
+    `&dates=${startYmd}/${endYmd}` +
+    `&details=${encodeURIComponent(details)}` +
+    (location ? `&location=${encodeURIComponent(location)}` : "");
+
+  return {
+    title,
+    details,
+    location,
+    startYmd,
+    endYmd,
+    googleUrl,
+    icsPath: `/api/calendar/event/${event.id}`,
   };
 }
 

@@ -95,6 +95,51 @@ export async function sendClaimNotification(args: NotifyArgs): Promise<void> {
   }
 }
 
+/** Notifies the family when someone RSVPs to an event. Fails silently. */
+export async function sendRsvpNotification(args: {
+  eventTitle: string;
+  name: string;
+  email?: string | null;
+  note?: string | null;
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.NOTIFY_EMAIL;
+  const from =
+    process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
+  if (!apiKey || !to) return;
+
+  const { eventTitle, name, email, note } = args;
+  const text = [
+    `${name} is coming to "${eventTitle}".`,
+    email ? `Email: ${email}` : "",
+    note ? `Note: ${note}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const html = `
+    <div style="font-family: Georgia, serif; color: #3E3A33; line-height: 1.6;">
+      <h2 style="color:#A56A4F; margin-bottom: 4px;">New RSVP 💛</h2>
+      <p><strong>${escapeHtml(name)}</strong> is coming to
+      <strong>${escapeHtml(eventTitle)}</strong>.</p>
+      ${note ? `<p>Note: ${escapeHtml(note)}</p>` : ""}
+      ${email ? `<p style="color:#6E6858;font-size:14px;">${escapeHtml(email)}</p>` : ""}
+    </div>`;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from,
+      to,
+      subject: `RSVP: ${name} — ${eventTitle}`,
+      text,
+      html,
+    });
+  } catch (err) {
+    console.error("[email] Failed to send RSVP notification:", err);
+  }
+}
+
 /**
  * Notifies the family that a new memory was shared. For privacy, the email
  * contains ONLY a heads-up and a secure link to the dashboard — never the

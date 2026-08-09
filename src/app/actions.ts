@@ -4,7 +4,11 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { getSupabase, type Slot } from "@/lib/supabase";
 import { getSettings, DEFAULT_SETTINGS } from "@/lib/settings";
-import { sendClaimNotification, sendMemoryNotification } from "@/lib/email";
+import {
+  sendClaimNotification,
+  sendMemoryNotification,
+  sendRsvpNotification,
+} from "@/lib/email";
 import { stripJpegMetadata } from "@/lib/image";
 import {
   saveMemory,
@@ -109,6 +113,93 @@ export async function claimSlot(
 
   revalidatePath("/");
   return { ok: true, message: confirmation, slotId };
+}
+
+// -------------------------------------------------------------------
+// Events: "Come Cheer Them On" — many people can RSVP to one event.
+// -------------------------------------------------------------------
+
+export type RsvpState = { ok: boolean; message: string; eventId?: string };
+
+export async function rsvpEvent(
+  _prev: RsvpState,
+  formData: FormData
+): Promise<RsvpState> {
+  const eventId = String(formData.get("eventId") || "").trim();
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim();
+  const note = String(formData.get("note") || "").trim();
+
+  if (!eventId) {
+    return { ok: false, message: "Something went wrong. Please refresh." };
+  }
+  if (!name) {
+    return { ok: false, message: "Please add your name.", eventId };
+  }
+  if (name.length > 120) {
+    return { ok: false, message: "That name looks too long.", eventId };
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, message: "That email doesn't look right.", eventId };
+  }
+
+  const supabase = getSupabase();
+  if (!supabase) {
+    return {
+      ok: false,
+      message: "RSVPs aren't connected yet. Please check back soon.",
+      eventId,
+    };
+  }
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("id, title, event_date, event_time, location")
+    .eq("id", eventId)
+    .single();
+
+  if (!event) {
+    revalidatePath("/");
+    return {
+      ok: false,
+      message: "That event isn't available anymore.",
+      eventId,
+    };
+  }
+
+  const { error } = await supabase.from("event_rsvps").insert({
+    event_id: eventId,
+    name,
+    email: email || null,
+    note: note || null,
+  });
+
+  if (error) {
+    console.error("[rsvpEvent] insert failed:", error);
+    return {
+      ok: false,
+      message: "Sorry — we couldn't save that. Please try again.",
+      eventId,
+    };
+  }
+
+  await sendRsvpNotification({
+    eventTitle: (event as { title: string }).title,
+    name,
+    email,
+    note,
+  });
+
+  let confirmation = DEFAULT_SETTINGS.events_confirmation;
+  try {
+    const settings = await getSettings();
+    if (settings.events_confirmation) confirmation = settings.events_confirmation;
+  } catch {
+    // keep default
+  }
+
+  revalidatePath("/");
+  return { ok: true, message: confirmation, eventId };
 }
 
 // -------------------------------------------------------------------

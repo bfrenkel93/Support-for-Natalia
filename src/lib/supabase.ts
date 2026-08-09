@@ -44,3 +44,24 @@ export type Slot = {
   claimed_at: string | null;
   created_at: string;
 };
+
+export type EventRsvp = {
+  id: string;
+  event_id: string;
+  name: string;
+  email: string | null;
+  note: string | null;
+  created_at: string;
+};
+
+export type FamilyEvent = {
+  id: string;
+  title: string;
+  event_date: string | null;
+  event_time: string | null;
+  location: string | null;
+  description: string | null;
+  sort_order: number;
+  created_at: string;
+  rsvps: EventRsvp[];
+};

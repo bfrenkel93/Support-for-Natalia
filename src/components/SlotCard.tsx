@@ -1,17 +1,18 @@
 import type { Slot } from "@/lib/supabase";
 import SignupForm from "./SignupForm";
 import CalendarButtons from "./CalendarButtons";
+import { getCalendarInfo } from "@/lib/calendar";
 
 const ACCENT = {
   kids: {
     bg: "bg-sage hover:bg-sage-dark",
     chip: "bg-sage-light text-sage-dark",
-    claimed: "border-sage/40 bg-sage-light/40",
+    claimed: "border-sage/40 bg-sage-light/30",
   },
   support: {
     bg: "bg-softblue hover:bg-softblue-dark",
     chip: "bg-softblue-light text-softblue-dark",
-    claimed: "border-softblue/40 bg-softblue-light/40",
+    claimed: "border-softblue/40 bg-softblue-light/30",
   },
 } as const;
 
@@ -26,19 +27,20 @@ export default function SlotCard({
 }) {
   const accent = ACCENT[slot.category];
   const title = slot.label || formatDate(slot.event_date) || "Open slot";
+  const cal = getCalendarInfo(slot, familyAddress, allergyNote);
 
   return (
     <div
-      className={`flex flex-col gap-3 rounded-xl2 border p-5 shadow-soft transition-shadow ${
+      className={`flex flex-col gap-4 p-6 ${
         slot.claimed
-          ? accent.claimed
-          : "border-cream-deep bg-cream-soft hover:shadow-lg"
+          ? `rounded-xl2 border shadow-card ${accent.claimed}`
+          : "card card-hover"
       }`}
     >
       <div>
-        <h3 className="font-serif text-lg text-ink">{title}</h3>
+        <h3 className="font-serif text-xl text-ink">{title}</h3>
         {slot.description && (
-          <p className="mt-1 text-sm text-ink-soft">{slot.description}</p>
+          <p className="mt-1.5 text-sm text-ink-soft">{slot.description}</p>
         )}
       </div>
 
@@ -60,9 +62,8 @@ export default function SlotCard({
             )}
           </div>
           <CalendarButtons
-            slot={slot}
-            familyAddress={familyAddress}
-            allergyNote={allergyNote}
+            googleUrl={cal?.googleUrl ?? null}
+            icsPath={cal?.icsPath ?? null}
           />
         </div>
       ) : (
@@ -73,9 +74,8 @@ export default function SlotCard({
             accentBg={accent.bg}
           />
           <CalendarButtons
-            slot={slot}
-            familyAddress={familyAddress}
-            allergyNote={allergyNote}
+            googleUrl={cal?.googleUrl ?? null}
+            icsPath={cal?.icsPath ?? null}
           />
         </div>
       )}
@@ -85,7 +85,6 @@ export default function SlotCard({
 
 function formatDate(value: string | null): string | null {
   if (!value) return null;
-  // value is YYYY-MM-DD; render without timezone drift.
   const [y, m, d] = value.split("-").map(Number);
   if (!y || !m || !d) return value;
   const date = new Date(Date.UTC(y, m - 1, d));

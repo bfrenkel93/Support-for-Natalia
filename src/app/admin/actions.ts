@@ -124,6 +124,66 @@ export async function deleteSlot(formData: FormData): Promise<void> {
   revalidatePath("/admin");
 }
 
+// ---- Events --------------------------------------------------------
+
+export async function addEvent(
+  _prev: AdminState,
+  formData: FormData
+): Promise<AdminState> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return { ok: false, message: "Database isn't connected." };
+
+  const title = String(formData.get("title") || "").trim();
+  const event_date = String(formData.get("event_date") || "").trim() || null;
+  const event_time = String(formData.get("event_time") || "").trim() || null;
+  const location = String(formData.get("location") || "").trim() || null;
+  const description = String(formData.get("description") || "").trim() || null;
+  const sort_order = Number(formData.get("sort_order") || 0) || 0;
+
+  if (!title) return { ok: false, message: "Give the event a name." };
+
+  const { error } = await supabase.from("events").insert({
+    title,
+    event_date,
+    event_time,
+    location,
+    description,
+    sort_order,
+  });
+
+  if (error) {
+    console.error("[addEvent]", error);
+    return { ok: false, message: "Couldn't add that event." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  return { ok: true, message: "Event added." };
+}
+
+export async function deleteEvent(formData: FormData): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  await supabase.from("events").delete().eq("id", id);
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
+export async function removeRsvp(formData: FormData): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  await supabase.from("event_rsvps").delete().eq("id", id);
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
 export async function deleteMemory(formData: FormData): Promise<void> {
   requireAdmin();
   const id = String(formData.get("id") || "");

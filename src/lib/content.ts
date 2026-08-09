@@ -8,7 +8,8 @@ export type Settings = Record<string, string>;
 
 export const DEFAULT_SETTINGS: Record<string, string> = {
   site_title: "For Natalia & the Kids",
-  hero_kicker: "",
+  hero_kicker: "For the people who love them",
+  hero_image_url: "",
   intro_title: "For Natalia & the Kids",
   intro_message:
     "In the wake of Joe's passing, so many people have asked how they can show up for Natalia and the kids.\n\nThere is no way to fill the space Joe leaves behind. But there are ways to surround the people he loved most with presence, friendship, consistency, and care.\n\nThis page is simply a way to help us do that together.\n\nRather than everyone reaching out at once, or Natalia having to coordinate what she needs, we're creating a gentle rhythm of support around the family for the months ahead.\n\nChoose whatever feels natural to you. A weekend with the kids. Dinner with Natalia. A visit, an errand, or simply some company.\n\nThank you for loving them.",
@@ -24,6 +25,14 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
     "In the first days and weeks after a loss, people gather quickly. Over time, life inevitably begins moving again for everyone around the person who is grieving.\n\nGrief does not move quite that fast.\n\nWe want to make sure Natalia continues to feel surrounded in the weeks and months ahead, without ever having to be the one asking people to come.\n\nThis can look however you want it to look.\n\nBring dinner. Sit with her for an hour. Take her out for coffee or a walk. Come watch a show. Help with something around the house. Stop by with no agenda at all.\n\nYou do not need to fix anything or find the right words.\n\nJust come.",
   support_choose_note:
     "Choose an open date below. You can leave a note letting Natalia know what you're thinking, or simply sign up and decide later.",
+
+  events_subtitle: "Show up for the little big moments",
+  events_intro:
+    "The kids have games, recitals, and everyday milestones that mean the world when familiar faces are in the crowd. When Natalia adds one here, add your name so they look up and see they're surrounded.\n\nEveryone is welcome at these — the more the better.",
+  events_empty:
+    "No events on the calendar right now. When there's a game or a milestone to show up for, it'll appear here.",
+  events_confirmation:
+    "You're on the list — thank you for showing up for them. 💛",
 
   allergy_note:
     "One important note for anyone bringing food: Alexander is allergic to cashews and pistachios. Please avoid both, and check labels for “may contain” warnings. Thank you for keeping him safe. 💛",
@@ -51,6 +60,7 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
 export const SETTING_LABELS: Record<string, string> = {
   site_title: "Site title (browser tab)",
   hero_kicker: "Hero kicker (small line above the title — leave blank to hide)",
+  hero_image_url: "Hero photo URL (e.g. /hero.jpg, or a link — leave blank for a placeholder)",
   intro_title: "Hero heading",
   intro_message: "Hero / intro message",
   kids_subtitle: "“Visits for the Kids” subtitle",
@@ -59,6 +69,10 @@ export const SETTING_LABELS: Record<string, string> = {
   support_subtitle: "“Support for Natalia” subtitle",
   support_intro: "“Support for Natalia” intro",
   support_choose_note: "“Support for Natalia” — note above the days",
+  events_subtitle: "“Come Cheer Them On” subtitle",
+  events_intro: "“Come Cheer Them On” intro",
+  events_empty: "“Come Cheer Them On” — empty state text",
+  events_confirmation: "Message shown after someone RSVPs to an event",
   allergy_note: "Allergy note (shown in the meals area)",
   family_address: "Family address (for maps & meal delivery)",
   other_ways: "“Other ways to help” text",
@@ -78,6 +92,7 @@ export const MULTILINE_SETTINGS = new Set([
   "kids_choose_note",
   "support_intro",
   "support_choose_note",
+  "events_intro",
   "allergy_note",
   "other_ways",
   "confirmation_message",

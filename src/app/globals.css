@@ -17,26 +17,47 @@
   h2,
   h3 {
     @apply font-serif;
+    font-optical-sizing: auto;
   }
 
-  /* Respect people who prefer reduced motion. */
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
+    }
+    .animate-fade-up {
+      animation: none !important;
     }
   }
 }
 
 @layer components {
   .section-anchor {
-    /* Extra safety for scroll offset on individual sections. */
     scroll-margin-top: 5.5rem;
   }
 
+  /* Comfortable reading measure for body copy. */
   .prose-warm p {
     @apply mb-4 leading-relaxed text-ink-soft;
   }
   .prose-warm p:last-child {
     @apply mb-0;
+  }
+
+  /* Small editorial eyebrow label. */
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-label text-clay-dark;
+  }
+
+  /* Delicate section header used across the page. */
+  .rule {
+    @apply h-px w-full bg-line;
+  }
+
+  /* Card treatment: thin warm border, soft shadow, gentle hover lift. */
+  .card {
+    @apply rounded-xl2 border border-line bg-cream-soft shadow-card transition-all duration-300;
+  }
+  .card-hover:hover {
+    @apply -translate-y-0.5 shadow-lift;
   }
 }

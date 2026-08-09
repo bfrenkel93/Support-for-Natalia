@@ -1,26 +1,18 @@
-import RichText from "./RichText";
+import SectionHeader from "./SectionHeader";
 import StoryForm from "./StoryForm";
 import type { Settings } from "@/lib/content";
 
 export default function StorySection({ settings }: { settings: Settings }) {
   return (
-    <section
-      id="stories"
-      className="section-anchor bg-clay/5 py-14 sm:py-20"
-    >
-      <div className="mx-auto max-w-3xl px-4 sm:px-6">
-        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-clay">
-          For the kids, someday
-        </p>
-        <h2 className="font-serif text-2xl text-ink sm:text-4xl">
-          {settings.stories_title}
-        </h2>
+    <section id="stories" className="section-anchor bg-clay/[0.06] py-16 sm:py-24">
+      <div className="mx-auto max-w-3xl px-5 sm:px-6">
+        <SectionHeader
+          eyebrow="For the kids, someday"
+          title={settings.stories_title}
+          intro={settings.stories_body}
+        />
 
-        <div className="mt-5 text-lg">
-          <RichText text={settings.stories_body} />
-        </div>
-
-        <p className="mt-6 font-serif text-xl italic text-clay-dark">
+        <p className="mt-6 font-serif text-2xl italic text-clay-dark">
           Tell them a story.
         </p>
 
