@@ -153,6 +153,44 @@ alter table public.memories enable row level security;
 alter table public.memory_media enable row level security;
 
 -- ==================================================================
+-- BOOKINGS — the open, shared sign-up calendar.
+-- Anyone can add themselves to any day, choosing a kind:
+--   kids   = time with the children
+--   meal   = a meal for Natalia
+--   visit  = a visit / company
+--   errand = an errand or practical help
+-- Attendee names show on the (private) calendar, colour-coded by kind.
+-- ==================================================================
+create table if not exists public.bookings (
+  id          uuid primary key default gen_random_uuid(),
+  event_date  date not null,
+  kind        text not null check (kind in ('kids', 'meal', 'visit', 'errand')),
+  name        text not null,
+  email       text,
+  note        text,
+  private     boolean not null default false,  -- show "Someone" instead of the name
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists bookings_date_idx on public.bookings (event_date);
+
+-- Enforce "one meal per day" at the database level: at most one 'meal' booking
+-- can exist for any given date (visits, kids-time and errands stay unlimited).
+create unique index if not exists bookings_one_meal_per_day
+  on public.bookings (event_date)
+  where kind = 'meal';
+
+alter table public.bookings enable row level security;
+
+-- A few example bookings so the calendar isn't empty on first load.
+-- Delete these from /admin once real sign-ups come in.
+insert into public.bookings (event_date, kind, name, note) values
+  ('2026-09-12', 'kids',  'Marcus', 'Taking them to the game'),
+  ('2026-09-16', 'meal',  'Dana',   'Bringing lasagna around 6'),
+  ('2026-09-18', 'visit', 'Aunt Kim', 'Afternoon coffee')
+on conflict do nothing;
+
+-- ==================================================================
 -- EVENTS — "Come Cheer Them On". Many people can RSVP to one event;
 -- attendee names are shown on the (private) page. Managed from /admin.
 -- ==================================================================
