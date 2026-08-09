@@ -1,0 +1,178 @@
+import "server-only";
+import { Resend } from "resend";
+import type { Slot } from "./supabase";
+
+type NotifyArgs = {
+  slot: Slot;
+  name: string;
+  email?: string | null;
+  note?: string | null;
+  isPrivate: boolean;
+};
+
+const SECTION_NAME: Record<Slot["category"], string> = {
+  kids: "Visits for the Kids",
+  support: "Support for Natalia",
+};
+
+/**
+ * Emails the family a heads-up when someone claims a slot.
+ * Fails silently (logs only) so a missing/incorrect email config can never
+ * block a real sign-up from being saved.
+ */
+export async function sendClaimNotification(args: NotifyArgs): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.NOTIFY_EMAIL;
+  const from =
+    process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
+
+  if (!apiKey || !to) {
+    // Not configured — quietly skip.
+    return;
+  }
+
+  const { slot, name, email, note, isPrivate } = args;
+  const when = slot.label || slot.event_date || "a slot";
+  const section = SECTION_NAME[slot.category];
+
+  const lines = [
+    `${name} just signed up in "${section}".`,
+    ``,
+    `Slot: ${when}`,
+    slot.description ? `Details: ${slot.description}` : ``,
+    email ? `Email: ${email}` : `Email: (not provided)`,
+    note ? `Note: ${note}` : ``,
+    isPrivate ? `(They asked to show as "Claimed" publicly.)` : ``,
+  ].filter(Boolean);
+
+  const html = `
+    <div style="font-family: Georgia, serif; color: #3E3A33; line-height: 1.6;">
+      <h2 style="color:#5F7359; margin-bottom: 4px;">New sign-up 💛</h2>
+      <p><strong>${escapeHtml(name)}</strong> just signed up in <strong>${escapeHtml(
+        section
+      )}</strong>.</p>
+      <table style="border-collapse: collapse; margin-top: 8px;">
+        <tr><td style="padding:4px 12px 4px 0;"><strong>Slot</strong></td><td>${escapeHtml(
+          String(when)
+        )}</td></tr>
+        ${
+          slot.description
+            ? `<tr><td style="padding:4px 12px 4px 0;"><strong>Details</strong></td><td>${escapeHtml(
+                slot.description
+              )}</td></tr>`
+            : ""
+        }
+        <tr><td style="padding:4px 12px 4px 0;"><strong>Email</strong></td><td>${
+          email ? escapeHtml(email) : "(not provided)"
+        }</td></tr>
+        ${
+          note
+            ? `<tr><td style="padding:4px 12px 4px 0;"><strong>Note</strong></td><td>${escapeHtml(
+                note
+              )}</td></tr>`
+            : ""
+        }
+      </table>
+      ${
+        isPrivate
+          ? `<p style="color:#6E6858; font-size: 14px;">They asked to appear publicly as “Claimed”.</p>`
+          : ""
+      }
+    </div>
+  `;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from,
+      to,
+      subject: `New sign-up: ${name} — ${section}`,
+      text: lines.join("\n"),
+      html,
+    });
+  } catch (err) {
+    console.error("[email] Failed to send claim notification:", err);
+  }
+}
+
+/**
+ * Notifies the family that a new memory was shared. For privacy, the email
+ * contains ONLY a heads-up and a secure link to the dashboard — never the
+ * story text or any photo. Goes to NOTIFY_EMAIL and, if set, NATALIA_EMAIL.
+ */
+export async function sendMemoryNotification(args: {
+  baseUrl: string;
+  authorName?: string | null;
+  hasStory: boolean;
+  photoCount: number;
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from =
+    process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
+
+  const recipients = Array.from(
+    new Set(
+      [process.env.NOTIFY_EMAIL, process.env.NATALIA_EMAIL].filter(
+        Boolean
+      ) as string[]
+    )
+  );
+
+  if (!apiKey || recipients.length === 0) return;
+
+  const { baseUrl, authorName, hasStory, photoCount } = args;
+  const who = authorName ? authorName : "Someone";
+  const parts: string[] = [];
+  if (hasStory) parts.push("a story");
+  if (photoCount > 0)
+    parts.push(`${photoCount} photo${photoCount === 1 ? "" : "s"}`);
+  const what = parts.length ? parts.join(" and ") : "a memory";
+
+  const link = `${baseUrl.replace(/\/$/, "")}/admin`;
+
+  const text = [
+    `${who} just shared ${what} of Joe for the kids.`,
+    ``,
+    `View it privately in the dashboard: ${link}`,
+    ``,
+    `For privacy, the memory itself isn't included in this email.`,
+  ].join("\n");
+
+  const html = `
+    <div style="font-family: Georgia, serif; color: #3E3A33; line-height: 1.6;">
+      <h2 style="color:#5F7359; margin-bottom: 4px;">A new memory was shared 💛</h2>
+      <p><strong>${escapeHtml(who)}</strong> just shared ${escapeHtml(
+        what
+      )} of Joe for the kids.</p>
+      <p>
+        <a href="${escapeHtml(link)}"
+           style="display:inline-block; background:#8FA98A; color:#FBF8F1; text-decoration:none; padding:10px 18px; border-radius:999px; font-weight:600;">
+          View it privately in the dashboard
+        </a>
+      </p>
+      <p style="color:#6E6858; font-size: 14px;">For privacy, the memory itself isn't included in this email.</p>
+    </div>
+  `;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from,
+      to: recipients,
+      subject: "A new memory of Joe was shared",
+      text,
+      html,
+    });
+  } catch (err) {
+    console.error("[email] Failed to send memory notification:", err);
+  }
+}
+
+function escapeHtml(input: string): string {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}

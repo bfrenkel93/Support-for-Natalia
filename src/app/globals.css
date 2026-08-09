@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Offset anchor jumps so the sticky nav doesn't cover section headings. */
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-serif;
+  }
+
+  /* Respect people who prefer reduced motion. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  .section-anchor {
+    /* Extra safety for scroll offset on individual sections. */
+    scroll-margin-top: 5.5rem;
+  }
+
+  .prose-warm p {
+    @apply mb-4 leading-relaxed text-ink-soft;
+  }
+  .prose-warm p:last-child {
+    @apply mb-0;
+  }
+}
