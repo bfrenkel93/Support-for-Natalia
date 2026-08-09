@@ -5,27 +5,47 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* Offset anchor jumps so the sticky nav doesn't cover section headings. */
     scroll-padding-top: 5rem;
   }
 
   body {
-    @apply bg-cream text-ink font-sans antialiased;
+    @apply bg-parchment text-ink font-sans antialiased;
+    position: relative;
+  }
+
+  /* Barely-perceptible handmade-paper / plaster grain over the whole page. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Keep real content above the grain. */
+  body > * {
+    position: relative;
+    z-index: 1;
   }
 
   h1,
   h2,
   h3 {
-    @apply font-serif;
+    @apply font-serif font-normal;
     font-optical-sizing: auto;
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background: rgba(139, 106, 67, 0.18);
   }
 
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
-    }
-    .animate-fade-up {
-      animation: none !important;
     }
   }
 }
@@ -35,29 +55,77 @@
     scroll-margin-top: 5.5rem;
   }
 
-  /* Comfortable reading measure for body copy. */
+  /* Small uppercase editorial label. */
+  .eyebrow {
+    @apply text-[0.7rem] font-medium uppercase tracking-label text-bronze;
+  }
+
+  /* Large, faint serif section number (01, 02 …). */
+  .section-num {
+    @apply font-serif text-2xl text-bronze-faint;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Hairline rule. */
+  .rule {
+    @apply h-px w-full bg-line;
+  }
+
   .prose-warm p {
-    @apply mb-4 leading-relaxed text-ink-soft;
+    @apply mb-5 leading-[1.85] text-ink-soft;
   }
   .prose-warm p:last-child {
     @apply mb-0;
   }
 
-  /* Small editorial eyebrow label. */
-  .eyebrow {
-    @apply text-xs font-bold uppercase tracking-label text-clay-dark;
+  /* --- Buttons: restrained, rectangular, letter-spaced --- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-charcoal px-7 py-3.5
+      text-[0.72rem] font-medium uppercase tracking-wide text-parchment
+      transition-colors duration-500 hover:bg-charcoal-soft;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-line-strong
+      bg-transparent px-7 py-3.5 text-[0.72rem] font-medium uppercase tracking-wide text-ink
+      transition-colors duration-500 hover:bg-bone;
+  }
+  .btn-link {
+    @apply text-[0.72rem] font-medium uppercase tracking-wide text-bronze
+      underline decoration-line-strong underline-offset-4 transition-colors hover:text-bronze-soft;
   }
 
-  /* Delicate section header used across the page. */
-  .rule {
-    @apply h-px w-full bg-line;
+  /* --- Forms: quiet underline fields --- */
+  .field-label {
+    @apply mb-2 block text-[0.68rem] font-medium uppercase tracking-wide text-ink-faint;
+  }
+  .field {
+    @apply w-full rounded-none border-0 border-b border-line-strong bg-transparent px-0 py-2.5
+      text-ink outline-none transition-colors placeholder:text-ink-faint/70
+      focus:border-bronze;
+  }
+  textarea.field {
+    @apply resize-y leading-relaxed;
   }
 
-  /* Card treatment: thin warm border, soft shadow, gentle hover lift. */
-  .card {
-    @apply rounded-xl2 border border-line bg-cream-soft shadow-card transition-all duration-300;
+  /* --- Scroll reveal --- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 1s ease, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
   }
-  .card-hover:hover {
-    @apply -translate-y-0.5 shadow-lift;
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    .animate-fade-up {
+      animation: none !important;
+    }
   }
 }

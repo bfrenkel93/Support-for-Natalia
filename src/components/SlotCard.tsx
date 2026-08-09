@@ -3,19 +3,10 @@ import SignupForm from "./SignupForm";
 import CalendarButtons from "./CalendarButtons";
 import { getCalendarInfo } from "@/lib/calendar";
 
-const ACCENT = {
-  kids: {
-    bg: "bg-sage hover:bg-sage-dark",
-    chip: "bg-sage-light text-sage-dark",
-    claimed: "border-sage/40 bg-sage-light/30",
-  },
-  support: {
-    bg: "bg-softblue hover:bg-softblue-dark",
-    chip: "bg-softblue-light text-softblue-dark",
-    claimed: "border-softblue/40 bg-softblue-light/30",
-  },
-} as const;
-
+/**
+ * A single visit/meal as an editorial row — date set in serif, a restrained
+ * action on the right, hairline divider. No cards, no colour blocks.
+ */
 export default function SlotCard({
   slot,
   familyAddress,
@@ -25,73 +16,67 @@ export default function SlotCard({
   familyAddress: string;
   allergyNote?: string;
 }) {
-  const accent = ACCENT[slot.category];
-  const title = slot.label || formatDate(slot.event_date) || "Open slot";
   const cal = getCalendarInfo(slot, familyAddress, allergyNote);
+  const parts = splitDate(slot);
 
   return (
-    <div
-      className={`flex flex-col gap-4 p-6 ${
-        slot.claimed
-          ? `rounded-xl2 border shadow-card ${accent.claimed}`
-          : "card card-hover"
-      }`}
-    >
-      <div>
-        <h3 className="font-serif text-xl text-ink">{title}</h3>
-        {slot.description && (
-          <p className="mt-1.5 text-sm text-ink-soft">{slot.description}</p>
-        )}
-      </div>
+    <article className="border-t border-line/70 py-8 first:border-t-0 first:pt-0">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          {parts.weekday && (
+            <p className="text-[0.68rem] uppercase tracking-wide text-ink-faint">
+              {parts.weekday}
+            </p>
+          )}
+          <h3 className="mt-1 font-serif text-2xl font-light text-ink">
+            {parts.main}
+          </h3>
+          {slot.description && (
+            <p className="mt-1.5 text-sm text-ink-soft">{slot.description}</p>
+          )}
+        </div>
 
-      {slot.claimed ? (
-        <div className="mt-auto space-y-3">
-          <div>
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${accent.chip}`}
-            >
-              <span aria-hidden="true">✓</span>
-              {slot.claimed_private || !slot.claimed_name
-                ? "Claimed"
-                : `Claimed by ${slot.claimed_name}`}
-            </span>
-            {!slot.claimed_private && slot.claimed_note && (
-              <p className="mt-2 text-sm italic text-ink-soft">
-                “{slot.claimed_note}”
+        <div className="flex flex-col items-start gap-3 sm:items-end">
+          {slot.claimed ? (
+            <div className="sm:text-right">
+              <p className="text-[0.68rem] uppercase tracking-wide text-bronze">
+                {slot.claimed_private || !slot.claimed_name
+                  ? "Claimed"
+                  : `Claimed · ${slot.claimed_name}`}
               </p>
-            )}
-          </div>
+              {!slot.claimed_private && slot.claimed_note && (
+                <p className="mt-1 max-w-xs text-sm italic text-ink-soft">
+                  “{slot.claimed_note}”
+                </p>
+              )}
+            </div>
+          ) : (
+            <SignupForm slotId={slot.id} category={slot.category} />
+          )}
+
           <CalendarButtons
             googleUrl={cal?.googleUrl ?? null}
             icsPath={cal?.icsPath ?? null}
+            compact
           />
         </div>
-      ) : (
-        <div className="mt-auto space-y-3">
-          <SignupForm
-            slotId={slot.id}
-            category={slot.category}
-            accentBg={accent.bg}
-          />
-          <CalendarButtons
-            googleUrl={cal?.googleUrl ?? null}
-            icsPath={cal?.icsPath ?? null}
-          />
-        </div>
-      )}
-    </div>
+      </div>
+    </article>
   );
 }
 
-function formatDate(value: string | null): string | null {
-  if (!value) return null;
-  const [y, m, d] = value.split("-").map(Number);
-  if (!y || !m || !d) return value;
+/** Split a label/date into a small weekday line + a serif main line. */
+function splitDate(slot: Slot): { weekday: string | null; main: string } {
+  if (slot.label) return { weekday: null, main: slot.label };
+  if (!slot.event_date) return { weekday: null, main: "Open" };
+  const [y, m, d] = slot.event_date.split("-").map(Number);
   const date = new Date(Date.UTC(y, m - 1, d));
-  return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  });
+  return {
+    weekday: date.toLocaleDateString("en-US", { weekday: "long", timeZone: "UTC" }),
+    main: date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      timeZone: "UTC",
+    }),
+  };
 }

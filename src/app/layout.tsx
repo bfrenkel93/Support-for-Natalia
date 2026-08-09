@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
-import { Fraunces, Nunito_Sans } from "next/font/google";
+import { Spectral, Archivo } from "next/font/google";
 import "./globals.css";
 import { getSettings } from "@/lib/settings";
 
-const fraunces = Fraunces({
+// Editorial serif for headings & pull-quotes — calm, architectural, not romantic.
+const spectral = Spectral({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-fraunces",
-  weight: ["400", "500", "600"],
+  variable: "--font-serif",
+  weight: ["300", "400", "500"],
   style: ["normal", "italic"],
 });
 
-const nunito = Nunito_Sans({
+// Restrained modern grotesque for nav, labels, dates, buttons & body.
+const archivo = Archivo({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-nunito",
-  weight: ["400", "600", "700"],
-  adjustFontFallback: false,
+  variable: "--font-sans",
+  weight: ["400", "500", "600"],
 });
 
 // Keep the whole site out of search engines.
@@ -46,12 +47,12 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className={`${fraunces.variable} ${nunito.variable}`}>
+    <html lang="en" className={`${spectral.variable} ${archivo.variable}`}>
       <head>
         <title>{title}</title>
         <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
       </head>
-      <body className="min-h-screen bg-cream">{children}</body>
+      <body className="min-h-screen bg-parchment">{children}</body>
     </html>
   );
 }

@@ -1,7 +1,6 @@
 /**
- * "Add to calendar" links — Google Calendar (opens a pre-filled event) and
- * Apple/iCloud (downloads an .ics that also works with Outlook). Renders
- * nothing when there's no calendar info (e.g. an item with no date).
+ * Add-to-calendar links — restrained text links (Google + Apple/iCloud .ics).
+ * Renders nothing when there's no calendar info.
  */
 export default function CalendarButtons({
   googleUrl,
@@ -15,21 +14,21 @@ export default function CalendarButtons({
   if (!googleUrl || !icsPath) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-      {!compact && <span className="text-ink-soft">Add to calendar:</span>}
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.68rem] uppercase tracking-wide text-ink-faint">
+      {!compact && <span>Add to calendar</span>}
       <a
         href={googleUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 font-semibold text-sage-dark underline underline-offset-2 hover:text-sage"
+        className="underline decoration-line-strong underline-offset-4 transition-colors hover:text-bronze"
       >
-        <span aria-hidden="true">📅</span> Google
+        Google
       </a>
       <a
         href={icsPath}
-        className="inline-flex items-center gap-1 font-semibold text-softblue-dark underline underline-offset-2 hover:text-softblue"
+        className="underline decoration-line-strong underline-offset-4 transition-colors hover:text-bronze"
       >
-        <span aria-hidden="true">🗓️</span> Apple / iCloud
+        Apple
       </a>
     </div>
   );

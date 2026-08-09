@@ -1,4 +1,5 @@
 import type { Slot, FamilyEvent } from "@/lib/supabase";
+import Reveal from "./Reveal";
 
 type DayItem = {
   type: "kids" | "support" | "event";
@@ -7,10 +8,10 @@ type DayItem = {
   href: string;
 };
 
-const TYPE_STYLE: Record<DayItem["type"], string> = {
-  kids: "bg-sage-light text-sage-dark",
-  support: "bg-softblue-light text-softblue-dark",
-  event: "bg-clay/15 text-clay-dark",
+const DOT: Record<DayItem["type"], string> = {
+  support: "bg-taupe",
+  kids: "bg-olive",
+  event: "bg-bronze",
 };
 
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
@@ -30,7 +31,6 @@ export default function CalendarView({
   slots: Slot[];
   events: FamilyEvent[];
 }) {
-  // Bucket every dated item by its YYYY-MM-DD date.
   const byDate = new Map<string, DayItem[]>();
   const add = (date: string | null, item: DayItem) => {
     if (!date) return;
@@ -52,7 +52,7 @@ export default function CalendarView({
     } else {
       add(s.event_date, {
         type: "kids",
-        label: s.claimed ? "Kids visit · covered" : "Kids visit open",
+        label: s.claimed ? "Kids visit · covered" : "Kids visit",
         covered: s.claimed,
         href: "#kids",
       });
@@ -69,65 +69,52 @@ export default function CalendarView({
 
   if (byDate.size === 0) return null;
 
-  // Which months to show: current month through the last month that has an
-  // item (capped at 6 months so the page never runs away).
   const now = new Date();
-  const startY = now.getFullYear();
-  const startM = now.getMonth();
-  const startKey = startY * 12 + startM;
-
-  const monthKeys = new Set<number>();
+  const startKey = now.getFullYear() * 12 + now.getMonth();
+  const monthKeys = new Set<number>([startKey]);
   for (const date of byDate.keys()) {
     const [y, m] = date.split("-").map(Number);
     const key = y * 12 + (m - 1);
     if (key >= startKey) monthKeys.add(key);
   }
-  monthKeys.add(startKey); // always show the current month
-
   const months = Array.from(monthKeys)
     .sort((a, b) => a - b)
-    .slice(0, 6)
+    .slice(0, 4)
     .map((key) => ({ year: Math.floor(key / 12), month: key % 12 }));
 
   const todayStr = ymd(now.getFullYear(), now.getMonth(), now.getDate());
 
   return (
-    <section id="calendar" className="section-anchor bg-cream py-16 sm:py-24">
-      <div className="mx-auto max-w-5xl px-5 sm:px-6">
-        <p className="eyebrow mb-3">At a glance</p>
-        <h2 className="font-serif text-3xl text-ink sm:text-[2.6rem]">
-          The Calendar
-        </h2>
-        <p className="mt-4 max-w-measure text-lg leading-relaxed text-ink-soft">
-          Everything in one place, so you can see what&apos;s already covered
-          before you sign up. Tap any day to jump to that section.
-        </p>
+    <section id="calendar" className="section-anchor bg-parchment py-24 sm:py-28">
+      <div className="mx-auto max-w-content px-6 sm:px-10">
+        <Reveal>
+          <p className="eyebrow mb-4">At a glance</p>
+          <h2 className="max-w-measure font-serif text-[2rem] font-light leading-tight text-ink sm:text-[2.4rem]">
+            Everything, in one quiet view
+          </h2>
+          <p className="mt-4 max-w-measure text-[1.02rem] leading-[1.85] text-ink-soft">
+            So you can see what&apos;s already been taken care of before you sign
+            up. Select any day to jump to that section.
+          </p>
 
-        {/* Legend */}
-        <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-soft">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-full bg-softblue" /> Meals &amp; visits
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-full bg-sage" /> Kids weekends
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-full bg-clay" /> Events
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span aria-hidden="true">✓</span> already covered
-          </span>
-        </div>
+          <div className="mt-7 flex flex-wrap gap-x-7 gap-y-2 text-[0.7rem] uppercase tracking-wide text-ink-faint">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-taupe" /> Meals &amp; visits
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-olive" /> Kids weekends
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-bronze" /> Events
+            </span>
+          </div>
+        </Reveal>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <div className="mt-12 grid gap-x-14 gap-y-12 sm:grid-cols-2">
           {months.map(({ year, month }) => (
-            <Month
-              key={`${year}-${month}`}
-              year={year}
-              month={month}
-              byDate={byDate}
-              todayStr={todayStr}
-            />
+            <Reveal key={`${year}-${month}`}>
+              <Month year={year} month={month} byDate={byDate} todayStr={todayStr} />
+            </Reveal>
           ))}
         </div>
       </div>
@@ -153,54 +140,48 @@ function Month({
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
   return (
-    <div className="rounded-xl2 border border-line bg-cream-soft p-4 shadow-card">
-      <h3 className="mb-3 font-serif text-lg text-ink">
-        {MONTH_NAMES[month]} {year}
+    <div>
+      <h3 className="mb-4 font-serif text-lg font-normal text-ink">
+        {MONTH_NAMES[month]}{" "}
+        <span className="text-ink-faint">{year}</span>
       </h3>
-      <div className="grid grid-cols-7 gap-1 text-center text-[0.65rem] font-semibold uppercase text-ink-soft">
+      <div className="grid grid-cols-7 border-t border-line/70 pt-3 text-center text-[0.6rem] uppercase tracking-wide text-ink-faint">
         {WEEKDAYS.map((w, i) => (
-          <div key={i} className="py-1">
+          <div key={i} className="pb-2">
             {w}
           </div>
         ))}
       </div>
-      <div className="mt-1 grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-px">
         {cells.map((d, i) => {
-          if (d === null) return <div key={i} />;
+          if (d === null) return <div key={i} className="min-h-[3.4rem]" />;
           const dateStr = ymd(year, month, d);
           const items = byDate.get(dateStr) || [];
           const isToday = dateStr === todayStr;
           return (
-            <div
-              key={i}
-              className={`min-h-[3.2rem] rounded-lg border p-1 text-left ${
-                items.length
-                  ? "border-line bg-cream"
-                  : "border-transparent"
-              } ${isToday ? "ring-2 ring-clay/40" : ""}`}
-            >
+            <div key={i} className="min-h-[3.4rem] py-1.5">
               <div
-                className={`text-[0.7rem] ${
-                  isToday ? "font-bold text-clay-dark" : "text-ink-soft"
+                className={`text-[0.68rem] tabular-nums ${
+                  isToday ? "font-semibold text-bronze" : "text-ink-faint"
                 }`}
               >
                 {d}
               </div>
-              <div className="mt-0.5 space-y-0.5">
-                {items.slice(0, 3).map((it, j) => (
+              <div className="mt-1 space-y-1">
+                {items.slice(0, 2).map((it, j) => (
                   <a
                     key={j}
                     href={it.href}
                     title={it.label}
-                    className={`block truncate rounded px-1 py-0.5 text-[0.6rem] font-medium leading-tight ${TYPE_STYLE[it.type]}`}
+                    className="flex items-center gap-1 text-[0.58rem] leading-tight text-ink-soft transition-colors hover:text-bronze"
                   >
-                    {it.covered ? "✓ " : ""}
-                    {it.label}
+                    <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${DOT[it.type]}`} />
+                    <span className="truncate">{it.label}</span>
                   </a>
                 ))}
-                {items.length > 3 && (
-                  <span className="block px-1 text-[0.6rem] text-ink-soft">
-                    +{items.length - 3} more
+                {items.length > 2 && (
+                  <span className="block text-[0.58rem] text-ink-faint">
+                    +{items.length - 2}
                   </span>
                 )}
               </div>

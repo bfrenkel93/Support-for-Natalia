@@ -8,61 +8,63 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm, muted, non-clinical palette.
-        cream: {
-          DEFAULT: "#F7F3EA",
-          soft: "#FBF8F1",
-          deep: "#EFE7D7",
-        },
-        sage: {
-          light: "#DCE5D6",
-          DEFAULT: "#8FA98A",
-          dark: "#5F7359",
-        },
-        softblue: {
-          light: "#DCE6EB",
-          DEFAULT: "#87A5B3",
-          dark: "#5E7E8D",
-        },
-        clay: {
-          DEFAULT: "#C4876A",
-          dark: "#A56A4F",
+        // Warm architectural neutrals — sun-warmed, never pastel, never bright white.
+        parchment: "#F3EEE3", // page base
+        ivory: "#F7F2E8", // lightest surface
+        limestone: "#ECE4D4",
+        bone: "#EEE8DB",
+        sand: "#E1D7C1",
+        mushroom: "#CBBEA5",
+        taupe: "#A99B84",
+        warmgray: "#8A8173",
+        charcoal: {
+          DEFAULT: "#2A2620", // deep, not black-black
+          soft: "#3B362E",
         },
         ink: {
-          DEFAULT: "#3E3A33",
-          soft: "#6E6858",
+          DEFAULT: "#332F28",
+          soft: "#6B6356",
+          faint: "#9A9082",
         },
+        bronze: {
+          DEFAULT: "#8B6A43", // weathered bronze / tobacco
+          soft: "#A07E54",
+          faint: "#B79B78",
+        },
+        olive: "#6C6A4C", // used extremely sparingly
         line: {
-          DEFAULT: "#E4DAC7",
-          strong: "#D7CAB1",
+          DEFAULT: "#D8CDB7",
+          soft: "#E5DCCA",
+          strong: "#C6B99F",
         },
       },
       fontFamily: {
-        serif: ["var(--font-fraunces)", "Georgia", "serif"],
-        sans: ["var(--font-nunito)", "system-ui", "sans-serif"],
+        serif: ["var(--font-serif)", "Spectral", "Georgia", "serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
       },
       letterSpacing: {
-        label: "0.2em",
-      },
-      boxShadow: {
-        soft: "0 10px 30px -12px rgba(94, 115, 89, 0.25)",
-        card: "0 1px 2px rgba(62,58,51,0.04), 0 18px 40px -28px rgba(95,115,89,0.35)",
-        lift: "0 1px 2px rgba(62,58,51,0.05), 0 26px 50px -30px rgba(95,115,89,0.45)",
+        label: "0.24em",
+        wide: "0.14em",
       },
       borderRadius: {
-        xl2: "1.25rem",
+        sm: "2px",
+      },
+      boxShadow: {
+        // Reserved for photography only, and used sparingly.
+        quiet: "0 30px 60px -40px rgba(42,38,32,0.45)",
       },
       maxWidth: {
-        measure: "38rem",
+        measure: "34rem",
+        content: "75rem",
       },
       keyframes: {
         "fade-up": {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "0%": { opacity: "0", transform: "translateY(14px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },
       animation: {
-        "fade-up": "fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "fade-up": "fade-up 1s cubic-bezier(0.22, 1, 0.36, 1) both",
       },
     },
   },

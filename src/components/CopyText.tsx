@@ -24,10 +24,10 @@ export default function CopyText({
           // Clipboard unavailable — the value is still visible to type in.
         }
       }}
-      className={`underline decoration-white/40 underline-offset-2 ${className}`}
+      className={`underline decoration-line-strong underline-offset-4 transition-colors hover:text-bronze ${className}`}
       title="Tap to copy"
     >
-      {copied ? "Copied!" : value}
+      {copied ? "Copied" : `${value} · copy`}
     </button>
   );
 }

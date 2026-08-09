@@ -6,14 +6,10 @@ import { claimSlot, type ClaimState } from "@/app/actions";
 
 const initialState: ClaimState = { ok: false, message: "" };
 
-function SubmitButton({ accent }: { accent: string }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className={`rounded-full px-5 py-2 font-semibold text-cream-soft shadow-soft transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 ${accent}`}
-    >
+    <button type="submit" disabled={pending} className="btn disabled:opacity-50">
       {pending ? "Saving…" : "Confirm my visit"}
     </button>
   );
@@ -22,11 +18,9 @@ function SubmitButton({ accent }: { accent: string }) {
 export default function SignupForm({
   slotId,
   category,
-  accentBg,
 }: {
   slotId: string;
   category: "kids" | "support";
-  accentBg: string;
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useFormState(claimSlot, initialState);
@@ -36,12 +30,9 @@ export default function SignupForm({
     if (open && firstFieldRef.current) firstFieldRef.current.focus();
   }, [open]);
 
-  // On a successful claim the page revalidates and this card re-renders as
-  // "claimed", so we don't need to manage success UI here — but if it lingers,
-  // show the thank-you message.
   if (state.ok && state.slotId === slotId) {
     return (
-      <p className="mt-1 whitespace-pre-line rounded-xl bg-sage-light/70 px-4 py-3 text-sm leading-relaxed text-sage-dark">
+      <p className="max-w-sm whitespace-pre-line text-sm leading-relaxed text-bronze">
         {state.message}
       </p>
     );
@@ -52,9 +43,9 @@ export default function SignupForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`rounded-full px-5 py-2 font-semibold text-cream-soft shadow-soft transition-transform hover:-translate-y-0.5 ${accentBg}`}
+        className="btn-link"
       >
-        Sign up
+        Sign up →
       </button>
     );
   }
@@ -62,13 +53,12 @@ export default function SignupForm({
   const showError = !state.ok && state.message && state.slotId === slotId;
 
   return (
-    <form action={formAction} className="mt-1 w-full space-y-3">
+    <form action={formAction} className="w-full space-y-5 sm:w-80">
       <input type="hidden" name="slotId" value={slotId} />
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-ink">
-          Your name
-          <span className="text-clay"> *</span>
+        <label className="field-label">
+          Your name<span className="text-bronze"> *</span>
         </label>
         <input
           ref={firstFieldRef}
@@ -76,46 +66,34 @@ export default function SignupForm({
           required
           maxLength={120}
           autoComplete="name"
-          className="w-full rounded-xl border border-cream-deep bg-cream-soft px-3 py-2 text-ink outline-none focus:border-sage focus:ring-2 focus:ring-sage/30"
+          className="field"
           placeholder="First and last name"
         />
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-ink">
-          Email <span className="font-normal text-ink-soft">(optional)</span>
-        </label>
-        <input
-          name="email"
-          type="email"
-          autoComplete="email"
-          className="w-full rounded-xl border border-cream-deep bg-cream-soft px-3 py-2 text-ink outline-none focus:border-sage focus:ring-2 focus:ring-sage/30"
-          placeholder="you@example.com"
-        />
-        <p className="mt-1 text-xs text-ink-soft">
-          Only used if we need to reach you about your date. Never shown
-          publicly.
+        <label className="field-label">Email — optional</label>
+        <input name="email" type="email" autoComplete="email" className="field" placeholder="you@example.com" />
+        <p className="mt-1.5 text-xs text-ink-faint">
+          Only used if we need to reach you. Never shown publicly.
         </p>
       </div>
 
       {category === "support" && (
-        <p className="rounded-xl bg-clay/10 px-3 py-2 text-xs text-clay-dark">
-          ⚠️ If you&apos;re bringing food, please note Alexander is allergic to
+        <p className="border-l-2 border-bronze/40 pl-3 text-xs leading-relaxed text-ink-soft">
+          If you&apos;re bringing food, please note Alexander is allergic to
           cashews &amp; pistachios.
         </p>
       )}
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-ink">
-          {category === "support"
-            ? "What are you bringing / planning? "
-            : "A note "}
-          <span className="font-normal text-ink-soft">(optional)</span>
+        <label className="field-label">
+          {category === "support" ? "What you're bringing / planning" : "A note"} — optional
         </label>
         <input
           name="note"
           maxLength={200}
-          className="w-full rounded-xl border border-cream-deep bg-cream-soft px-3 py-2 text-ink outline-none focus:border-sage focus:ring-2 focus:ring-sage/30"
+          className="field"
           placeholder={
             category === "support"
               ? "e.g. Bringing dinner around 6pm"
@@ -124,27 +102,21 @@ export default function SignupForm({
         />
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-ink-soft">
-        <input
-          type="checkbox"
-          name="private"
-          className="h-4 w-4 rounded border-cream-deep text-sage focus:ring-sage/40"
-        />
+      <label className="flex items-center gap-2.5 text-sm text-ink-soft">
+        <input type="checkbox" name="private" className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
         Keep my name private — just show “Claimed”
       </label>
 
       {showError && (
-        <p className="rounded-xl bg-clay/10 px-3 py-2 text-sm text-clay-dark">
-          {state.message}
-        </p>
+        <p className="text-sm text-bronze">{state.message}</p>
       )}
 
-      <div className="flex items-center gap-3 pt-1">
-        <SubmitButton accent={accentBg} />
+      <div className="flex items-center gap-5 pt-1">
+        <SubmitButton />
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-sm text-ink-soft underline underline-offset-2 hover:text-ink"
+          className="text-xs uppercase tracking-wide text-ink-faint underline underline-offset-4 hover:text-ink"
         >
           Cancel
         </button>

@@ -6,6 +6,7 @@ import EventsSection from "@/components/EventsSection";
 import MealHelp from "@/components/MealHelp";
 import StorySection from "@/components/StorySection";
 import GiftsSection from "@/components/GiftsSection";
+import SectionShell from "@/components/SectionShell";
 import RichText from "@/components/RichText";
 import { getSettings } from "@/lib/settings";
 import { getEvents } from "@/lib/events";
@@ -50,14 +51,15 @@ export default async function Home() {
 
         <SlotSection
           id="kids"
-          eyebrow="Once a month, on a weekend"
+          number="01"
+          label="For the Kids"
           title="Visits for the Kids"
           subtitle={settings.kids_subtitle}
           intro={settings.kids_intro}
           chooseNote={settings.kids_choose_note}
           slots={kids}
-          emptyText="No open weekends listed just yet — check back soon."
-          tint="sage"
+          emptyText="No open weekends listed just yet — please check back soon."
+          tone="parchment"
           familyAddress={familyAddress}
         />
 
@@ -65,85 +67,81 @@ export default async function Home() {
           events={events}
           settings={settings}
           familyAddress={familyAddress}
+          number="02"
         />
 
         <SlotSection
           id="support"
-          eyebrow="An ongoing rotation"
+          number="03"
+          label="For Natalia"
           title="Support for Natalia"
           subtitle={settings.support_subtitle}
           intro={settings.support_intro}
           chooseNote={settings.support_choose_note}
           slots={support}
-          emptyText="No open days listed just yet — check back soon."
-          tint="sage"
+          emptyText="No open days listed just yet — please check back soon."
+          tone="parchment"
           familyAddress={familyAddress}
           allergyNote={settings.allergy_note}
           extra={
             familyAddress ? (
-              <MealHelp
-                address={familyAddress}
-                allergyNote={settings.allergy_note}
-              />
+              <MealHelp address={familyAddress} allergyNote={settings.allergy_note} />
             ) : null
           }
         />
 
-        <GiftsSection gifts={gifts} settings={settings} />
+        <GiftsSection gifts={gifts} settings={settings} number="04" />
 
-        <StorySection settings={settings} />
+        <StorySection settings={settings} number="05" />
 
-        {/* Other ways to help */}
-        <section
+        <SectionShell
           id="help"
-          className="section-anchor bg-cream-soft py-16 sm:py-24"
+          number="06"
+          label="Other Ways"
+          title="Other Ways to Help"
+          tone="parchment"
         >
-          <div className="mx-auto max-w-3xl px-5 sm:px-6">
-            <p className="eyebrow mb-3">Every bit helps</p>
-            <h2 className="font-serif text-3xl text-ink sm:text-[2.6rem]">
-              Other Ways to Help
-            </h2>
-            <div className="mt-5 text-lg leading-relaxed">
-              <RichText text={settings.other_ways} />
-            </div>
+          <div className="text-[1.02rem] leading-[1.9]">
+            <RichText text={settings.other_ways} />
           </div>
-        </section>
+        </SectionShell>
       </main>
 
-      <footer className="border-t border-line bg-cream-deep/40 py-12">
-        <div className="mx-auto max-w-3xl px-5 text-center sm:px-6">
-          <span className="text-clay" aria-hidden="true">
-            ✦
-          </span>
-          <div className="prose-warm mx-auto mt-3">
-            <RichText text={settings.footer_note} />
-          </div>
-          {settings.contact_email && (
-            <p className="mt-3 text-sm text-ink-soft">
-              Questions?{" "}
-              <a
-                href={`mailto:${settings.contact_email}`}
-                className="font-semibold text-sage-dark underline underline-offset-2"
-              >
-                {settings.contact_email}
-              </a>
-            </p>
-          )}
-        </div>
-      </footer>
+      <Footer settings={settings} />
     </>
+  );
+}
+
+function Footer({ settings }: { settings: Record<string, string> }) {
+  return (
+    <footer className="bg-charcoal py-20 text-parchment">
+      <div className="mx-auto max-w-content px-6 text-center sm:px-10">
+        <p className="whitespace-pre-line font-serif text-xl font-light leading-relaxed text-parchment/90">
+          {settings.footer_note}
+        </p>
+        {settings.contact_email && (
+          <p className="mt-6 text-[0.72rem] uppercase tracking-wide text-parchment/50">
+            <a
+              href={`mailto:${settings.contact_email}`}
+              className="underline decoration-parchment/30 underline-offset-4 transition-colors hover:text-parchment"
+            >
+              {settings.contact_email}
+            </a>
+          </p>
+        )}
+      </div>
+    </footer>
   );
 }
 
 function SetupNotice() {
   return (
-    <div className="mx-auto max-w-5xl px-5 py-6 sm:px-6">
-      <div className="rounded-xl2 border border-clay/30 bg-clay/5 px-5 py-4 text-sm text-clay-dark">
-        <strong>Almost ready:</strong> connect Supabase (set{" "}
-        <code>NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+    <div className="mx-auto max-w-content px-6 py-6 sm:px-10">
+      <div className="border-l-2 border-bronze/50 bg-bone/60 px-5 py-4 text-sm text-ink-soft">
+        <strong className="font-semibold text-ink">Almost ready:</strong> connect
+        Supabase (set <code>NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
         <code>SUPABASE_SERVICE_ROLE_KEY</code>) to turn on sign-ups. See{" "}
-        <code>README.md</code> for the two-minute setup. This notice only shows
-        until it&apos;s configured.
+        <code>README.md</code>. This notice only shows until it&apos;s configured.
       </div>
     </div>
   );

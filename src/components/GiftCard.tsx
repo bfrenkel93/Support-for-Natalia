@@ -15,74 +15,58 @@ export default function GiftCard({ gift }: { gift: Gift }) {
   const link = gift.link?.trim();
 
   return (
-    <div className="card flex flex-col gap-4 p-6">
-      <div>
-        <div className="flex items-baseline justify-between gap-3">
-          <h3 className="font-serif text-xl text-ink">{gift.title}</h3>
-          {gift.cost != null && (
-            <span className="shrink-0 text-sm font-semibold text-ink-soft">
-              {money(gift.cost)}
-            </span>
-          )}
-        </div>
-        {gift.description && (
-          <p className="mt-1.5 text-sm text-ink-soft">{gift.description}</p>
+    <article className="border-t border-line/70 py-8 first:border-t-0 first:pt-0">
+      <div className="flex items-baseline justify-between gap-6">
+        <h3 className="font-serif text-2xl font-light text-ink">{gift.title}</h3>
+        {gift.cost != null && (
+          <span className="shrink-0 text-sm tabular-nums text-ink-faint">
+            {money(gift.cost)}
+          </span>
         )}
       </div>
+      {gift.description && (
+        <p className="mt-1.5 max-w-lg text-sm leading-relaxed text-ink-soft">
+          {gift.description}
+        </p>
+      )}
 
       {pct != null && (
-        <div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-sage-light">
-            <div
-              className="h-full rounded-full bg-sage transition-all"
-              style={{ width: `${pct}%` }}
-            />
+        <div className="mt-5 max-w-sm">
+          <div className="h-px w-full bg-line">
+            <div className="h-px bg-bronze transition-all" style={{ width: `${pct}%` }} />
           </div>
-          <p className="mt-1.5 text-xs text-ink-soft">
-            {money(pledgedTotal)} of {money(gift.cost!)} gathered
-            {contributors > 0 &&
-              ` · ${contributors} ${contributors === 1 ? "person" : "people"}`}
+          <p className="mt-2 text-[0.7rem] uppercase tracking-wide text-ink-faint">
+            {money(pledgedTotal)} of {money(gift.cost!)}
+            {contributors > 0 && ` · ${contributors} ${contributors === 1 ? "person" : "people"}`}
           </p>
         </div>
       )}
       {pct == null && contributors > 0 && (
-        <p className="text-xs text-ink-soft">
-          {contributors} {contributors === 1 ? "person has" : "people have"}{" "}
-          chipped in
+        <p className="mt-4 text-[0.7rem] uppercase tracking-wide text-ink-faint">
+          {contributors} {contributors === 1 ? "person has" : "people have"} chipped in
         </p>
       )}
 
       {contributors > 0 && (
-        <ul className="flex flex-wrap gap-2">
-          {gift.pledges.map((p) => (
-            <li
-              key={p.id}
-              className="rounded-full bg-sage-light/70 px-3 py-1 text-sm text-sage-dark"
-              title={p.note || undefined}
-            >
-              {p.name}
-            </li>
+        <p className="mt-3 text-sm text-ink-soft">
+          {gift.pledges.map((p, i) => (
+            <span key={p.id}>
+              {i > 0 && <span className="text-line-strong"> · </span>}
+              <span title={p.note || undefined}>{p.name}</span>
+            </span>
           ))}
-        </ul>
+        </p>
       )}
 
-      <div className="mt-auto space-y-2">
+      <div className="mt-6 flex flex-col gap-4">
         {link ? (
-          <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-clay px-5 py-2.5 font-semibold text-cream-soft shadow-soft transition-transform hover:-translate-y-0.5 hover:bg-clay-dark"
-          >
-            <span aria-hidden="true">💛</span> Contribute
+          <a href={link} target="_blank" rel="noopener noreferrer" className="btn-ghost self-start">
+            Contribute
           </a>
         ) : (
           <p className="text-sm text-ink-soft">
             Send toward this gift using{" "}
-            <a
-              href="#give-pay"
-              className="font-semibold text-sage-dark underline underline-offset-2"
-            >
+            <a href="#give-pay" className="text-bronze underline decoration-line-strong underline-offset-4">
               Venmo, Cash App, or Zelle
             </a>{" "}
             above.
@@ -90,6 +74,6 @@ export default function GiftCard({ gift }: { gift: Gift }) {
         )}
         <PledgeForm giftId={gift.id} />
       </div>
-    </div>
+    </article>
   );
 }

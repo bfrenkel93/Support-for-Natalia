@@ -55,12 +55,12 @@ export default async function AdminPage() {
         <div className="flex items-center gap-3">
           <a
             href="/"
-            className="text-sm text-sage-dark underline underline-offset-2"
+            className="text-sm text-bronze underline underline-offset-2"
           >
             View the page ↗
           </a>
           <form action={logout}>
-            <button className="rounded-full border border-cream-deep px-4 py-2 text-sm text-ink-soft hover:bg-cream-deep/40">
+            <button className="rounded-full border border-line px-4 py-2 text-sm text-ink-soft hover:bg-bone">
               Log out
             </button>
           </form>
@@ -68,7 +68,7 @@ export default async function AdminPage() {
       </div>
 
       {!isSupabaseConfigured() && (
-        <p className="mt-6 rounded-xl2 border border-clay/30 bg-clay/5 px-5 py-4 text-sm text-clay-dark">
+        <p className="mt-6 rounded-sm border border-line-strong bg-bone/60 px-5 py-4 text-sm text-bronze">
           Supabase isn&apos;t connected yet, so changes can&apos;t be saved. Set
           <code> NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
           <code>SUPABASE_SERVICE_ROLE_KEY</code>, then reload.
@@ -93,7 +93,7 @@ export default async function AdminPage() {
           {memories.length > 0 && (
             <a
               href="/api/memories/export"
-              className="rounded-full border border-cream-deep px-4 py-2 text-sm text-ink-soft hover:bg-cream-deep/40"
+              className="rounded-full border border-line px-4 py-2 text-sm text-ink-soft hover:bg-bone"
             >
               Export stories ↓
             </a>
@@ -112,17 +112,17 @@ export default async function AdminPage() {
             <h2 className="font-serif text-xl text-ink">
               {SECTION_TITLE[category]}
             </h2>
-            <div className="mt-4 overflow-hidden rounded-xl2 border border-cream-deep">
+            <div className="mt-4 overflow-hidden rounded-sm border border-line">
               {list.length === 0 ? (
-                <p className="bg-cream-soft px-5 py-6 text-ink-soft">
+                <p className="bg-bone/40 px-5 py-6 text-ink-soft">
                   No slots yet — add one below.
                 </p>
               ) : (
-                <ul className="divide-y divide-cream-deep">
+                <ul className="divide-y divide-line">
                   {list.map((slot) => (
                     <li
                       key={slot.id}
-                      className="flex flex-col gap-3 bg-cream-soft px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                      className="flex flex-col gap-3 bg-bone/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div className="min-w-0">
                         <p className="font-semibold text-ink">
@@ -136,7 +136,7 @@ export default async function AdminPage() {
                           </p>
                         )}
                         {slot.claimed ? (
-                          <p className="mt-1 text-sm text-sage-dark">
+                          <p className="mt-1 text-sm text-bronze">
                             ✓ {slot.claimed_name || "Claimed"}
                             {slot.claimed_email && ` · ${slot.claimed_email}`}
                             {slot.claimed_private && " · (private)"}
@@ -150,14 +150,14 @@ export default async function AdminPage() {
                         {slot.claimed && (
                           <form action={unclaimSlot}>
                             <input type="hidden" name="id" value={slot.id} />
-                            <button className="rounded-full border border-cream-deep px-3 py-1.5 text-sm text-ink-soft hover:bg-cream-deep/40">
+                            <button className="rounded-full border border-line px-3 py-1.5 text-sm text-ink-soft hover:bg-bone">
                               Reopen
                             </button>
                           </form>
                         )}
                         <form action={deleteSlot}>
                           <input type="hidden" name="id" value={slot.id} />
-                          <button className="rounded-full border border-clay/30 px-3 py-1.5 text-sm text-clay-dark hover:bg-clay/10">
+                          <button className="rounded-full border border-line-strong px-3 py-1.5 text-sm text-bronze hover:bg-bone">
                             Delete
                           </button>
                         </form>
@@ -179,15 +179,15 @@ export default async function AdminPage() {
         <p className="mt-1 text-sm text-ink-soft">
           Games, recitals, milestones. Anyone can RSVP; names show on the page.
         </p>
-        <div className="mt-4 overflow-hidden rounded-xl2 border border-line">
+        <div className="mt-4 overflow-hidden rounded-sm border border-line">
           {events.length === 0 ? (
-            <p className="bg-cream-soft px-5 py-6 text-ink-soft">
+            <p className="bg-bone/40 px-5 py-6 text-ink-soft">
               No events yet — add one below.
             </p>
           ) : (
             <ul className="divide-y divide-line">
               {events.map((ev) => (
-                <li key={ev.id} className="bg-cream-soft px-5 py-4">
+                <li key={ev.id} className="bg-bone/40 px-5 py-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <p className="font-semibold text-ink">{ev.title}</p>
@@ -199,7 +199,7 @@ export default async function AdminPage() {
                     </div>
                     <form action={deleteEvent} className="shrink-0">
                       <input type="hidden" name="id" value={ev.id} />
-                      <button className="rounded-full border border-clay/30 px-3 py-1.5 text-sm text-clay-dark hover:bg-clay/10">
+                      <button className="rounded-full border border-line-strong px-3 py-1.5 text-sm text-bronze hover:bg-bone">
                         Delete event
                       </button>
                     </form>
@@ -213,13 +213,13 @@ export default async function AdminPage() {
                         {ev.rsvps.map((r) => (
                           <li
                             key={r.id}
-                            className="flex items-center gap-1.5 rounded-full bg-clay/10 px-2.5 py-1 text-sm text-clay-dark"
+                            className="flex items-center gap-1.5 rounded-full bg-bone px-2.5 py-1 text-sm text-bronze"
                           >
                             <span title={r.note || undefined}>{r.name}</span>
                             <form action={removeRsvp}>
                               <input type="hidden" name="id" value={r.id} />
                               <button
-                                className="text-clay-dark/70 hover:text-clay-dark"
+                                className="text-ink-faint hover:text-bronze"
                                 title="Remove"
                               >
                                 ✕
@@ -235,7 +235,7 @@ export default async function AdminPage() {
             </ul>
           )}
         </div>
-        <div className="mt-4 rounded-xl2 border border-line bg-cream-soft p-5">
+        <div className="mt-4 rounded-sm border border-line bg-bone/40 p-5">
           <AddEventForm />
         </div>
       </section>
@@ -248,9 +248,9 @@ export default async function AdminPage() {
           Cash App, and Zelle show at the top of this section — edit them under
           “Edit page text” below.
         </p>
-        <div className="mt-4 overflow-hidden rounded-xl2 border border-line">
+        <div className="mt-4 overflow-hidden rounded-sm border border-line">
           {gifts.length === 0 ? (
-            <p className="bg-cream-soft px-5 py-6 text-ink-soft">
+            <p className="bg-bone/40 px-5 py-6 text-ink-soft">
               No gifts yet — add one below.
             </p>
           ) : (
@@ -261,7 +261,7 @@ export default async function AdminPage() {
                   0
                 );
                 return (
-                  <li key={g.id} className="bg-cream-soft px-5 py-4">
+                  <li key={g.id} className="bg-bone/40 px-5 py-4">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
                         <p className="font-semibold text-ink">
@@ -279,7 +279,7 @@ export default async function AdminPage() {
                       </div>
                       <form action={deleteGift} className="shrink-0">
                         <input type="hidden" name="id" value={g.id} />
-                        <button className="rounded-full border border-clay/30 px-3 py-1.5 text-sm text-clay-dark hover:bg-clay/10">
+                        <button className="rounded-full border border-line-strong px-3 py-1.5 text-sm text-bronze hover:bg-bone">
                           Delete gift
                         </button>
                       </form>
@@ -289,7 +289,7 @@ export default async function AdminPage() {
                         {g.pledges.map((p) => (
                           <li
                             key={p.id}
-                            className="flex items-center gap-1.5 rounded-full bg-sage-light/70 px-2.5 py-1 text-sm text-sage-dark"
+                            className="flex items-center gap-1.5 rounded-full bg-bone px-2.5 py-1 text-sm text-bronze"
                           >
                             <span title={p.note || undefined}>
                               {p.name}
@@ -299,7 +299,7 @@ export default async function AdminPage() {
                             <form action={removePledge}>
                               <input type="hidden" name="id" value={p.id} />
                               <button
-                                className="text-sage-dark/70 hover:text-sage-dark"
+                                className="text-ink-faint hover:text-bronze"
                                 title="Remove"
                               >
                                 ✕
@@ -315,7 +315,7 @@ export default async function AdminPage() {
             </ul>
           )}
         </div>
-        <div className="mt-4 rounded-xl2 border border-line bg-cream-soft p-5">
+        <div className="mt-4 rounded-sm border border-line bg-bone/40 p-5">
           <AddGiftForm />
         </div>
       </section>
@@ -323,7 +323,7 @@ export default async function AdminPage() {
       {/* Add a slot */}
       <section className="mt-12">
         <h2 className="font-serif text-xl text-ink">Add a slot</h2>
-        <div className="mt-4 rounded-xl2 border border-cream-deep bg-cream-soft p-5">
+        <div className="mt-4 rounded-sm border border-line bg-bone/40 p-5">
           <AddSlotForm />
         </div>
       </section>
@@ -334,7 +334,7 @@ export default async function AdminPage() {
         <p className="mt-1 text-sm text-ink-soft">
           Change the intro, section copy, and footer — no code needed.
         </p>
-        <div className="mt-4 rounded-xl2 border border-cream-deep bg-cream-soft p-5">
+        <div className="mt-4 rounded-sm border border-line bg-bone/40 p-5">
           <SettingsForm settings={settings} />
         </div>
       </section>

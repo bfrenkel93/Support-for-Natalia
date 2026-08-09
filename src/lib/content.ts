@@ -44,7 +44,7 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
   confirmation_message:
     "Thank you for showing up for Natalia and the kids. Your date is reserved.\n\nSometimes love looks like something enormous. And sometimes it simply looks like being there.",
 
-  stories_title: "Tell the Kids a Story About Their Dad",
+  stories_title: "Tell Them About Their Dad",
   stories_body:
     "There are parts of Joe's life that only you knew.\n\nStories from before the kids were born. Trips you took. Things he said. The way he showed up when someone needed him. The ridiculous things he did that still make you laugh.\n\nHis kids deserve to know those versions of their dad, too.\n\nWe would love to collect the stories, photos, and little memories that might otherwise disappear with time.\n\nIt does not have to be profound. In fact, it probably shouldn't be.\n\nTell them about the time he made everyone laugh until they cried. The trouble you got into together. Something he was weirdly obsessed with. A trip you will never forget. Something he did for you that you never forgot. What he was like at 25. What made him Joe.\n\nWrite it as though you are telling the story directly to his kids.\n\nSomeday, they will get to know another piece of their dad through you.",
   stories_privacy:
