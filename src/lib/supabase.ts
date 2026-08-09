@@ -65,3 +65,24 @@ export type FamilyEvent = {
   created_at: string;
   rsvps: EventRsvp[];
 };
+
+export type GiftPledge = {
+  id: string;
+  gift_id: string;
+  name: string;
+  email: string | null;
+  amount: number | null;
+  note: string | null;
+  created_at: string;
+};
+
+export type Gift = {
+  id: string;
+  title: string;
+  description: string | null;
+  cost: number | null;
+  link: string | null;
+  sort_order: number;
+  created_at: string;
+  pledges: GiftPledge[];
+};

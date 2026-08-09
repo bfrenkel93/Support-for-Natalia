@@ -95,6 +95,58 @@ export async function sendClaimNotification(args: NotifyArgs): Promise<void> {
   }
 }
 
+/** Notifies the family when someone chips in toward a gift. Fails silently. */
+export async function sendGiftNotification(args: {
+  giftTitle: string;
+  name: string;
+  email?: string | null;
+  amount?: number | null;
+  note?: string | null;
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.NOTIFY_EMAIL;
+  const from =
+    process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
+  if (!apiKey || !to) return;
+
+  const { giftTitle, name, email, amount, note } = args;
+  const amountStr =
+    amount != null ? `$${amount.toLocaleString("en-US")}` : "(amount not noted)";
+  const text = [
+    `${name} chipped in toward "${giftTitle}".`,
+    `Amount: ${amountStr}`,
+    email ? `Email: ${email}` : "",
+    note ? `Note: ${note}` : "",
+    ``,
+    `Remember to confirm the money actually arrived via your payment app.`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const html = `
+    <div style="font-family: Georgia, serif; color: #3E3A33; line-height: 1.6;">
+      <h2 style="color:#A56A4F; margin-bottom: 4px;">Someone chipped in 💛</h2>
+      <p><strong>${escapeHtml(name)}</strong> pledged toward
+      <strong>${escapeHtml(giftTitle)}</strong> — ${escapeHtml(amountStr)}.</p>
+      ${note ? `<p>Note: ${escapeHtml(note)}</p>` : ""}
+      ${email ? `<p style="color:#6E6858;font-size:14px;">${escapeHtml(email)}</p>` : ""}
+      <p style="color:#6E6858;font-size:14px;">Confirm the money arrived in your payment app.</p>
+    </div>`;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from,
+      to,
+      subject: `Gift pledge: ${name} — ${giftTitle}`,
+      text,
+      html,
+    });
+  } catch (err) {
+    console.error("[email] Failed to send gift notification:", err);
+  }
+}
+
 /** Notifies the family when someone RSVPs to an event. Fails silently. */
 export async function sendRsvpNotification(args: {
   eventTitle: string;

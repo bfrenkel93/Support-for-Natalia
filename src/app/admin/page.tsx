@@ -3,17 +3,21 @@ import { getSupabase, isSupabaseConfigured, type Slot } from "@/lib/supabase";
 import { getSettings } from "@/lib/settings";
 import {
   deleteEvent,
+  deleteGift,
   deleteSlot,
   logout,
+  removePledge,
   removeRsvp,
   unclaimSlot,
 } from "./actions";
 import { attachSignedUrls, listMemories } from "@/lib/memories";
 import { getEvents } from "@/lib/events";
+import { getGifts } from "@/lib/gifts";
 import LoginForm from "@/components/admin/LoginForm";
 import SettingsForm from "@/components/admin/SettingsForm";
 import AddSlotForm from "@/components/admin/AddSlotForm";
 import AddEventForm from "@/components/admin/AddEventForm";
+import AddGiftForm from "@/components/admin/AddGiftForm";
 import MemoryList from "@/components/MemoryList";
 
 export const dynamic = "force-dynamic";
@@ -37,6 +41,7 @@ export default async function AdminPage() {
   const memories = await attachSignedUrls(await listMemories());
   const memoryPhotoCount = memories.reduce((n, m) => n + m.media.length, 0);
   const events = await getEvents();
+  const gifts = await getGifts();
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
@@ -232,6 +237,86 @@ export default async function AdminPage() {
         </div>
         <div className="mt-4 rounded-xl2 border border-line bg-cream-soft p-5">
           <AddEventForm />
+        </div>
+      </section>
+
+      {/* Gifts */}
+      <section className="mt-12">
+        <h2 className="font-serif text-xl text-ink">Gifts — Give a Gift</h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Ideas like a private-chef week, a massage, or a manicure. Your Venmo,
+          Cash App, and Zelle show at the top of this section — edit them under
+          “Edit page text” below.
+        </p>
+        <div className="mt-4 overflow-hidden rounded-xl2 border border-line">
+          {gifts.length === 0 ? (
+            <p className="bg-cream-soft px-5 py-6 text-ink-soft">
+              No gifts yet — add one below.
+            </p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {gifts.map((g) => {
+                const total = g.pledges.reduce(
+                  (s, p) => s + (p.amount || 0),
+                  0
+                );
+                return (
+                  <li key={g.id} className="bg-cream-soft px-5 py-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-ink">
+                          {g.title}
+                          {g.cost != null && (
+                            <span className="ml-2 text-sm font-normal text-ink-soft">
+                              goal ${g.cost.toLocaleString("en-US")}
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-sm text-ink-soft">
+                          {g.pledges.length} chipped in · $
+                          {total.toLocaleString("en-US")} logged
+                        </p>
+                      </div>
+                      <form action={deleteGift} className="shrink-0">
+                        <input type="hidden" name="id" value={g.id} />
+                        <button className="rounded-full border border-clay/30 px-3 py-1.5 text-sm text-clay-dark hover:bg-clay/10">
+                          Delete gift
+                        </button>
+                      </form>
+                    </div>
+                    {g.pledges.length > 0 && (
+                      <ul className="mt-2 flex flex-wrap gap-2">
+                        {g.pledges.map((p) => (
+                          <li
+                            key={p.id}
+                            className="flex items-center gap-1.5 rounded-full bg-sage-light/70 px-2.5 py-1 text-sm text-sage-dark"
+                          >
+                            <span title={p.note || undefined}>
+                              {p.name}
+                              {p.amount != null &&
+                                ` · $${p.amount.toLocaleString("en-US")}`}
+                            </span>
+                            <form action={removePledge}>
+                              <input type="hidden" name="id" value={p.id} />
+                              <button
+                                className="text-sage-dark/70 hover:text-sage-dark"
+                                title="Remove"
+                              >
+                                ✕
+                              </button>
+                            </form>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+        <div className="mt-4 rounded-xl2 border border-line bg-cream-soft p-5">
+          <AddGiftForm />
         </div>
       </section>
 

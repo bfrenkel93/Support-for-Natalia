@@ -15,8 +15,13 @@ nothing gets double-booked, and you get an email whenever someone signs up.
 
 ## What's on the page
 
-1. **Hero** — family photo placeholder + your heartfelt intro message.
-2. **Visits for the Kids** — open weekends with a “Sign up” button each. Once
+1. **Hero** — family photo + your heartfelt intro message. (Set the photo by
+   putting a `hero.jpg` in `/public` and entering `/hero.jpg` in the admin, or
+   paste any image URL.)
+2. **Calendar** — a month-by-month overview that pulls together meals/visits,
+   kids weekends, and events, so people can see what's already covered before
+   signing up.
+3. **Visits for the Kids** — open weekends with a “Sign up” button each. Once
    claimed, the weekend shows the person's name (or just “Claimed” if they chose
    privacy). Every event has **Add to Google Calendar** and **Apple / iCloud**
    (`.ics`) links.
@@ -25,7 +30,14 @@ nothing gets double-booked, and you get an email whenever someone signs up.
    links. Includes a **meal-help block**: a prominent allergy note (Alexander is
    allergic to cashews & pistachios), an **Uber Eats** link, and a **map of
    restaurants near the family's home** (address is editable in the admin).
-4. **Tell the Kids a Story About Their Dad** — a private place to submit written
+4. **Come Cheer Them On (Events)** — Natalia adds events (games, recitals,
+   milestones) from the admin; anyone can RSVP and the attendee names show on
+   the page so the kids see a crowd. Each event has add-to-calendar links.
+5. **Give a Gift** — gift ideas (private-chef week, massage, manicure, etc.)
+   people can chip in toward. Contributions go directly to Natalia via her
+   **Venmo, Cash App, and Zelle** (all editable in the admin); optional pledge
+   logging shows progress toward each goal. No money passes through the site.
+6. **Tell the Kids a Story About Their Dad** — a private place to submit written
    memories and photos for the kids. **Nothing here is ever shown on the public
    page.** Photos go to a **private** Supabase Storage bucket and are only ever
    viewable inside the dashboard through short-lived, server-generated signed

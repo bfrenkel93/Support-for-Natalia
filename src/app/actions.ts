@@ -8,6 +8,7 @@ import {
   sendClaimNotification,
   sendMemoryNotification,
   sendRsvpNotification,
+  sendGiftNotification,
 } from "@/lib/email";
 import { stripJpegMetadata } from "@/lib/image";
 import {
@@ -200,6 +201,97 @@ export async function rsvpEvent(
 
   revalidatePath("/");
   return { ok: true, message: confirmation, eventId };
+}
+
+// -------------------------------------------------------------------
+// Gifts: "Give a Gift" — people chip in toward a gift for Natalia.
+// -------------------------------------------------------------------
+
+export type PledgeState = { ok: boolean; message: string; giftId?: string };
+
+export async function pledgeGift(
+  _prev: PledgeState,
+  formData: FormData
+): Promise<PledgeState> {
+  const giftId = String(formData.get("giftId") || "").trim();
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim();
+  const note = String(formData.get("note") || "").trim();
+  const amountRaw = String(formData.get("amount") || "").trim();
+
+  if (!giftId) {
+    return { ok: false, message: "Something went wrong. Please refresh." };
+  }
+  if (!name) {
+    return { ok: false, message: "Please add your name.", giftId };
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, message: "That email doesn't look right.", giftId };
+  }
+
+  let amount: number | null = null;
+  if (amountRaw) {
+    const parsed = Number(amountRaw.replace(/[^0-9.]/g, ""));
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return { ok: false, message: "That amount doesn't look right.", giftId };
+    }
+    amount = parsed || null;
+  }
+
+  const supabase = getSupabase();
+  if (!supabase) {
+    return {
+      ok: false,
+      message: "This isn't connected yet. Please check back soon.",
+      giftId,
+    };
+  }
+
+  const { data: gift } = await supabase
+    .from("gifts")
+    .select("id, title")
+    .eq("id", giftId)
+    .single();
+  if (!gift) {
+    revalidatePath("/");
+    return { ok: false, message: "That gift isn't available anymore.", giftId };
+  }
+
+  const { error } = await supabase.from("gift_pledges").insert({
+    gift_id: giftId,
+    name,
+    email: email || null,
+    amount,
+    note: note || null,
+  });
+
+  if (error) {
+    console.error("[pledgeGift] insert failed:", error);
+    return {
+      ok: false,
+      message: "Sorry — we couldn't save that. Please try again.",
+      giftId,
+    };
+  }
+
+  await sendGiftNotification({
+    giftTitle: (gift as { title: string }).title,
+    name,
+    email,
+    amount,
+    note,
+  });
+
+  let confirmation = DEFAULT_SETTINGS.gifts_confirmation;
+  try {
+    const settings = await getSettings();
+    if (settings.gifts_confirmation) confirmation = settings.gifts_confirmation;
+  } catch {
+    // keep default
+  }
+
+  revalidatePath("/");
+  return { ok: true, message: confirmation, giftId };
 }
 
 // -------------------------------------------------------------------

@@ -52,6 +52,15 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
   stories_confirmation:
     "Thank you for sharing this with the kids. It's safe with the family, and one day it will help them know their dad a little more. 💛",
 
+  gifts_title: "Give a Gift of Rest",
+  gifts_intro:
+    "Grief is exhausting, and the everyday things — cooking, errands, a moment to breathe — get so heavy. If you'd like to give something a little bigger, you can chip in toward a gift that lets Natalia rest and be cared for.\n\nContribute whatever you're comfortable with using any of the options below. When enough is gathered, we'll arrange it.",
+  pay_venmo: "natalia-digiovanni",
+  pay_cashapp: "nataliab85",
+  pay_zelle: "904 866 6753",
+  gifts_confirmation:
+    "Thank you for your generosity — it means more than you know. 💛",
+
   contact_email: "brookefrenkel@gmail.com",
   footer_note:
     "For Natalia and the kids, with love.\nThis page is private and intended only for friends and family.",
@@ -81,6 +90,12 @@ export const SETTING_LABELS: Record<string, string> = {
   stories_body: "“Tell the Kids a Story” body",
   stories_privacy: "“Tell the Kids a Story” privacy reassurance",
   stories_confirmation: "Message shown after someone shares a memory",
+  gifts_title: "“Give a Gift” heading",
+  gifts_intro: "“Give a Gift” intro",
+  pay_venmo: "Venmo username (without the @)",
+  pay_cashapp: "Cash App cashtag (without the $)",
+  pay_zelle: "Zelle phone or email",
+  gifts_confirmation: "Message shown after someone chips in",
   contact_email: "Contact email (shown in footer)",
   footer_note: "Footer note",
 };
@@ -99,5 +114,6 @@ export const MULTILINE_SETTINGS = new Set([
   "stories_body",
   "stories_privacy",
   "stories_confirmation",
+  "gifts_intro",
   "footer_note",
 ]);

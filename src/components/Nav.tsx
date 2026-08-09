@@ -1,8 +1,10 @@
 const LINKS = [
+  { href: "#calendar", label: "Calendar" },
   { href: "#kids", label: "For the Kids" },
   { href: "#events", label: "Events" },
   { href: "#support", label: "For Natalia" },
   { href: "#stories", label: "Stories" },
+  { href: "#give", label: "Give a Gift" },
   { href: "#help", label: "Other Ways" },
 ];
 

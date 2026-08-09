@@ -184,6 +184,65 @@ export async function removeRsvp(formData: FormData): Promise<void> {
   revalidatePath("/admin");
 }
 
+// ---- Gifts ---------------------------------------------------------
+
+export async function addGift(
+  _prev: AdminState,
+  formData: FormData
+): Promise<AdminState> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return { ok: false, message: "Database isn't connected." };
+
+  const title = String(formData.get("title") || "").trim();
+  const description = String(formData.get("description") || "").trim() || null;
+  const link = String(formData.get("link") || "").trim() || null;
+  const sort_order = Number(formData.get("sort_order") || 0) || 0;
+  const costRaw = String(formData.get("cost") || "").trim();
+  let cost: number | null = null;
+  if (costRaw) {
+    const parsed = Number(costRaw.replace(/[^0-9.]/g, ""));
+    if (Number.isFinite(parsed) && parsed >= 0) cost = parsed || null;
+  }
+
+  if (!title) return { ok: false, message: "Give the gift a name." };
+
+  const { error } = await supabase
+    .from("gifts")
+    .insert({ title, description, cost, link, sort_order });
+
+  if (error) {
+    console.error("[addGift]", error);
+    return { ok: false, message: "Couldn't add that gift." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  return { ok: true, message: "Gift added." };
+}
+
+export async function deleteGift(formData: FormData): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  await supabase.from("gifts").delete().eq("id", id);
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
+export async function removePledge(formData: FormData): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  await supabase.from("gift_pledges").delete().eq("id", id);
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
 export async function deleteMemory(formData: FormData): Promise<void> {
   requireAdmin();
   const id = String(formData.get("id") || "");

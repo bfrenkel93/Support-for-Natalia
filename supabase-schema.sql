@@ -66,6 +66,12 @@ insert into public.settings (key, value) values
   ('stories_body',      E'There are parts of Joe''s life that only you knew.\n\nStories from before the kids were born. Trips you took. Things he said. The way he showed up when someone needed him. The ridiculous things he did that still make you laugh.\n\nHis kids deserve to know those versions of their dad, too.\n\nWe would love to collect the stories, photos, and little memories that might otherwise disappear with time.\n\nIt does not have to be profound. In fact, it probably shouldn''t be.\n\nTell them about the time he made everyone laugh until they cried. The trouble you got into together. Something he was weirdly obsessed with. A trip you will never forget. Something he did for you that you never forgot. What he was like at 25. What made him Joe.\n\nWrite it as though you are telling the story directly to his kids.\n\nSomeday, they will get to know another piece of their dad through you.'),
   ('stories_privacy',   E'Everything you share here is completely private. It goes only to Natalia and the family through a secure, password-protected page — it is never shown publicly on this site.'),
   ('stories_confirmation', E'Thank you for sharing this with the kids. It''s safe with the family, and one day it will help them know their dad a little more. 💛'),
+  ('gifts_title',       'Give a Gift of Rest'),
+  ('gifts_intro',       E'Grief is exhausting, and the everyday things — cooking, errands, a moment to breathe — get so heavy. If you''d like to give something a little bigger, you can chip in toward a gift that lets Natalia rest and be cared for.\n\nContribute whatever you''re comfortable with using any of the options below. When enough is gathered, we''ll arrange it.'),
+  ('pay_venmo',         'natalia-digiovanni'),
+  ('pay_cashapp',       'nataliab85'),
+  ('pay_zelle',         '904 866 6753'),
+  ('gifts_confirmation', E'Thank you for your generosity — it means more than you know. 💛'),
   ('contact_email',     'brookefrenkel@gmail.com'),
   ('footer_note',       E'For Natalia and the kids, with love.\nThis page is private and intended only for friends and family.')
 on conflict (key) do nothing;
@@ -78,6 +84,43 @@ on conflict (key) do nothing;
 -- ------------------------------------------------------------------
 alter table public.slots enable row level security;
 alter table public.settings enable row level security;
+
+-- ==================================================================
+-- GIFTS — "Give a Gift". People chip in toward a gift (private chef,
+-- massage, manicure...). Money moves off-site via a payment link; pledges
+-- here are coordination only. Managed from /admin.
+-- ==================================================================
+create table if not exists public.gifts (
+  id           uuid primary key default gen_random_uuid(),
+  title        text not null,
+  description  text,
+  cost         numeric,
+  link         text,
+  sort_order   integer not null default 0,
+  created_at   timestamptz not null default now()
+);
+
+create table if not exists public.gift_pledges (
+  id          uuid primary key default gen_random_uuid(),
+  gift_id     uuid not null references public.gifts(id) on delete cascade,
+  name        text not null,
+  email       text,
+  amount      numeric,
+  note        text,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists gift_pledges_gift_idx on public.gift_pledges (gift_id);
+
+alter table public.gifts enable row level security;
+alter table public.gift_pledges enable row level security;
+
+insert into public.gifts (title, description, cost, sort_order) values
+  ('A week of private-chef meal prep', 'A chef comes to cook and stock the fridge for a week — no cooking, no thinking about dinner.', 500, 1),
+  ('A massage', 'An hour to release some of the weight she''s carrying.', 120, 2),
+  ('A manicure', 'A small, restorative hour just for her.', 60, 3),
+  ('House cleaning', 'A deep clean so home feels a little lighter.', 200, 4)
+on conflict do nothing;
 
 -- ==================================================================
 -- MEMORIES — private "Tell the Kids a Story About Their Dad"

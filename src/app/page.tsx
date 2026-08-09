@@ -1,12 +1,15 @@
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import SlotSection from "@/components/SlotSection";
+import CalendarView from "@/components/CalendarView";
 import EventsSection from "@/components/EventsSection";
 import MealHelp from "@/components/MealHelp";
 import StorySection from "@/components/StorySection";
+import GiftsSection from "@/components/GiftsSection";
 import RichText from "@/components/RichText";
 import { getSettings } from "@/lib/settings";
 import { getEvents } from "@/lib/events";
+import { getGifts } from "@/lib/gifts";
 import { getSupabase, isSupabaseConfigured, type Slot } from "@/lib/supabase";
 
 // Always render fresh so newly-claimed slots show up immediately.
@@ -25,10 +28,11 @@ async function getSlots(): Promise<Slot[]> {
 }
 
 export default async function Home() {
-  const [settings, slots, events] = await Promise.all([
+  const [settings, slots, events, gifts] = await Promise.all([
     getSettings(),
     getSlots(),
     getEvents(),
+    getGifts(),
   ]);
   const kids = slots.filter((s) => s.category === "kids");
   const support = slots.filter((s) => s.category === "support");
@@ -41,6 +45,8 @@ export default async function Home() {
         <Hero settings={settings} />
 
         {!isSupabaseConfigured() && <SetupNotice />}
+
+        <CalendarView slots={slots} events={events} />
 
         <SlotSection
           id="kids"
@@ -82,6 +88,8 @@ export default async function Home() {
             ) : null
           }
         />
+
+        <GiftsSection gifts={gifts} settings={settings} />
 
         <StorySection settings={settings} />
 
