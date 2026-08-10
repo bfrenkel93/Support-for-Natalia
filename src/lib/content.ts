@@ -36,9 +36,9 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
 
   events_subtitle: "Show up for the little big moments",
   events_intro:
-    "The kids have games, recitals, and everyday milestones that mean the world when familiar faces are in the crowd. When Natalia adds one here, add your name so they look up and see they're surrounded.\n\nEveryone is welcome at these — the more the better.",
+    "The kids have games, recitals, and everyday milestones that mean the world when familiar faces are in the crowd. And because Natalia travels for work, this is also where we coordinate hands-on help — watching the kids while she's away, rides to practice, or a little help with homework.\n\nWhenever she posts something here, add your name so she knows it's covered and the kids look up to see they're surrounded. Everyone is welcome — the more the better.",
   events_empty:
-    "No events on the calendar right now. When there's a game or a milestone to show up for, it'll appear here.",
+    "Nothing posted right now. When there's a game, a milestone, or a hand needed with the kids, it'll appear here.",
   events_confirmation:
     "You're on the list — thank you for showing up for them. 💛",
 
