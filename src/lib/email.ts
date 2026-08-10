@@ -112,16 +112,15 @@ export async function sendBookingNotification(args: {
   const apiKey = process.env.RESEND_API_KEY;
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
-  const recipients = Array.from(
-    new Set(
-      [process.env.NOTIFY_EMAIL, process.env.NATALIA_EMAIL].filter(
-        Boolean
-      ) as string[]
-    )
-  );
-  if (!apiKey || recipients.length === 0) return;
-
   const { kindLabel, dateLabel, name, email, note, requested, baseUrl } = args;
+
+  // Only weekend-with-the-kids REQUESTS go to Natalia (she confirms those).
+  // Instant sign-ups (meals, visits, errands) notify just the organizer.
+  const to = requested
+    ? [process.env.NOTIFY_EMAIL, process.env.NATALIA_EMAIL]
+    : [process.env.NOTIFY_EMAIL];
+  const recipients = Array.from(new Set(to.filter(Boolean) as string[]));
+  if (!apiKey || recipients.length === 0) return;
   const link = baseUrl ? `${baseUrl.replace(/\/$/, "")}/admin` : "";
 
   const subject = requested
