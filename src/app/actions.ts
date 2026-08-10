@@ -117,6 +117,7 @@ export async function addBooking(
   }
 
   await sendBookingNotification({
+    kind,
     kindLabel: KIND_LABEL[kind],
     dateLabel: prettyDate(eventDate),
     name,

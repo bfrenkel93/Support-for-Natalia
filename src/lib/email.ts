@@ -101,6 +101,7 @@ export async function sendClaimNotification(args: NotifyArgs): Promise<void> {
  * suggest another weekend in the dashboard. Sent to NOTIFY_EMAIL + NATALIA_EMAIL.
  */
 export async function sendBookingNotification(args: {
+  kind?: string; // "kids" | "meal" | "visit" | "errand"
   kindLabel: string;
   dateLabel: string;
   name: string;
@@ -112,44 +113,62 @@ export async function sendBookingNotification(args: {
   const apiKey = process.env.RESEND_API_KEY;
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
-  const { kindLabel, dateLabel, name, email, note, requested, baseUrl } = args;
+  const { kind, kindLabel, dateLabel, name, email, note, requested, baseUrl } = args;
 
-  // Only weekend-with-the-kids REQUESTS go to Natalia (she confirms those).
-  // Instant sign-ups (meals, visits, errands) notify just the organizer.
-  const to = requested
-    ? [process.env.NOTIFY_EMAIL, process.env.NATALIA_EMAIL]
-    : [process.env.NOTIFY_EMAIL];
-  const recipients = Array.from(new Set(to.filter(Boolean) as string[]));
+  // Natalia + the organizer both get a note. Weekend-with-the-kids is a request
+  // she confirms; everything else is a warm, no-action "it's handled" heads-up.
+  const recipients = Array.from(
+    new Set(
+      [process.env.NOTIFY_EMAIL, process.env.NATALIA_EMAIL].filter(
+        Boolean
+      ) as string[]
+    )
+  );
   if (!apiKey || recipients.length === 0) return;
   const link = baseUrl ? `${baseUrl.replace(/\/$/, "")}/admin` : "";
+  const noteStr = note ? ` — “${note}”` : "";
 
-  const subject = requested
-    ? `Weekend request: ${name} — ${dateLabel}`
-    : `Calendar sign-up: ${name} — ${kindLabel}`;
+  let subject: string;
+  let lead: string;
+  let heading: string;
 
-  const lead = requested
-    ? `${name} would love to spend the weekend of ${dateLabel} with the kids. Confirm it, or suggest another weekend, in your dashboard.`
-    : `${name} signed up for ${kindLabel} on ${dateLabel}.`;
+  if (requested) {
+    heading = "A weekend request 💛";
+    subject = `Weekend request: ${name} — ${dateLabel}`;
+    lead = `${name} would love to spend the weekend of ${dateLabel} with the kids. Confirm it, or suggest another weekend, in your dashboard.`;
+  } else if (kind === "meal") {
+    heading = "Dinner is taken care of 💛";
+    subject = `A meal is covered — ${dateLabel}`;
+    lead = `Good news: ${name} is taking care of a meal on ${dateLabel}${noteStr}. Nothing to do — it's handled.`;
+  } else if (kind === "visit") {
+    heading = "Someone's coming by 💛";
+    subject = `${name} is visiting — ${dateLabel}`;
+    lead = `${name} is coming by on ${dateLabel}${noteStr}. Nothing to do — just company on the way.`;
+  } else if (kind === "errand") {
+    heading = "A hand with something 💛";
+    subject = `${name} is helping — ${dateLabel}`;
+    lead = `${name} is helping with something on ${dateLabel}${noteStr}. Nothing to do — it's covered.`;
+  } else {
+    heading = "A little help is on the way 💛";
+    subject = `${name} signed up — ${dateLabel}`;
+    lead = `${name} signed up for ${kindLabel} on ${dateLabel}${noteStr}.`;
+  }
 
   const text = [
     lead,
-    email ? `Email: ${email}` : "",
-    note ? `Note: ${note}` : "",
-    link ? `\nOpen your dashboard: ${link}` : "",
+    email ? `From: ${email}` : "",
+    requested && link ? `\nOpen your dashboard: ${link}` : "",
   ]
     .filter(Boolean)
     .join("\n");
 
   const html = `
     <div style="font-family: Georgia, serif; color: #3E3A33; line-height: 1.6;">
-      <h2 style="color:#8B6A43; margin-bottom: 4px;">${
-        requested ? "A weekend request 💛" : "New calendar sign-up 💛"
-      }</h2>
+      <h2 style="color:#8B6A43; margin-bottom: 4px;">${heading}</h2>
       <p>${escapeHtml(lead)}</p>
-      ${note ? `<p>Note: ${escapeHtml(note)}</p>` : ""}
       ${email ? `<p style="color:#6E6858;font-size:14px;">${escapeHtml(email)}</p>` : ""}
       ${
-        link
+        requested && link
           ? `<p><a href="${escapeHtml(link)}" style="display:inline-block;background:#2A2620;color:#F7F4ED;text-decoration:none;padding:10px 18px;border-radius:2px;font-weight:600;">Open the dashboard</a></p>`
           : ""
       }
