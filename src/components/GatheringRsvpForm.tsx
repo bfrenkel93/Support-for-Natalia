@@ -66,6 +66,10 @@ export default function GatheringRsvpForm() {
         <label className="field-label">A note — optional</label>
         <input name="note" maxLength={200} className="field" placeholder="Anything you'd like us to know" />
       </div>
+      <label className="flex items-center gap-2.5 text-sm text-ink-soft">
+        <input type="checkbox" name="subscribe" className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+        Also send me occasional updates
+      </label>
       {!state.ok && state.message && (
         <p className="text-sm text-bronze">{state.message}</p>
       )}

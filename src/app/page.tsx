@@ -9,6 +9,7 @@ import MealHelp from "@/components/MealHelp";
 import StorySection from "@/components/StorySection";
 import GiftsSection from "@/components/GiftsSection";
 import SubscribeForm from "@/components/SubscribeForm";
+import SubscribeModal from "@/components/SubscribeModal";
 import Reveal from "@/components/Reveal";
 import { getSettings } from "@/lib/settings";
 import { getBookings } from "@/lib/bookings";
@@ -37,6 +38,7 @@ export default async function Home() {
 
   return (
     <>
+      <SubscribeModal />
       <Nav />
       <main>
         <Hero settings={settings} />

@@ -144,6 +144,16 @@ export async function addBooking(
     baseUrl,
   });
 
+  // Optional opt-in to ongoing updates.
+  if (email && formData.get("subscribe") === "on") {
+    try {
+      const r = await addSubscriber(email);
+      if (r.token && baseUrl) await sendSubscribeConfirmation(email, r.token, baseUrl);
+    } catch (err) {
+      console.error("[addBooking] subscribe failed:", err);
+    }
+  }
+
   revalidatePath("/");
 
   if (requested) {
@@ -338,6 +348,16 @@ export async function rsvpGathering(
   }
 
   await sendGatheringRsvpNotification({ name, partySize, email, note, total });
+
+  if (email && formData.get("subscribe") === "on") {
+    try {
+      const baseUrl = requestBaseUrl();
+      const r = await addSubscriber(email);
+      if (r.token && baseUrl) await sendSubscribeConfirmation(email, r.token, baseUrl);
+    } catch (err) {
+      console.error("[rsvpGathering] subscribe failed:", err);
+    }
+  }
 
   revalidatePath("/");
   return {
