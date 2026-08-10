@@ -102,19 +102,21 @@ export async function saveSettings(
 
   if (rows.length === 0) return { ok: false, message: "Nothing to save." };
 
-  const { error } = await supabase
-    .from("settings")
-    .upsert(rows, { onConflict: "key" });
+  let error: unknown = null;
+  try {
+    const res = await supabase.from("settings").upsert(rows, { onConflict: "key" });
+    error = res.error;
+  } catch (e) {
+    error = e;
+  }
 
   if (error) {
     console.error("[saveSettings]", error);
-    const detail = [error.code, error.message].filter(Boolean).join(" · ");
-    return {
-      ok: false,
-      message: detail
-        ? `Couldn't save — ${detail}`
-        : "Couldn't save. Please try again.",
-    };
+    const e = error as { code?: string; message?: string; details?: string; hint?: string };
+    const detail =
+      [e.code, e.message, e.details, e.hint].filter(Boolean).join(" · ") ||
+      (typeof error === "string" ? error : JSON.stringify(error));
+    return { ok: false, message: `Couldn't save — DIAG: ${detail}` };
   }
 
   revalidatePath("/");
