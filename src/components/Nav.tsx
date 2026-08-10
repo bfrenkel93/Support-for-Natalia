@@ -4,48 +4,31 @@ const LINKS = [
   { href: "#kids", label: "For the Kids" },
   { href: "/weekend-ideas", label: "Things to Do" },
   { href: "#support", label: "For Natalia" },
+  { href: "#events", label: "Events" },
   { href: "#stories", label: "Stories" },
 ];
 
 export default function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-line/60 bg-parchment/80 backdrop-blur-md">
-      <nav className="mx-auto flex max-w-content items-center justify-between gap-6 px-6 py-4 sm:px-10">
+      <nav className="mx-auto flex max-w-content flex-col gap-2 px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-10 sm:py-4">
         <a
           href="#top"
-          className="font-serif text-base font-normal tracking-tight text-ink"
+          className="shrink-0 font-serif text-base font-normal tracking-tight text-ink"
         >
           Natalia &amp; the Kids
         </a>
-        <ul className="hidden items-center gap-8 md:flex">
+        <ul className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:justify-end sm:gap-x-6">
           {LINKS.map((link) => (
             <li key={link.href}>
               <a
                 href={link.href}
-                className="text-[0.72rem] font-medium uppercase tracking-wide text-ink-soft transition-colors duration-300 hover:text-bronze"
+                className="text-[0.6rem] font-medium uppercase tracking-wide text-ink-soft transition-colors duration-300 hover:text-bronze sm:text-[0.72rem]"
               >
                 {link.label}
               </a>
             </li>
           ))}
-        </ul>
-        {/* Compact list on small screens */}
-        <ul className="flex items-center gap-4 text-[0.62rem] uppercase tracking-wide text-ink-faint md:hidden">
-          <li>
-            <a href="#kids" className="hover:text-bronze">
-              Kids
-            </a>
-          </li>
-          <li>
-            <a href="#support" className="hover:text-bronze">
-              Natalia
-            </a>
-          </li>
-          <li>
-            <a href="#stories" className="hover:text-bronze">
-              Stories
-            </a>
-          </li>
         </ul>
       </nav>
     </header>
