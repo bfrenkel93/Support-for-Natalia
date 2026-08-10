@@ -11,7 +11,7 @@ function Button() {
   const { pending } = useFormStatus();
   return (
     <button type="submit" disabled={pending} className="btn shrink-0 disabled:opacity-50">
-      {pending ? "…" : "Keep me posted"}
+      {pending ? "…" : "Sign me up"}
     </button>
   );
 }
@@ -91,14 +91,14 @@ export default function SubscribeModal() {
           </p>
         ) : (
           <>
-            <p className="eyebrow mb-3">Stay close</p>
+            <p className="eyebrow mb-3">Stay in the loop</p>
             <h2 className="font-serif text-2xl font-light leading-snug text-ink">
-              Keep showing up for Natalia &amp; the kids
+              A gentle way to stay involved
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-              Add your email for the occasional gentle update — a new way to
-              help, or simply a reminder that they still need us. No noise;
-              unsubscribe anytime.
+              Leave your email and we&apos;ll send an occasional note — when
+              there&apos;s a way to help, or news to share. Nothing more, and you
+              can unsubscribe anytime.
             </p>
             <form action={action} className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="flex-1">
@@ -122,7 +122,7 @@ export default function SubscribeModal() {
               onClick={dismiss}
               className="mt-4 text-xs uppercase tracking-wide text-ink-faint underline underline-offset-4 hover:text-ink"
             >
-              Maybe later
+              Not now
             </button>
           </>
         )}
