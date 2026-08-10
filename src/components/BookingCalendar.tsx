@@ -131,6 +131,10 @@ export default function BookingCalendar({
             {k.label}
           </span>
         ))}
+        <span className="flex items-center gap-2 text-[0.72rem] uppercase tracking-wide text-ink-soft">
+          <span className="h-2.5 w-2.5 rounded-full bg-bronze" />
+          Events (games, recitals)
+        </span>
       </div>
 
       {/* Month nav */}
@@ -206,8 +210,9 @@ export default function BookingCalendar({
                   </span>
                 ))}
                 {evs.slice(0, 1).map((e) => (
-                  <span key={e.id} className="block truncate text-[0.58rem] uppercase tracking-wide text-bronze">
-                    {e.title}
+                  <span key={e.id} className="flex items-center gap-1 text-[0.6rem] leading-tight text-bronze">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-bronze" />
+                    <span className="truncate">{e.title}</span>
                   </span>
                 ))}
                 {items.length > 3 && (
