@@ -276,6 +276,21 @@ insert into public.activity_ideas (title, event_date, location, note, sort_order
 on conflict do nothing;
 
 -- ==================================================================
+-- SUBSCRIBERS — people who want occasional "stay involved" updates.
+-- Emailed automatically every ~2 months and whenever a new event is posted.
+-- Every email carries a one-tap unsubscribe link (uses the token).
+-- ==================================================================
+create table if not exists public.subscribers (
+  id              uuid primary key default gen_random_uuid(),
+  email           text not null,
+  token           uuid not null default gen_random_uuid(),
+  created_at      timestamptz not null default now(),
+  unsubscribed_at timestamptz
+);
+create unique index if not exists subscribers_email_unique on public.subscribers (lower(email));
+alter table public.subscribers enable row level security;
+
+-- ==================================================================
 -- GATHERING RSVPs — for the memorial. Guests say how many are coming;
 -- the admin sees a running headcount and can email the list to the organizer.
 -- ==================================================================

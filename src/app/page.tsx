@@ -8,6 +8,7 @@ import EventsSection from "@/components/EventsSection";
 import MealHelp from "@/components/MealHelp";
 import StorySection from "@/components/StorySection";
 import GiftsSection from "@/components/GiftsSection";
+import SubscribeForm from "@/components/SubscribeForm";
 import Reveal from "@/components/Reveal";
 import { getSettings } from "@/lib/settings";
 import { getBookings } from "@/lib/bookings";
@@ -111,6 +112,24 @@ export default async function Home() {
 
         {/* 06 · Stories */}
         <StorySection settings={settings} number="06" />
+
+        {/* Stay involved */}
+        <section id="stay" className="section-anchor bg-bone/60 py-16 sm:py-20">
+          <div className="mx-auto max-w-2xl px-6 text-center sm:px-10">
+            <p className="eyebrow mb-3">Stay involved</p>
+            <h2 className="font-serif text-2xl font-light text-ink sm:text-3xl">
+              Get an occasional note
+            </h2>
+            <p className="mx-auto mt-3 max-w-measure leading-relaxed text-ink-soft">
+              Every couple of months — and whenever there&apos;s a new way to
+              help — we&apos;ll send a gentle reminder. No noise, and you can
+              unsubscribe anytime.
+            </p>
+            <div className="mx-auto mt-7 max-w-md text-left">
+              <SubscribeForm />
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer settings={settings} />

@@ -493,6 +493,140 @@ export async function sendMemoryNotification(args: {
   }
 }
 
+// -------------------------------------------------------------------
+// Subscriber emails ("stay involved" updates). Each carries an unsubscribe.
+// -------------------------------------------------------------------
+
+function resendClient(): Resend | null {
+  const apiKey = process.env.RESEND_API_KEY;
+  return apiKey ? new Resend(apiKey) : null;
+}
+function fromAddr(): string {
+  return process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
+}
+function unsubLink(baseUrl: string, token: string): string {
+  return `${baseUrl.replace(/\/$/, "")}/unsubscribe?token=${token}`;
+}
+function subFooterHtml(unsubUrl: string): string {
+  return `<hr style="border:none;border-top:1px solid #E4DAC7;margin:22px 0"/><p style="font-size:12px;color:#9A9082;">You're receiving this because you asked to stay involved with Natalia &amp; the kids. <a href="${escapeHtml(unsubUrl)}" style="color:#8B6A43;">Unsubscribe</a>.</p>`;
+}
+function wrapHtml(inner: string, unsubUrl: string): string {
+  return `<div style="font-family: Georgia, serif; color:#3E3A33; line-height:1.7; max-width:560px;">${inner}${subFooterHtml(unsubUrl)}</div>`;
+}
+
+/** Confirms a new subscription. */
+export async function sendSubscribeConfirmation(
+  email: string,
+  token: string,
+  baseUrl: string
+): Promise<void> {
+  const resend = resendClient();
+  if (!resend) return;
+  const unsub = unsubLink(baseUrl, token);
+  const html = wrapHtml(
+    `<h2 style="color:#8B6A43;font-weight:400;">You're on the list 💛</h2>
+     <p>Thank you for choosing to stay close to Natalia and the kids. Every so often — and whenever there's a new way to show up — we'll send a gentle note so you never have to wonder how to help.</p>
+     <p><a href="${escapeHtml(baseUrl)}" style="color:#8B6A43;">Visit the page &rarr;</a></p>`,
+    unsub
+  );
+  try {
+    await resend.emails.send({
+      from: fromAddr(),
+      to: email,
+      subject: "You're on the list — for Natalia & the kids",
+      text: `Thank you for choosing to stay close to Natalia and the kids. We'll send a gentle note now and then, and whenever there's a new way to show up.\n\nVisit: ${baseUrl}\n\nUnsubscribe: ${unsub}`,
+      html,
+    });
+  } catch (err) {
+    console.error("[email] subscribe confirmation failed:", err);
+  }
+}
+
+type SubLite = { email: string; token: string };
+
+/** The periodic "stay involved" digest — warm nudge + live highlights. */
+export async function sendSubscriberDigest(
+  subs: SubLite[],
+  baseUrl: string,
+  highlights: { html: string; text: string; count: number }
+): Promise<number> {
+  const resend = resendClient();
+  if (!resend || subs.length === 0) return 0;
+
+  const highlightBlock = highlights.count
+    ? `<p style="margin-top:18px;"><strong>What's happening right now:</strong></p>${highlights.html}`
+    : "";
+  const highlightText = highlights.count
+    ? `\n\nWhat's happening right now:\n${highlights.text}`
+    : "";
+
+  let sent = 0;
+  for (const s of subs) {
+    const unsub = unsubLink(baseUrl, s.token);
+    const html = wrapHtml(
+      `<h2 style="color:#8B6A43;font-weight:400;">Still here, still needed 💛</h2>
+       <p>It's been a little while, and Natalia and the kids are still held up by people like you. Grief doesn't move fast — the quiet weeks and months are when showing up matters most.</p>
+       <p>If you have a moment, sign up to bring a meal, spend time with the kids, or simply stop by.</p>
+       ${highlightBlock}
+       <p style="margin-top:18px;"><a href="${escapeHtml(baseUrl)}" style="color:#8B6A43;">Open the page &rarr;</a></p>`,
+      unsub
+    );
+    try {
+      await resend.emails.send({
+        from: fromAddr(),
+        to: s.email,
+        subject: "Still here, still needed — Natalia & the kids",
+        text: `It's been a little while, and Natalia and the kids are still held up by people like you. If you have a moment, sign up to bring a meal, spend time with the kids, or simply stop by.${highlightText}\n\nOpen the page: ${baseUrl}\n\nUnsubscribe: ${unsub}`,
+        html,
+      });
+      sent += 1;
+    } catch (err) {
+      console.error("[email] digest send failed:", err);
+    }
+  }
+  return sent;
+}
+
+/** Instant blast when a new event/need is posted. */
+export async function sendSubscriberEventBlast(
+  subs: SubLite[],
+  baseUrl: string,
+  event: { title: string; whenText: string; location?: string | null; description?: string | null }
+): Promise<number> {
+  const resend = resendClient();
+  if (!resend || subs.length === 0) return 0;
+
+  const detail =
+    `${escapeHtml(event.whenText)}` +
+    (event.location ? ` · ${escapeHtml(event.location)}` : "");
+
+  let sent = 0;
+  for (const s of subs) {
+    const unsub = unsubLink(baseUrl, s.token);
+    const html = wrapHtml(
+      `<h2 style="color:#8B6A43;font-weight:400;">A new way to show up 💛</h2>
+       <p><strong>${escapeHtml(event.title)}</strong><br/><span style="color:#6B6356;">${detail}</span></p>
+       ${event.description ? `<p>${escapeHtml(event.description)}</p>` : ""}
+       <p>If you can be there, add your name — it means the world to the kids to see familiar faces.</p>
+       <p style="margin-top:14px;"><a href="${escapeHtml(baseUrl)}#events" style="color:#8B6A43;">Add your name &rarr;</a></p>`,
+      unsub
+    );
+    try {
+      await resend.emails.send({
+        from: fromAddr(),
+        to: s.email,
+        subject: `A new way to show up: ${event.title}`,
+        text: `${event.title}\n${event.whenText}${event.location ? ` · ${event.location}` : ""}\n${event.description || ""}\n\nIf you can be there, add your name: ${baseUrl}#events\n\nUnsubscribe: ${unsub}`,
+        html,
+      });
+      sent += 1;
+    } catch (err) {
+      console.error("[email] event blast failed:", err);
+    }
+  }
+  return sent;
+}
+
 function escapeHtml(input: string): string {
   return input
     .replace(/&/g, "&amp;")

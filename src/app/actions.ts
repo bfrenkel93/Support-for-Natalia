@@ -10,8 +10,23 @@ import {
   sendGiftNotification,
   sendBookingNotification,
   sendGatheringRsvpNotification,
+  sendSubscribeConfirmation,
 } from "@/lib/email";
 import { getGatheringRsvps } from "@/lib/gathering";
+import { addSubscriber } from "@/lib/subscribers";
+
+function requestBaseUrl(): string {
+  if (process.env.SITE_URL) return process.env.SITE_URL;
+  try {
+    const h = headers();
+    const host = h.get("x-forwarded-host") || h.get("host") || "";
+    const proto = h.get("x-forwarded-proto") || "https";
+    if (host) return `${proto}://${host}`;
+  } catch {
+    // ignore
+  }
+  return "";
+}
 import { KIND_LABEL } from "@/lib/bookings";
 import { stripJpegMetadata } from "@/lib/image";
 import {
@@ -235,6 +250,43 @@ export async function rsvpEvent(
 
   revalidatePath("/");
   return { ok: true, message: confirmation, eventId };
+}
+
+// -------------------------------------------------------------------
+// Subscribe — "stay involved" updates.
+// -------------------------------------------------------------------
+
+export type SubscribeState = { ok: boolean; message: string };
+
+export async function subscribe(
+  _prev: SubscribeState,
+  formData: FormData
+): Promise<SubscribeState> {
+  const email = String(formData.get("email") || "").trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, message: "Please enter a valid email." };
+  }
+  const supabase = getSupabase();
+  if (!supabase) {
+    return { ok: false, message: "This isn't connected yet. Please check back soon." };
+  }
+
+  const result = await addSubscriber(email);
+  if (!result.ok) {
+    return { ok: false, message: "Sorry — that didn't go through. Please try again." };
+  }
+
+  if (result.token) {
+    const baseUrl = requestBaseUrl();
+    if (baseUrl) {
+      await sendSubscribeConfirmation(email, result.token, baseUrl);
+    }
+  }
+
+  return {
+    ok: true,
+    message: "You're on the list — thank you for staying close. 💛",
+  };
 }
 
 // -------------------------------------------------------------------

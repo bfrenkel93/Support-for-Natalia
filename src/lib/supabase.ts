@@ -45,6 +45,14 @@ export type Slot = {
   created_at: string;
 };
 
+export type Subscriber = {
+  id: string;
+  email: string;
+  token: string;
+  created_at: string;
+  unsubscribed_at: string | null;
+};
+
 export type GatheringRsvp = {
   id: string;
   name: string;

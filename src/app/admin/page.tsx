@@ -8,6 +8,7 @@ import { getGifts } from "@/lib/gifts";
 import { attachSignedUrls, listMemories } from "@/lib/memories";
 import { getEventsStatus, getAdminEvents } from "@/lib/weekend/cache";
 import { getGatheringRsvps } from "@/lib/gathering";
+import { getAllSubscribers } from "@/lib/subscribers";
 import {
   confirmBooking,
   declineBooking,
@@ -22,10 +23,12 @@ import {
   refreshEventsNow,
   removePledge,
   removeRsvp,
+  deleteSubscriber,
   unhideEvent,
   unpinEvent,
 } from "./actions";
 import EmailGatheringListButton from "@/components/admin/EmailGatheringListButton";
+import SendUpdateButton from "@/components/admin/SendUpdateButton";
 import LoginForm from "@/components/admin/LoginForm";
 import SettingsForm from "@/components/admin/SettingsForm";
 import AddEventForm from "@/components/admin/AddEventForm";
@@ -68,6 +71,8 @@ export default async function AdminPage() {
       getAdminEvents(),
       getGatheringRsvps(),
     ]);
+  const subscribers = await getAllSubscribers();
+  const activeSubs = subscribers.filter((s) => !s.unsubscribed_at);
 
   const pending = bookings.filter((b) => b.status === "requested");
   const confirmed = bookings.filter((b) => b.status === "confirmed");
@@ -505,6 +510,61 @@ export default async function AdminPage() {
         </div>
         <div className={PANEL}>
           <AddGiftForm />
+        </div>
+      </section>
+
+      {/* Subscribers */}
+      <section className="mt-12">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className={H2}>
+              Subscribers
+              <span className="ml-3 align-middle text-sm text-bronze">
+                {activeSubs.length} active
+              </span>
+            </h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              They get a warm update every ~2 months and whenever you post a new
+              event. Send one now anytime.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {activeSubs.length > 0 && <SendUpdateButton />}
+            {subscribers.length > 0 && (
+              <a href="/api/subscribers/export" className={DEL}>
+                Export CSV ↓
+              </a>
+            )}
+          </div>
+        </div>
+        <div className={CARD}>
+          {subscribers.length === 0 ? (
+            <p className="bg-bone/40 px-5 py-6 text-ink-soft">No subscribers yet.</p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {subscribers.map((s) => (
+                <li
+                  key={s.id}
+                  className="flex items-center justify-between gap-3 bg-bone/40 px-5 py-3"
+                >
+                  <span className="min-w-0">
+                    <span className="text-ink">{s.email}</span>
+                    {s.unsubscribed_at && (
+                      <span className="ml-2 text-[0.62rem] uppercase tracking-wide text-ink-faint">
+                        unsubscribed
+                      </span>
+                    )}
+                  </span>
+                  <form action={deleteSubscriber} className="shrink-0">
+                    <input type="hidden" name="id" value={s.id} />
+                    <button className="text-ink-faint hover:text-bronze" title="Remove">
+                      ✕
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
 

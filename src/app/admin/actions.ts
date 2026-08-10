@@ -11,9 +11,39 @@ import {
 import { getSupabase, type Booking } from "@/lib/supabase";
 import { deleteMemoryEverywhere } from "@/lib/memories";
 import { sendRequestDecision } from "@/lib/email";
+import { headers } from "next/headers";
 import { ingestEvents } from "@/lib/weekend/ingest";
 import { getGatheringRsvps } from "@/lib/gathering";
-import { sendGatheringList } from "@/lib/email";
+import {
+  sendGatheringList,
+  sendSubscriberEventBlast,
+  sendSubscriberDigest,
+} from "@/lib/email";
+import { getActiveSubscribers } from "@/lib/subscribers";
+import { buildHighlights } from "@/lib/digest";
+
+function adminBaseUrl(): string {
+  if (process.env.SITE_URL) return process.env.SITE_URL;
+  try {
+    const h = headers();
+    const host = h.get("x-forwarded-host") || h.get("host") || "";
+    const proto = h.get("x-forwarded-proto") || "https";
+    if (host) return `${proto}://${host}`;
+  } catch {
+    // ignore
+  }
+  return "";
+}
+
+function prettyEventDate(ymd: string): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
 
 export type AdminState = { ok: boolean; message: string };
 
@@ -182,6 +212,39 @@ export async function emailGatheringList(
   return { ok: true, message: `Sent — ${total} attending across ${rows.length} RSVPs.` };
 }
 
+// ---- Subscribers ("stay involved" updates) -------------------------
+
+export async function sendUpdateNow(
+  _prev: AdminState,
+  _formData: FormData
+): Promise<AdminState> {
+  requireAdmin();
+  const subs = await getActiveSubscribers();
+  if (subs.length === 0) return { ok: false, message: "No subscribers yet." };
+  const baseUrl = adminBaseUrl();
+  if (!baseUrl) return { ok: false, message: "Couldn't determine the site URL." };
+  const highlights = await buildHighlights();
+  const sent = await sendSubscriberDigest(
+    subs.map((s) => ({ email: s.email, token: s.token })),
+    baseUrl,
+    highlights
+  );
+  if (sent === 0) {
+    return { ok: false, message: "Nothing sent — is email set up (Resend)?" };
+  }
+  return { ok: true, message: `Update sent to ${sent} subscriber${sent === 1 ? "" : "s"}.` };
+}
+
+export async function deleteSubscriber(formData: FormData): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  await supabase.from("subscribers").delete().eq("id", id);
+  revalidatePath("/admin");
+}
+
 // ---- Weekend Ideas: automated events cache -------------------------
 
 export async function refreshEventsNow(): Promise<void> {
@@ -298,9 +361,33 @@ export async function addEvent(
     return { ok: false, message: "Couldn't add that event." };
   }
 
+  // Let subscribers know a new way to show up just went up.
+  let blast = 0;
+  try {
+    const subs = await getActiveSubscribers();
+    const baseUrl = adminBaseUrl();
+    if (subs.length > 0 && baseUrl) {
+      blast = await sendSubscriberEventBlast(
+        subs.map((s) => ({ email: s.email, token: s.token })),
+        baseUrl,
+        {
+          title,
+          whenText: event_date ? prettyEventDate(event_date) : "Date to be announced",
+          location,
+          description,
+        }
+      );
+    }
+  } catch (err) {
+    console.error("[addEvent] subscriber blast failed:", err);
+  }
+
   revalidatePath("/");
   revalidatePath("/admin");
-  return { ok: true, message: "Event added." };
+  return {
+    ok: true,
+    message: blast > 0 ? `Event added · ${blast} subscribers notified.` : "Event added.",
+  };
 }
 
 export async function deleteEvent(formData: FormData): Promise<void> {
