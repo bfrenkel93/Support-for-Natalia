@@ -11,6 +11,14 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
   hero_kicker: "For the people who love them",
   hero_image_url: "",
   intro_title: "For Natalia & the Kids",
+
+  memorial_title: "A Celebration of Joe's Life",
+  memorial_intro:
+    "We'll gather to remember Joe and to hold his family close. All who loved him are welcome.",
+  memorial_when: "To be announced",
+  memorial_where: "To be announced",
+  memorial_note:
+    "Details will be shared here as soon as they're set — please check back.",
   intro_message:
     "In the wake of Joe's passing, so many people have asked how they can show up for Natalia and the kids.\n\nThere is no way to fill the space Joe leaves behind. But there are ways to surround the people he loved most with presence, friendship, consistency, and care.\n\nThis page is simply a way to help us do that together.\n\nRather than everyone reaching out at once, or Natalia having to coordinate what she needs, we're creating a gentle rhythm of support around the family for the months ahead.\n\nChoose whatever feels natural to you. A weekend with the kids. Dinner with Natalia. A visit, an errand, or simply some company.\n\nThank you for loving them.",
 
@@ -71,6 +79,11 @@ export const SETTING_LABELS: Record<string, string> = {
   hero_kicker: "Hero kicker (small line above the title — leave blank to hide)",
   hero_image_url: "Hero photo URL (e.g. /hero.jpg, or a link — leave blank for a placeholder)",
   intro_title: "Hero heading",
+  memorial_title: "Gathering — heading",
+  memorial_intro: "Gathering — short intro",
+  memorial_when: "Gathering — date & time",
+  memorial_where: "Gathering — place",
+  memorial_note: "Gathering — note below",
   intro_message: "Hero / intro message",
   kids_subtitle: "“Visits for the Kids” subtitle",
   kids_intro: "“Visits for the Kids” intro",
@@ -101,6 +114,8 @@ export const SETTING_LABELS: Record<string, string> = {
 // These render as multi-line textareas in the admin editor.
 export const MULTILINE_SETTINGS = new Set([
   "intro_message",
+  "memorial_intro",
+  "memorial_note",
   "kids_intro",
   "kids_choose_note",
   "support_intro",

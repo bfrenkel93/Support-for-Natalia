@@ -1,5 +1,6 @@
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
+import MemorialSection from "@/components/MemorialSection";
 import SectionShell from "@/components/SectionShell";
 import BookingCalendar from "@/components/BookingCalendar";
 import IdeasList from "@/components/IdeasList";
@@ -41,6 +42,8 @@ export default async function Home() {
       <Nav />
       <main>
         <Hero settings={settings} />
+
+        <MemorialSection settings={settings} />
 
         {!isSupabaseConfigured() && <SetupNotice />}
 
