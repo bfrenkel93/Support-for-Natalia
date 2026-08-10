@@ -3,16 +3,14 @@ import Hero from "@/components/Hero";
 import MemorialSection from "@/components/MemorialSection";
 import SectionShell from "@/components/SectionShell";
 import BookingCalendar from "@/components/BookingCalendar";
-import IdeasList from "@/components/IdeasList";
+import KidsIdeasTeaser from "@/components/KidsIdeasTeaser";
 import EventsSection from "@/components/EventsSection";
 import MealHelp from "@/components/MealHelp";
 import StorySection from "@/components/StorySection";
 import GiftsSection from "@/components/GiftsSection";
 import Reveal from "@/components/Reveal";
-import WeekendIdeas from "@/components/WeekendIdeas";
 import { getSettings } from "@/lib/settings";
 import { getBookings } from "@/lib/bookings";
-import { getActivityIdeas } from "@/lib/ideas";
 import { getEvents } from "@/lib/events";
 import { getGifts } from "@/lib/gifts";
 import { isSupabaseConfigured } from "@/lib/supabase";
@@ -20,10 +18,9 @@ import { isSupabaseConfigured } from "@/lib/supabase";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [settings, bookings, ideas, events, gifts] = await Promise.all([
+  const [settings, bookings, events, gifts] = await Promise.all([
     getSettings(),
     getBookings(),
-    getActivityIdeas(),
     getEvents(),
     getGifts(),
   ]);
@@ -57,19 +54,13 @@ export default async function Home() {
           intro={settings.kids_intro}
           tone="parchment"
         >
-          <IdeasList ideas={ideas} />
-          <a href="#calendar" className="btn mt-12 inline-flex">
-            Request a weekend →
-          </a>
+          <KidsIdeasTeaser />
         </SectionShell>
 
-        {/* 02 · Things to Do Together */}
-        <WeekendIdeas bookings={visibleBookings} number="02" />
-
-        {/* 03 · For Natalia — context + meal help */}
+        {/* 02 · For Natalia — context + meal help */}
         <SectionShell
           id="support"
-          number="03"
+          number="02"
           label="For Natalia"
           title="Support for Natalia"
           subtitle={settings.support_subtitle}
@@ -89,7 +80,7 @@ export default async function Home() {
           <div className="mx-auto max-w-content px-6 sm:px-10">
             <Reveal>
               <div className="flex items-center gap-4">
-                <span className="section-num">04</span>
+                <span className="section-num">03</span>
                 <span className="eyebrow">Sign up</span>
               </div>
               <h2 className="mt-6 max-w-measure font-serif text-[2rem] font-light leading-tight text-ink sm:text-[2.6rem]">
@@ -107,19 +98,19 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* 05 · Events */}
+        {/* 04 · Events */}
         <EventsSection
           events={events}
           settings={settings}
           familyAddress={familyAddress}
-          number="05"
+          number="04"
         />
 
-        {/* 06 · Give a Gift */}
-        <GiftsSection gifts={gifts} settings={settings} number="06" />
+        {/* 05 · Give a Gift */}
+        <GiftsSection gifts={gifts} settings={settings} number="05" />
 
-        {/* 07 · Stories */}
-        <StorySection settings={settings} number="07" />
+        {/* 06 · Stories */}
+        <StorySection settings={settings} number="06" />
       </main>
 
       <Footer settings={settings} />

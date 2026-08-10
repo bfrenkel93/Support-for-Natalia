@@ -1,6 +1,8 @@
 import Nav from "@/components/Nav";
 import WeekendIdeasExplorer from "@/components/WeekendIdeasExplorer";
+import IdeasList from "@/components/IdeasList";
 import { getBookings } from "@/lib/bookings";
+import { getActivityIdeas } from "@/lib/ideas";
 import { upcomingWeekends, dateInWeekend } from "@/lib/weekend/weekends";
 import { buildWeekendGroups } from "@/lib/weekend/recommend";
 import { getSpecialByWeekend } from "@/lib/weekend/cache";
@@ -8,7 +10,7 @@ import { getSpecialByWeekend } from "@/lib/weekend/cache";
 export const dynamic = "force-dynamic";
 
 export default async function WeekendIdeasPage() {
-  const bookings = await getBookings();
+  const [bookings, ideas] = await Promise.all([getBookings(), getActivityIdeas()]);
   const weekends = upcomingWeekends(10);
 
   const confirmedKids = bookings.filter(
@@ -42,7 +44,13 @@ export default async function WeekendIdeasPage() {
             again and again.
           </p>
 
-          <div className="mt-12">
+          {ideas.length > 0 && (
+            <div className="mt-10">
+              <IdeasList ideas={ideas} />
+            </div>
+          )}
+
+          <div className="mt-14">
             <WeekendIdeasExplorer groups={groups} />
           </div>
         </div>
