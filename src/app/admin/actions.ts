@@ -113,10 +113,13 @@ export async function saveSettings(
   if (error) {
     console.error("[saveSettings]", error);
     const e = error as { code?: string; message?: string; details?: string; hint?: string };
-    const detail =
-      [e.code, e.message, e.details, e.hint].filter(Boolean).join(" · ") ||
-      (typeof error === "string" ? error : JSON.stringify(error));
-    return { ok: false, message: `Couldn't save — DIAG: ${detail}` };
+    const detail = [e.code, e.message, e.details, e.hint].filter(Boolean).join(" · ");
+    return {
+      ok: false,
+      message: detail
+        ? `Couldn't save — please try again. (${detail})`
+        : "Couldn't save. Please try again.",
+    };
   }
 
   revalidatePath("/");
