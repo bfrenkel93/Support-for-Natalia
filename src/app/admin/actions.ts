@@ -108,7 +108,13 @@ export async function saveSettings(
 
   if (error) {
     console.error("[saveSettings]", error);
-    return { ok: false, message: "Couldn't save. Please try again." };
+    const detail = [error.code, error.message].filter(Boolean).join(" · ");
+    return {
+      ok: false,
+      message: detail
+        ? `Couldn't save — ${detail}`
+        : "Couldn't save. Please try again.",
+    };
   }
 
   revalidatePath("/");
