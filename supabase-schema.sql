@@ -72,7 +72,7 @@ insert into public.settings (key, value) values
   ('stories_privacy',   E'Everything you share here is completely private. It goes only to Natalia and the family through a secure, password-protected page — it is never shown publicly on this site.'),
   ('stories_confirmation', E'Thank you for sharing this with the kids. It''s safe with the family, and one day it will help them know their dad a little more. 💛'),
   ('gifts_title',       'Give a Gift of Rest'),
-  ('gifts_intro',       E'Grief is exhausting, and the everyday things — cooking, errands, a moment to breathe — get so heavy. If you''d like to give something a little bigger, you can chip in toward a gift that lets Natalia rest and be cared for.\n\nContribute whatever you''re comfortable with using any of the options below. When enough is gathered, we''ll arrange it.'),
+  ('gifts_intro',       E'Grief is exhausting, and the everyday things — cooking, errands, a moment to breathe — get so heavy. If you''d like to give something a little bigger, you can chip in toward a gift that lets Natalia rest and be cared for.\n\nSome of the things we hope to give her: a week of prepared meals from a private chef, a massage, a manicure, or a cleaning service — small comforts that lighten the load.\n\nContribute whatever you''re comfortable with using any of the options below. When enough is gathered, we''ll arrange it.'),
   ('pay_venmo',         'natalia-digiovanni'),
   ('pay_cashapp',       'nataliab85'),
   ('pay_zelle',         '904 866 6753'),

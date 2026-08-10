@@ -62,7 +62,7 @@ export const DEFAULT_SETTINGS: Record<string, string> = {
 
   gifts_title: "Give a Gift of Rest",
   gifts_intro:
-    "Grief is exhausting, and the everyday things — cooking, errands, a moment to breathe — get so heavy. If you'd like to give something a little bigger, you can chip in toward a gift that lets Natalia rest and be cared for.\n\nContribute whatever you're comfortable with using any of the options below. When enough is gathered, we'll arrange it.",
+    "Grief is exhausting, and the everyday things — cooking, errands, a moment to breathe — get so heavy. If you'd like to give something a little bigger, you can chip in toward a gift that lets Natalia rest and be cared for.\n\nSome of the things we hope to give her: a week of prepared meals from a private chef, a massage, a manicure, or a cleaning service — small comforts that lighten the load.\n\nContribute whatever you're comfortable with using any of the options below. When enough is gathered, we'll arrange it.",
   pay_venmo: "natalia-digiovanni",
   pay_cashapp: "nataliab85",
   pay_zelle: "904 866 6753",
