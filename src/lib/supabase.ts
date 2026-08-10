@@ -45,6 +45,15 @@ export type Slot = {
   created_at: string;
 };
 
+export type GatheringRsvp = {
+  id: string;
+  name: string;
+  email: string | null;
+  party_size: number;
+  note: string | null;
+  created_at: string;
+};
+
 export type BookingKind = "kids" | "meal" | "visit" | "errand";
 export type BookingStatus = "requested" | "confirmed" | "declined";
 

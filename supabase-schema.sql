@@ -276,6 +276,20 @@ insert into public.activity_ideas (title, event_date, location, note, sort_order
 on conflict do nothing;
 
 -- ==================================================================
+-- GATHERING RSVPs — for the memorial. Guests say how many are coming;
+-- the admin sees a running headcount and can email the list to the organizer.
+-- ==================================================================
+create table if not exists public.gathering_rsvps (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null,
+  email       text,
+  party_size  integer not null default 1,
+  note        text,
+  created_at  timestamptz not null default now()
+);
+alter table public.gathering_rsvps enable row level security;
+
+-- ==================================================================
 -- EVENTS — "Come Cheer Them On". Many people can RSVP to one event;
 -- attendee names are shown on the (private) page. Managed from /admin.
 -- ==================================================================

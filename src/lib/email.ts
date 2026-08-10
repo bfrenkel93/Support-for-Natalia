@@ -217,6 +217,112 @@ export async function sendRequestDecision(args: {
   }
 }
 
+/** Notifies the organizer when someone RSVPs to the gathering. */
+export async function sendGatheringRsvpNotification(args: {
+  name: string;
+  partySize: number;
+  email?: string | null;
+  note?: string | null;
+  total: number;
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.NOTIFY_EMAIL;
+  const from =
+    process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
+  if (!apiKey || !to) return;
+
+  const { name, partySize, email, note, total } = args;
+  const guests = partySize === 1 ? "1 guest" : `${partySize} guests`;
+  const text = [
+    `${name} RSVP'd — ${guests}.`,
+    email ? `Email: ${email}` : "",
+    note ? `Note: ${note}` : "",
+    ``,
+    `Running headcount: ${total} attending.`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const html = `
+    <div style="font-family: Georgia, serif; color: #3E3A33; line-height: 1.6;">
+      <h2 style="color:#8B6A43; margin-bottom: 4px;">New RSVP to the gathering 💛</h2>
+      <p><strong>${escapeHtml(name)}</strong> RSVP'd — <strong>${escapeHtml(guests)}</strong>.</p>
+      ${note ? `<p>Note: ${escapeHtml(note)}</p>` : ""}
+      ${email ? `<p style="color:#6E6858;font-size:14px;">${escapeHtml(email)}</p>` : ""}
+      <p style="margin-top:10px;"><strong>Running headcount: ${total} attending.</strong></p>
+    </div>`;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from,
+      to,
+      subject: `RSVP: ${name} (+${partySize}) — ${total} total`,
+      text,
+      html,
+    });
+  } catch (err) {
+    console.error("[email] Failed to send gathering RSVP notification:", err);
+  }
+}
+
+/** Emails the full gathering guest list + headcount to the organizer on demand. */
+export async function sendGatheringList(args: {
+  rows: { name: string; email: string | null; party_size: number; note: string | null }[];
+  total: number;
+}): Promise<{ ok: boolean; reason?: string }> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.NOTIFY_EMAIL;
+  const from =
+    process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
+  if (!apiKey) return { ok: false, reason: "Email isn't set up (RESEND_API_KEY)." };
+  if (!to) return { ok: false, reason: "No NOTIFY_EMAIL is set." };
+
+  const { rows, total } = args;
+  const lines = rows.map(
+    (r) =>
+      `${r.name} — ${r.party_size} ${r.party_size === 1 ? "guest" : "guests"}` +
+      (r.email ? ` · ${r.email}` : "") +
+      (r.note ? ` · “${r.note}”` : "")
+  );
+  const text = [
+    `Gathering guest list — ${total} attending across ${rows.length} RSVPs.`,
+    ``,
+    ...lines,
+  ].join("\n");
+
+  const htmlRows = rows
+    .map(
+      (r) =>
+        `<tr><td style="padding:4px 12px 4px 0;">${escapeHtml(r.name)}</td>` +
+        `<td style="padding:4px 12px 4px 0;">${r.party_size}</td>` +
+        `<td style="padding:4px 12px 4px 0;color:#6E6858;">${escapeHtml(r.email || "")}</td>` +
+        `<td style="color:#6E6858;">${escapeHtml(r.note || "")}</td></tr>`
+    )
+    .join("");
+  const html = `
+    <div style="font-family: Georgia, serif; color: #3E3A33; line-height: 1.6;">
+      <h2 style="color:#8B6A43;">Gathering guest list</h2>
+      <p><strong>${total} attending</strong> across ${rows.length} RSVPs.</p>
+      <table style="border-collapse:collapse;font-size:14px;">${htmlRows}</table>
+    </div>`;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from,
+      to,
+      subject: `Gathering guest list — ${total} attending`,
+      text,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error("[email] Failed to send gathering list:", err);
+    return { ok: false, reason: "Something went wrong sending the email." };
+  }
+}
+
 /** Notifies the family when someone chips in toward a gift. Fails silently. */
 export async function sendGiftNotification(args: {
   giftTitle: string;

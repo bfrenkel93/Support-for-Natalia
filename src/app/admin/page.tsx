@@ -7,12 +7,14 @@ import { getEvents } from "@/lib/events";
 import { getGifts } from "@/lib/gifts";
 import { attachSignedUrls, listMemories } from "@/lib/memories";
 import { getEventsStatus, getAdminEvents } from "@/lib/weekend/cache";
+import { getGatheringRsvps } from "@/lib/gathering";
 import {
   confirmBooking,
   declineBooking,
   deleteBooking,
   deleteEvent,
   deleteGift,
+  deleteGatheringRsvp,
   deleteIdea,
   hideEvent,
   logout,
@@ -23,6 +25,7 @@ import {
   unhideEvent,
   unpinEvent,
 } from "./actions";
+import EmailGatheringListButton from "@/components/admin/EmailGatheringListButton";
 import LoginForm from "@/components/admin/LoginForm";
 import SettingsForm from "@/components/admin/SettingsForm";
 import AddEventForm from "@/components/admin/AddEventForm";
@@ -53,7 +56,7 @@ export default async function AdminPage() {
     return <LoginForm passwordSet={adminPasswordIsSet()} />;
   }
 
-  const [settings, bookings, ideas, events, gifts, memories, eventsStatus, cachedEvents] =
+  const [settings, bookings, ideas, events, gifts, memories, eventsStatus, cachedEvents, gathering] =
     await Promise.all([
       getSettings(),
       getBookings(),
@@ -63,6 +66,7 @@ export default async function AdminPage() {
       listMemories().then(attachSignedUrls),
       getEventsStatus(),
       getAdminEvents(),
+      getGatheringRsvps(),
     ]);
 
   const pending = bookings.filter((b) => b.status === "requested");
@@ -91,6 +95,66 @@ export default async function AdminPage() {
           <code>SUPABASE_SERVICE_ROLE_KEY</code>, then reload.
         </p>
       )}
+
+      {/* Gathering RSVPs */}
+      <section className="mt-12">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className={H2}>
+              The Gathering — RSVPs
+              <span className="ml-3 align-middle text-sm text-bronze">
+                {gathering.total} attending · {gathering.parties} RSVP
+                {gathering.parties === 1 ? "" : "s"}
+              </span>
+            </h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              Total headcount for the memorial. Each RSVP also emails you as it
+              comes in.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {gathering.rows.length > 0 && (
+              <>
+                <EmailGatheringListButton />
+                <a href="/api/gathering/export" className={DEL}>
+                  Export CSV ↓
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+        <div className={CARD}>
+          {gathering.rows.length === 0 ? (
+            <p className="bg-bone/40 px-5 py-6 text-ink-soft">No RSVPs yet.</p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {gathering.rows.map((r) => (
+                <li
+                  key={r.id}
+                  className="flex flex-col gap-2 bg-bone/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium text-ink">
+                      {r.name}
+                      <span className="ml-2 text-sm font-normal text-ink-soft">
+                        party of {r.party_size}
+                      </span>
+                    </p>
+                    <p className="text-sm text-ink-soft">
+                      {r.email || "—"}
+                      {r.note ? ` · “${r.note}”` : ""}
+                    </p>
+                  </div>
+                  <form action={deleteGatheringRsvp} className="shrink-0">
+                    <input type="hidden" name="id" value={r.id} />
+                    <button className={DEL}>Remove</button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
 
       {/* Weekend requests awaiting confirmation */}
       <section className="mt-12">

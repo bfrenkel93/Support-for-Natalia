@@ -9,7 +9,9 @@ import {
   sendRsvpNotification,
   sendGiftNotification,
   sendBookingNotification,
+  sendGatheringRsvpNotification,
 } from "@/lib/email";
+import { getGatheringRsvps } from "@/lib/gathering";
 import { KIND_LABEL } from "@/lib/bookings";
 import { stripJpegMetadata } from "@/lib/image";
 import {
@@ -233,6 +235,64 @@ export async function rsvpEvent(
 
   revalidatePath("/");
   return { ok: true, message: confirmation, eventId };
+}
+
+// -------------------------------------------------------------------
+// Gathering RSVPs — the memorial. Guests give a party size.
+// -------------------------------------------------------------------
+
+export type GatheringState = { ok: boolean; message: string };
+
+export async function rsvpGathering(
+  _prev: GatheringState,
+  formData: FormData
+): Promise<GatheringState> {
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim();
+  const note = String(formData.get("note") || "").trim();
+  let partySize = Number(formData.get("party_size") || 1);
+
+  if (!name) return { ok: false, message: "Please add your name." };
+  if (name.length > 120) return { ok: false, message: "That name looks too long." };
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, message: "That email doesn't look right." };
+  }
+  if (!Number.isFinite(partySize)) partySize = 1;
+  partySize = Math.max(1, Math.min(30, Math.round(partySize)));
+
+  const supabase = getSupabase();
+  if (!supabase) {
+    return { ok: false, message: "RSVPs aren't connected yet. Please check back soon." };
+  }
+
+  const { error } = await supabase.from("gathering_rsvps").insert({
+    name,
+    email: email || null,
+    party_size: partySize,
+    note: note || null,
+  });
+
+  if (error) {
+    console.error("[rsvpGathering] insert failed:", error);
+    return { ok: false, message: "Sorry — we couldn't save that. Please try again." };
+  }
+
+  // Running headcount for the organizer's email.
+  let total = partySize;
+  try {
+    total = (await getGatheringRsvps()).total;
+  } catch {
+    // fall back to this party size
+  }
+
+  await sendGatheringRsvpNotification({ name, partySize, email, note, total });
+
+  revalidatePath("/");
+  return {
+    ok: true,
+    message:
+      "Thank you — your RSVP is in. We're grateful you'll be there to remember Joe. 💛",
+  };
 }
 
 // -------------------------------------------------------------------

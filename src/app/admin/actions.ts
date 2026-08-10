@@ -12,6 +12,8 @@ import { getSupabase, type Booking } from "@/lib/supabase";
 import { deleteMemoryEverywhere } from "@/lib/memories";
 import { sendRequestDecision } from "@/lib/email";
 import { ingestEvents } from "@/lib/weekend/ingest";
+import { getGatheringRsvps } from "@/lib/gathering";
+import { sendGatheringList } from "@/lib/email";
 
 export type AdminState = { ok: boolean; message: string };
 
@@ -149,6 +151,35 @@ export async function declineBooking(formData: FormData): Promise<void> {
   }
   revalidatePath("/");
   revalidatePath("/admin");
+}
+
+// ---- Gathering RSVPs -----------------------------------------------
+
+export async function deleteGatheringRsvp(formData: FormData): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  await supabase.from("gathering_rsvps").delete().eq("id", id);
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
+export async function emailGatheringList(
+  _prev: AdminState,
+  _formData: FormData
+): Promise<AdminState> {
+  requireAdmin();
+  const { rows, total } = await getGatheringRsvps();
+  if (rows.length === 0) {
+    return { ok: false, message: "No RSVPs to send yet." };
+  }
+  const result = await sendGatheringList({ rows, total });
+  if (!result.ok) {
+    return { ok: false, message: result.reason || "Couldn't send the list." };
+  }
+  return { ok: true, message: `Sent — ${total} attending across ${rows.length} RSVPs.` };
 }
 
 // ---- Weekend Ideas: automated events cache -------------------------

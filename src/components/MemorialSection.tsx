@@ -1,5 +1,6 @@
 import type { Settings } from "@/lib/content";
 import Reveal from "./Reveal";
+import GatheringRsvpForm from "./GatheringRsvpForm";
 
 /**
  * A quiet, editable "gathering" band — the memorial's date/time/place. Details
@@ -48,6 +49,8 @@ export default function MemorialSection({ settings }: { settings: Settings }) {
               {note}
             </p>
           )}
+
+          <GatheringRsvpForm />
         </Reveal>
       </div>
     </section>
