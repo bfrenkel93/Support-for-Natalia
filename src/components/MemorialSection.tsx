@@ -1,15 +1,17 @@
 import type { Settings } from "@/lib/content";
 import Reveal from "./Reveal";
 import GatheringRsvpForm from "./GatheringRsvpForm";
+import { getGatheringRsvps } from "@/lib/gathering";
 
 /**
  * A quiet, editable "gathering" band — the memorial's date/time/place. Details
  * default to "To be announced" and are edited from the admin (Edit page text).
  */
-export default function MemorialSection({ settings }: { settings: Settings }) {
+export default async function MemorialSection({ settings }: { settings: Settings }) {
   const when = settings.memorial_when?.trim();
   const where = settings.memorial_where?.trim();
   const note = settings.memorial_note?.trim();
+  const { total } = await getGatheringRsvps();
 
   return (
     <section id="gathering" className="section-anchor bg-limestone/60 py-24 sm:py-28">
@@ -47,6 +49,12 @@ export default function MemorialSection({ settings }: { settings: Settings }) {
           {note && (
             <p className="mx-auto mt-6 max-w-measure text-sm leading-relaxed text-ink-soft">
               {note}
+            </p>
+          )}
+
+          {total > 0 && (
+            <p className="mt-9 text-[0.72rem] uppercase tracking-label text-bronze">
+              {total} planning to attend
             </p>
           )}
 
