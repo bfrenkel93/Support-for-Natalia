@@ -97,6 +97,10 @@ export default async function ManagePage({
         show_subscribe: family.content?.show_subscribe !== false,
         show_memories: family.content?.show_memories !== false,
         show_events: family.content?.show_events !== false,
+        support_name: family.content?.support_name ?? "",
+        support_address: family.content?.support_address ?? "",
+        support_note: family.content?.support_note ?? "",
+        show_support: family.content?.show_support !== false,
       }}
       bookings={bookings.map((b) => ({
         event_date: b.event_date,

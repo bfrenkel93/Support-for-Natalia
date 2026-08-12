@@ -32,6 +32,10 @@ type FamilyLite = {
   show_subscribe: boolean;
   show_memories: boolean;
   show_events: boolean;
+  support_name: string;
+  support_address: string;
+  support_note: string;
+  show_support: boolean;
 };
 
 type GiftRow = {
@@ -122,6 +126,10 @@ export default function ManageFamily({
     family.intro_message || mkIntro((family.honoring || "").trim())
   );
   const [memoriesPublic, setMemoriesPublic] = useState(family.memories_public);
+  const [supportName, setSupportName] = useState(family.support_name);
+  const [supportAddress, setSupportAddress] = useState(family.support_address);
+  const [supportNote, setSupportNote] = useState(family.support_note);
+  const [showSupport, setShowSupport] = useState(family.show_support);
 
   const [memTitle, setMemTitle] = useState(family.memorial_title);
   const [memIntro, setMemIntro] = useState(
@@ -216,6 +224,10 @@ export default function ManageFamily({
           showSubscribe,
           showMemories,
           showEvents,
+          supportName,
+          supportAddress,
+          supportNote,
+          showSupport,
         }),
       });
       const out = await res.json().catch(() => ({}));
@@ -474,6 +486,34 @@ export default function ManageFamily({
               <input className="field" value={payZelle} onChange={(e) => setPayZelle(e.target.value)} maxLength={120} />
             </div>
           </div>
+        </div>
+
+        <div className="mt-10 border-t border-line/60 pt-8">
+          <p className="eyebrow">Support &amp; meals — optional</p>
+          <p className="mt-1 text-sm text-ink-faint">
+            Adds a “Support for …” section with a map of where to bring meals and
+            help. Leave the address blank to hide it.
+          </p>
+          <label className="mt-4 flex items-center gap-2.5 text-sm text-ink">
+            <input type="checkbox" checked={showSupport} onChange={(e) => setShowSupport(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+            Show this section
+          </label>
+          {showSupport && (
+            <div className="mt-4 grid gap-6 sm:grid-cols-2">
+              <div>
+                <label className="field-label">Support is for</label>
+                <input className="field" value={supportName} onChange={(e) => setSupportName(e.target.value)} maxLength={120} placeholder="e.g. Natalia, or the Rossi family" />
+              </div>
+              <div>
+                <label className="field-label">Address for the map</label>
+                <input className="field" value={supportAddress} onChange={(e) => setSupportAddress(e.target.value)} maxLength={300} placeholder="Street, city — or just a city" />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="field-label">A note — optional</label>
+                <input className="field" value={supportNote} onChange={(e) => setSupportNote(e.target.value)} maxLength={500} placeholder="e.g. No nuts, please — and the porch is the easiest drop-off." />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-8 flex items-center gap-5">

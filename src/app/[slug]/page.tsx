@@ -7,6 +7,7 @@ import { getFamilyEvents } from "@/lib/events";
 import { getFamilyMemoriesWithUrls } from "@/lib/memories";
 import SectionShell from "@/components/SectionShell";
 import Reveal from "@/components/Reveal";
+import MealHelp from "@/components/MealHelp";
 import FamilyBookingCalendar from "@/components/FamilyBookingCalendar";
 import FamilyGifts from "@/components/FamilyGifts";
 import FamilyEvents from "@/components/FamilyEvents";
@@ -102,8 +103,16 @@ export default async function FamilyPage({
     content.memorial_title || content.memorial_when || content.memorial_where
   );
 
+  // "Support for ___" — who support goes to, and the address for the map.
+  const supportName =
+    (content.support_name || "").trim() ||
+    family.display_name.replace(/^for\s+/i, "").trim();
+  const supportAddress =
+    (content.support_address || "").trim() || (family.town || "").trim();
+
   const showCalendar = content.show_calendar !== false;
   const showMemorial = hasMemorial && content.show_memorial !== false;
+  const showSupport = Boolean(supportAddress) && content.show_support !== false;
   const showGifts = giftsLite.length > 0 && content.show_gifts !== false;
   const showSubscribe = content.show_subscribe !== false;
   const showMemories = content.show_memories !== false;
@@ -132,6 +141,7 @@ export default async function FamilyPage({
   const ordered: string[] = [];
   if (showMemorial) ordered.push("gathering");
   if (showCalendar) ordered.push("calendar");
+  if (showSupport) ordered.push("support");
   if (showGifts) ordered.push("gifts");
   if (showEvents) ordered.push("events");
   if (showMemories) ordered.push("stories");
@@ -141,6 +151,7 @@ export default async function FamilyPage({
   const navLinks = [
     showMemorial ? { href: "#gathering", label: "Gathering" } : null,
     showCalendar ? { href: "#calendar", label: "Calendar" } : null,
+    showSupport ? { href: "#support", label: `For ${supportName}` } : null,
     showGifts ? { href: "#gifts", label: "Give a Gift" } : null,
     showEvents ? { href: "#events", label: "Events" } : null,
     showMemories ? { href: "#stories", label: "Stories" } : null,
@@ -277,6 +288,25 @@ export default async function FamilyPage({
           </SectionShell>
         )}
 
+        {/* Support for ___ (with a map) */}
+        {showSupport && (
+          <SectionShell
+            id="support"
+            number={num("support")}
+            label={`For ${supportName}`}
+            title={`Support for ${supportName}`}
+            intro={content.support_note ? undefined : "A hand with meals and the everyday things. Here’s where to bring them."}
+            tone={tone("support")}
+          >
+            <MealHelp address={supportAddress} allergyNote={content.support_note} />
+            {showCalendar && (
+              <a href="#calendar" className="btn mt-2 inline-flex">
+                Sign up on the calendar →
+              </a>
+            )}
+          </SectionShell>
+        )}
+
         {/* Give a gift */}
         {showGifts && (
           <SectionShell
@@ -318,7 +348,7 @@ export default async function FamilyPage({
             id="stories"
             number={num("stories")}
             label="Stories"
-            title={family.honoring ? `Tell them about ${family.honoring}` : "Share a memory"}
+            title={family.honoring ? `Share a story about ${family.honoring}` : "Share a story"}
             intro={
               memoriesPublic
                 ? "Some memories are worth saving before they fade. What you share here appears on this page for others who loved them."

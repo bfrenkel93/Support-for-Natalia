@@ -52,6 +52,11 @@ export type FamilyContent = {
   show_events?: boolean;
   // When true, shared memories are posted publicly on the page (default: private).
   memories_public?: boolean;
+  // "Support for ___" section: who support is for, an address for the map, and a note.
+  support_name?: string;
+  support_address?: string;
+  support_note?: string;
+  show_support?: boolean;
 };
 
 export type Family = {
