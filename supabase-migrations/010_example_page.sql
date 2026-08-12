@@ -39,10 +39,10 @@ on conflict (id) do update set
 -- Sample calendar coverage (relative to today so the demo looks alive).
 delete from public.bookings where family_id = '22222222-2222-2222-2222-222222222222';
 insert into public.bookings (family_id, event_date, kind, status, name, private) values
-  ('22222222-2222-2222-2222-222222222222', to_char(current_date + 2, 'YYYY-MM-DD'), 'meal',  'confirmed', 'The Alvarez family', false),
-  ('22222222-2222-2222-2222-222222222222', to_char(current_date + 4, 'YYYY-MM-DD'), 'kids',  'confirmed', 'Coach Dan',          false),
-  ('22222222-2222-2222-2222-222222222222', to_char(current_date + 6, 'YYYY-MM-DD'), 'visit', 'confirmed', 'Priya',              false),
-  ('22222222-2222-2222-2222-222222222222', to_char(current_date + 9, 'YYYY-MM-DD'), 'meal',  'confirmed', 'The Kims',           false);
+  ('22222222-2222-2222-2222-222222222222', current_date + 2, 'meal',  'confirmed', 'The Alvarez family', false),
+  ('22222222-2222-2222-2222-222222222222', current_date + 4, 'kids',  'confirmed', 'Coach Dan',          false),
+  ('22222222-2222-2222-2222-222222222222', current_date + 6, 'visit', 'confirmed', 'Priya',              false),
+  ('22222222-2222-2222-2222-222222222222', current_date + 9, 'meal',  'confirmed', 'The Kims',           false);
 
 -- A couple of gift ideas.
 delete from public.gifts where family_id = '22222222-2222-2222-2222-222222222222';
