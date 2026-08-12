@@ -113,6 +113,7 @@ export default function ManageFamily({
   subscriberCount,
   gatheringTotal,
   gatheringParties,
+  gatheringRegrets,
   gifts,
   events,
   requests,
@@ -123,6 +124,7 @@ export default function ManageFamily({
   subscriberCount: number;
   gatheringTotal: number;
   gatheringParties: number;
+  gatheringRegrets: number;
   gifts: GiftRow[];
   events: EventRow[];
   requests: RequestRow[];
@@ -549,9 +551,10 @@ export default function ManageFamily({
             <label className="field-label">A closing note — optional</label>
             <input className="field" value={memNote} onChange={(e) => setMemNote(e.target.value)} maxLength={2000} placeholder="e.g. More details to follow" />
           </div>
-          {gatheringParties > 0 && (
+          {(gatheringParties > 0 || gatheringRegrets > 0) && (
             <p className="mt-4 text-sm text-ink-soft">
-              {gatheringTotal} guests RSVP’d ({gatheringParties} responses).
+              {gatheringTotal} coming ({gatheringParties} yes
+              {gatheringRegrets > 0 ? `, ${gatheringRegrets} can’t make it` : ""}).
             </p>
           )}
         </div>

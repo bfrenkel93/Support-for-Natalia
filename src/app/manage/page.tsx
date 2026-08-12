@@ -58,6 +58,7 @@ export default async function ManagePage({
       subscriberCount={subscriberCount}
       gatheringTotal={gathering.total}
       gatheringParties={gathering.parties}
+      gatheringRegrets={gathering.regrets}
       gifts={gifts.map((g) => ({
         id: g.id,
         title: g.title,

@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 export default function FamilyGatheringForm({ slug }: { slug: string }) {
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [attending, setAttending] = useState(true);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,7 +29,8 @@ export default function FamilyGatheringForm({ slug }: { slug: string }) {
           name,
           email: get("email"),
           note: get("note"),
-          party_size: Number(get("party_size") || 1),
+          attending,
+          party_size: attending ? Number(get("party_size") || 1) : 0,
         }),
       });
       const out = await res.json().catch(() => ({}));
@@ -53,15 +55,31 @@ export default function FamilyGatheringForm({ slug }: { slug: string }) {
 
   return (
     <form onSubmit={onSubmit} className="mx-auto max-w-xl text-left">
+      <div className="mb-6">
+        <p className="field-label">Will you be there?</p>
+        <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink">
+          <label className="flex items-center gap-2.5">
+            <input type="radio" name="attending" checked={attending} onChange={() => setAttending(true)} className="text-bronze focus:ring-bronze/40" />
+            Yes, I’ll be there
+          </label>
+          <label className="flex items-center gap-2.5">
+            <input type="radio" name="attending" checked={!attending} onChange={() => setAttending(false)} className="text-bronze focus:ring-bronze/40" />
+            I can’t make it
+          </label>
+        </div>
+      </div>
+
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label className="field-label">Your name<span className="text-bronze"> *</span></label>
           <input name="name" required maxLength={120} autoComplete="name" className="field" placeholder="First and last name" />
         </div>
-        <div>
-          <label className="field-label">How many coming?</label>
-          <input name="party_size" type="number" min={1} max={30} defaultValue={1} className="field" />
-        </div>
+        {attending && (
+          <div>
+            <label className="field-label">How many coming?</label>
+            <input name="party_size" type="number" min={1} max={30} defaultValue={1} className="field" />
+          </div>
+        )}
         <div>
           <label className="field-label">Email — optional</label>
           <input name="email" type="email" autoComplete="email" className="field" placeholder="you@example.com" />

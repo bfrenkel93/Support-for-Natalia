@@ -19,6 +19,7 @@ export async function POST(req: Request) {
   const name = String(body.name ?? "").trim().slice(0, 120);
   const email = String(body.email ?? "").trim().slice(0, 200);
   const note = String(body.note ?? "").trim().slice(0, 1000);
+  const attending = body.attending !== false && body.attending !== "false";
   let partySize = Number(body.party_size ?? 1);
 
   if (!name) {
@@ -28,7 +29,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "That email doesn't look right." }, { status: 400 });
   }
   if (!Number.isFinite(partySize)) partySize = 1;
-  partySize = Math.max(1, Math.min(30, Math.round(partySize)));
+  // Regrets don't add to the headcount.
+  partySize = attending ? Math.max(1, Math.min(30, Math.round(partySize))) : 0;
 
   const family = slug ? await getFamilyBySlug(slug) : null;
   if (!family) {
@@ -45,6 +47,7 @@ export async function POST(req: Request) {
     name,
     email: email || null,
     party_size: partySize,
+    attending,
     note: note || null,
   });
   if (error) {
@@ -63,9 +66,13 @@ export async function POST(req: Request) {
         from,
         to: recipients,
         replyTo: email || undefined,
-        subject: `New RSVP — ${name} (${partySize})`,
+        subject: attending
+          ? `New RSVP — ${name} (${partySize})`
+          : `RSVP — ${name} can't make it`,
         text: [
-          `${name} RSVP'd to your gathering with a party of ${partySize}.`,
+          attending
+            ? `${name} RSVP'd to your gathering with a party of ${partySize}.`
+            : `${name} let you know they can't make the gathering.`,
           note ? `Note: ${note}` : ``,
           ``,
           `Running headcount: ${total}`,
@@ -78,6 +85,8 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     ok: true,
-    message: "Thank you — your RSVP is in. We're grateful you'll be there. 💛",
+    message: attending
+      ? "Thank you — your RSVP is in. We're grateful you'll be there. 💛"
+      : "Thank you for letting them know. 💛",
   });
 }
