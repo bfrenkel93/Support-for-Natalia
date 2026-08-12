@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createFamily } from "@/lib/families";
+import { creatorWelcomeEmail } from "@/lib/emails";
 
 // Public self-serve endpoint: turns the "create your page" form into a real,
 // live family page. No approval — the page exists the moment this returns.
@@ -11,6 +12,23 @@ function clean(v: unknown, max: number): string {
 }
 function multiline(v: unknown, max: number): string {
   return String(v ?? "").replace(/\r\n/g, "\n").trim().slice(0, max);
+}
+
+/**
+ * Resolve the public base URL for links in emails. Prefers an explicit env
+ * setting, then the real forwarded host (correct behind Vercel's proxy), and
+ * only falls back to the request URL — so links never point at an internal
+ * host or localhost in production.
+ */
+function resolveBaseUrl(req: Request): string {
+  const env = process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL;
+  if (env) return env.replace(/\/+$/, "");
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+  if (host) {
+    const proto = req.headers.get("x-forwarded-proto") || "https";
+    return `${proto}://${host}`;
+  }
+  return new URL(req.url).origin;
 }
 
 export async function POST(req: Request) {
@@ -55,7 +73,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const origin = new URL(req.url).origin;
+  const origin = resolveBaseUrl(req);
   const pageUrl = `${origin}/${family.slug}`;
   const manageUrl = `${origin}/manage?token=${family.edit_token}`;
 
@@ -90,23 +108,17 @@ export async function POST(req: Request) {
     }
 
     try {
+      const welcome = creatorWelcomeEmail({
+        displayName: family.display_name,
+        pageUrl,
+        manageUrl,
+      });
       await resend.emails.send({
         from,
         to: email,
-        subject: `Your page is ready 💛`,
-        text: [
-          `Hi ${creatorName},`,
-          ``,
-          `Your page "${family.display_name}" is ready. This is its private link — share it with the people you'd like to invite:`,
-          ``,
-          pageUrl,
-          ``,
-          `Keep this email — the link below lets you come back and manage the page:`,
-          manageUrl,
-          ``,
-          `With care,`,
-          `Family Grief Support`,
-        ].join("\n"),
+        subject: welcome.subject,
+        html: welcome.html,
+        text: welcome.text,
       });
     } catch (err) {
       console.error("create-page: creator email failed", err);

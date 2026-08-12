@@ -19,6 +19,17 @@ import { isSupabaseConfigured } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata() {
+  // Natalia's own page keeps its editable browser-tab title.
+  try {
+    const settings = await getSettings();
+    if (settings.site_title) return { title: settings.site_title };
+  } catch {
+    // ignore — fall back to the layout default
+  }
+  return { title: "A private support page" };
+}
+
 export default async function Home() {
   const [settings, bookings, events, gifts] = await Promise.all([
     getSettings(),

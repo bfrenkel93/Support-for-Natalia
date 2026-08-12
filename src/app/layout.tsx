@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Spectral, Archivo } from "next/font/google";
 import "./globals.css";
-import { getSettings } from "@/lib/settings";
 
 // Editorial serif for headings & pull-quotes — calm, architectural, not romantic.
 const spectral = Spectral({
@@ -20,9 +19,11 @@ const archivo = Archivo({
   weight: ["400", "500", "600"],
 });
 
-// Keep the whole site out of search engines.
+// Neutral default title so pages that don't set their own never inherit one
+// family's branding. Each page (Natalia's home, every family page) sets its
+// own title via generateMetadata; this is only the fallback.
 export const metadata: Metadata = {
-  title: "A private support page",
+  title: "Family Grief Support",
   description: "A private page for family and friends.",
   robots: {
     index: false,
@@ -32,26 +33,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Pull the browser-tab title from editable settings (best-effort).
-  let title = "A private support page";
-  try {
-    const settings = await getSettings();
-    if (settings.site_title) title = settings.site_title;
-  } catch {
-    // ignore — fall back to default title
-  }
-
   return (
     <html lang="en" className={`${spectral.variable} ${archivo.variable}`}>
-      <head>
-        <title>{title}</title>
-        <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
-      </head>
       <body className="min-h-screen bg-parchment">{children}</body>
     </html>
   );
