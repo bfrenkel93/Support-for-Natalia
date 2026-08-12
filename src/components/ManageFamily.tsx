@@ -12,6 +12,11 @@ type FamilyLite = {
   edit_token: string;
   hero_image_url: string | null;
   intro_message: string;
+  memorial_title: string;
+  memorial_intro: string;
+  memorial_when: string;
+  memorial_where: string;
+  memorial_note: string;
 };
 
 type BookingLite = {
@@ -48,11 +53,15 @@ export default function ManageFamily({
   bookings,
   memories,
   subscriberCount,
+  gatheringTotal,
+  gatheringParties,
 }: {
   family: FamilyLite;
   bookings: BookingLite[];
   memories: MemoryLite[];
   subscriberCount: number;
+  gatheringTotal: number;
+  gatheringParties: number;
 }) {
   const [displayName, setDisplayName] = useState(family.display_name);
   const [honoring, setHonoring] = useState(family.honoring || "");
@@ -60,6 +69,12 @@ export default function ManageFamily({
   const [hasKids, setHasKids] = useState(family.has_kids);
   const [isPublic, setIsPublic] = useState(family.is_public);
   const [introMessage, setIntroMessage] = useState(family.intro_message);
+
+  const [memTitle, setMemTitle] = useState(family.memorial_title);
+  const [memIntro, setMemIntro] = useState(family.memorial_intro);
+  const [memWhen, setMemWhen] = useState(family.memorial_when);
+  const [memWhere, setMemWhere] = useState(family.memorial_where);
+  const [memNote, setMemNote] = useState(family.memorial_note);
 
   const [heroUrl, setHeroUrl] = useState<string | null>(family.hero_image_url);
   const [uploading, setUploading] = useState(false);
@@ -110,6 +125,11 @@ export default function ManageFamily({
           hasKids,
           isPublic,
           introMessage,
+          memorialTitle: memTitle,
+          memorialIntro: memIntro,
+          memorialWhen: memWhen,
+          memorialWhere: memWhere,
+          memorialNote: memNote,
         }),
       });
       const out = await res.json().catch(() => ({}));
@@ -207,6 +227,41 @@ export default function ManageFamily({
               Public — listed and findable
             </label>
           </div>
+        </div>
+
+        <div className="mt-10 border-t border-line/60 pt-8">
+          <p className="eyebrow">Memorial gathering — optional</p>
+          <p className="mt-1 text-sm text-ink-faint">
+            Fill this in to show a memorial section with RSVPs on your page.
+            Leave it blank to hide it.
+          </p>
+          <div className="mt-4 grid gap-6 sm:grid-cols-2">
+            <div>
+              <label className="field-label">Title</label>
+              <input className="field" value={memTitle} onChange={(e) => setMemTitle(e.target.value)} maxLength={200} placeholder="e.g. A Celebration of Joe’s Life" />
+            </div>
+            <div>
+              <label className="field-label">When</label>
+              <input className="field" value={memWhen} onChange={(e) => setMemWhen(e.target.value)} maxLength={200} placeholder="e.g. Saturday, Oct 4 at 2pm" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="field-label">Where</label>
+              <input className="field" value={memWhere} onChange={(e) => setMemWhere(e.target.value)} maxLength={300} placeholder="Address or place" />
+            </div>
+          </div>
+          <div className="mt-6">
+            <label className="field-label">Invitation message</label>
+            <textarea className="field min-h-[6rem]" value={memIntro} onChange={(e) => setMemIntro(e.target.value)} maxLength={3000} />
+          </div>
+          <div className="mt-6">
+            <label className="field-label">A closing note — optional</label>
+            <input className="field" value={memNote} onChange={(e) => setMemNote(e.target.value)} maxLength={2000} placeholder="e.g. More details to follow" />
+          </div>
+          {gatheringParties > 0 && (
+            <p className="mt-4 text-sm text-ink-soft">
+              {gatheringTotal} guests RSVP’d ({gatheringParties} responses).
+            </p>
+          )}
         </div>
 
         <div className="mt-8 flex items-center gap-5">

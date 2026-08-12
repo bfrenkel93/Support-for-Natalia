@@ -3,6 +3,7 @@ import { getFamilyByEditToken } from "@/lib/families";
 import { getFamilyBookings } from "@/lib/bookings";
 import { getFamilyMemoriesWithUrls } from "@/lib/memories";
 import { getFamilySubscriberCount } from "@/lib/subscribers";
+import { getFamilyGathering } from "@/lib/gathering";
 import ManageFamily from "@/components/ManageFamily";
 
 export const dynamic = "force-dynamic";
@@ -37,10 +38,13 @@ export default async function ManagePage({
   const bookings = await getFamilyBookings(family.id);
   const memories = await getFamilyMemoriesWithUrls(family.id);
   const subscriberCount = await getFamilySubscriberCount(family.id);
+  const gathering = await getFamilyGathering(family.id);
 
   return (
     <ManageFamily
       subscriberCount={subscriberCount}
+      gatheringTotal={gathering.total}
+      gatheringParties={gathering.parties}
       memories={memories.map((m) => ({
         id: m.id,
         author_name: m.author_name,
@@ -60,6 +64,11 @@ export default async function ManagePage({
         edit_token: family.edit_token,
         hero_image_url: family.content?.hero_image_url ?? null,
         intro_message: family.content?.intro_message ?? "",
+        memorial_title: family.content?.memorial_title ?? "",
+        memorial_intro: family.content?.memorial_intro ?? "",
+        memorial_when: family.content?.memorial_when ?? "",
+        memorial_where: family.content?.memorial_where ?? "",
+        memorial_note: family.content?.memorial_note ?? "",
       }}
       bookings={bookings.map((b) => ({
         event_date: b.event_date,

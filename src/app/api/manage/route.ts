@@ -38,6 +38,11 @@ export async function POST(req: Request) {
     ...(family.content || {}),
     intro_title: displayName,
     intro_message: introMessage,
+    memorial_title: clean(body.memorialTitle, 200),
+    memorial_intro: multiline(body.memorialIntro, 3000),
+    memorial_when: clean(body.memorialWhen, 200),
+    memorial_where: clean(body.memorialWhere, 300),
+    memorial_note: multiline(body.memorialNote, 2000),
   };
 
   const supabase = getSupabase();

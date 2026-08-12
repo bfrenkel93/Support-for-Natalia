@@ -34,6 +34,11 @@ export type FamilyContent = {
   intro_title?: string;
   intro_message?: string;
   hero_image_url?: string;
+  memorial_title?: string;
+  memorial_intro?: string;
+  memorial_when?: string;
+  memorial_where?: string;
+  memorial_note?: string;
 };
 
 export type Family = {

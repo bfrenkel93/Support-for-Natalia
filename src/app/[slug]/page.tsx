@@ -5,6 +5,7 @@ import { getFamilyBookings } from "@/lib/bookings";
 import FamilyBookingCalendar from "@/components/FamilyBookingCalendar";
 import FamilyMemoryForm from "@/components/FamilyMemoryForm";
 import FamilySubscribeForm from "@/components/FamilySubscribeForm";
+import FamilyGatheringForm from "@/components/FamilyGatheringForm";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +52,12 @@ export default async function FamilyPage({
   const title = content.intro_title || family.display_name;
   const intro = paragraphs(content.intro_message);
   const ways = family.has_kids ? ALL_WAYS : ALL_WAYS.filter((w) => w.key !== "kids");
+  const hasMemorial = Boolean(
+    content.memorial_title ||
+      content.memorial_intro ||
+      content.memorial_when ||
+      content.memorial_where
+  );
 
   return (
     <main className="mx-auto max-w-2xl px-6">
@@ -99,6 +106,32 @@ export default async function FamilyPage({
           {intro.map((p, i) => (
             <p key={i}>{p}</p>
           ))}
+        </section>
+      )}
+
+      {/* Memorial gathering */}
+      {hasMemorial && (
+        <section className="mt-14 rounded-sm border border-line bg-bone/40 p-8 text-center">
+          <p className="eyebrow">{content.memorial_title || "A gathering"}</p>
+          {content.memorial_intro && (
+            <p className="mx-auto mt-3 max-w-md leading-relaxed text-ink-soft">
+              {content.memorial_intro}
+            </p>
+          )}
+          <div className="mt-5 space-y-1 text-sm text-ink">
+            {content.memorial_when && (
+              <p><span className="text-ink-faint">When · </span>{content.memorial_when}</p>
+            )}
+            {content.memorial_where && (
+              <p><span className="text-ink-faint">Where · </span>{content.memorial_where}</p>
+            )}
+          </div>
+          {content.memorial_note && (
+            <p className="mx-auto mt-4 max-w-md text-sm text-ink-faint">{content.memorial_note}</p>
+          )}
+          <div className="mt-8">
+            <FamilyGatheringForm slug={family.slug} />
+          </div>
         </section>
       )}
 
