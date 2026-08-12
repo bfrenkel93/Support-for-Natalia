@@ -315,9 +315,14 @@ export default function ManageFamily({
             <label className="field-label">Town or city</label>
             <input className="field" value={town} onChange={(e) => setTown(e.target.value)} maxLength={200} placeholder="e.g. Newton, MA" />
           </div>
-          <div>
+          <div className="sm:col-span-2">
             <label className="field-label">Page title</label>
-            <input className="field" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={200} placeholder="Defaults to their name" />
+            <input className="field" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={200} placeholder={honoring ? `e.g. For ${honoring}’s family, or Sarah & the kids` : "e.g. For his family, or Sarah & the kids"} />
+            <p className="mt-1.5 text-xs text-ink-faint">
+              The large title at the top of the page — write the names of those left
+              behind, or anything you like. The page is titled with exactly what you
+              put here. Leave blank to use their name.
+            </p>
           </div>
           <div className="sm:col-span-2">
             <label className="field-label">They were a… <span className="text-ink-faint">(check all that fit)</span></label>
