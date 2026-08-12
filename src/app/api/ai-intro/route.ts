@@ -46,6 +46,9 @@ export async function POST(req: Request) {
   const town = clean(body.town, 200) || family.town || "";
   const hasKids =
     body.hasKids === true || body.hasKids === "true" || family.has_kids;
+  const kind = ["intro", "memorial", "gift"].includes(String(body.kind))
+    ? (String(body.kind) as "intro" | "memorial" | "gift")
+    : "intro";
 
   const facts = [
     honoring ? `They are honoring / remembering: ${honoring}` : null,
@@ -59,16 +62,23 @@ export async function POST(req: Request) {
     .filter(Boolean)
     .join("\n");
 
-  const prompt = `You are helping write the short opening message at the top of a private web page that a grieving family (or a friend helping them) has set up. The page is a gentle way for their community to show up for them — meals, visits, a hand with everyday life, keeping memories.
+  const TASKS: Record<typeof kind, string> = {
+    intro: `Write the short opening message at the top of the page — the first thing visitors read. Acknowledge the loss gently, then turn toward how people can show up over time (meals, visits, everyday help, keeping memories). 2 to 3 short paragraphs.`,
+    memorial: `Write a warm invitation message for a memorial gathering section on the page. Welcome the people who loved them, make clear all are welcome to come as they are, and keep it gentle and unfussy. Do NOT invent a date, time, or place — those are entered separately. 1 to 2 short paragraphs.`,
+    gift: `Write a short, gracious intro for a section where people can contribute money to help the family. Make clear there's no expected amount and that anything helps with everyday life. Never guilt or pressure. 1 short paragraph, 2 to 4 sentences.`,
+  };
 
-Write the opening message for this page. Use what you know:
+  const prompt = `You are helping write copy for a private web page that a grieving family (or a friend helping them) has set up. The page is a gentle way for their community to show up for them — meals, visits, a hand with everyday life, keeping memories.
+
+${TASKS[kind]}
+
+Use what you know:
 ${facts}
 
 Guidelines:
 - Warm, calm, human. Never saccharine, never clichéd ("thoughts and prayers", "in a better place", "everything happens for a reason" are all off-limits).
 - Speak to the reader — the friends and community who love this family and want to help.
-- 2 to 3 short paragraphs. Plain language.
-- Acknowledge the loss gently, then turn toward how people can show up over time.
+- Plain language. Short paragraphs.
 - Do not invent specific facts (dates, causes, relationships) that weren't given.
 - Return ONLY the message text itself — no title, no preamble, no quotation marks, no sign-off.`;
 

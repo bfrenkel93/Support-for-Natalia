@@ -4,6 +4,7 @@ import { getFamilyBySlug, type FamilyContent } from "@/lib/families";
 import { getFamilyBookings } from "@/lib/bookings";
 import { getFamilyGifts } from "@/lib/gifts";
 import { getFamilyEvents } from "@/lib/events";
+import { getFamilyMemoriesWithUrls } from "@/lib/memories";
 import FamilyBookingCalendar from "@/components/FamilyBookingCalendar";
 import FamilyGifts from "@/components/FamilyGifts";
 import FamilyEvents from "@/components/FamilyEvents";
@@ -88,6 +89,20 @@ export default async function FamilyPage({
   const showSubscribe = content.show_subscribe !== false;
   const showMemories = content.show_memories !== false;
   const showEvents = eventsLite.length > 0 && content.show_events !== false;
+  const memoriesPublic = content.memories_public === true;
+
+  // Only pull the shared memories when the family has chosen to post them publicly.
+  const publicMemories =
+    showMemories && memoriesPublic
+      ? (await getFamilyMemoriesWithUrls(family.id)).map((m) => ({
+          id: m.id,
+          author_name: m.author_name,
+          story: m.story,
+          photos: m.media
+            .map((md) => md.viewUrl)
+            .filter((u): u is string => Boolean(u)),
+        }))
+      : [];
 
   return (
     <main className="mx-auto max-w-2xl px-6">
@@ -265,12 +280,38 @@ export default async function FamilyPage({
           {family.honoring ? `Tell them about ${family.honoring}` : "Share a memory"}
         </h2>
         <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
-          Some memories are worth saving before they fade. Everything you share
-          here is private — it goes only to the family.
+          {memoriesPublic
+            ? "Some memories are worth saving before they fade. What you share here appears on this page for others who loved them."
+            : "Some memories are worth saving before they fade. Everything you share here is private — it goes only to the family."}
         </p>
         <div className="mt-8">
           <FamilyMemoryForm slug={family.slug} />
         </div>
+
+        {publicMemories.length > 0 && (
+          <ul className="mx-auto mt-14 max-w-xl space-y-10 text-left">
+            {publicMemories.map((m) => (
+              <li key={m.id} className="border-t border-line/60 pt-8">
+                {m.author_name && (
+                  <p className="font-serif text-lg font-light text-ink">{m.author_name}</p>
+                )}
+                {m.story && (
+                  <p className="mt-1 whitespace-pre-line leading-relaxed text-ink-soft">
+                    {m.story}
+                  </p>
+                )}
+                {m.photos.length > 0 && (
+                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {m.photos.map((src, i) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img key={i} src={src} alt="" className="h-32 w-full rounded-sm object-cover" />
+                    ))}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
       )}
 

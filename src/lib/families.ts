@@ -50,6 +50,8 @@ export type FamilyContent = {
   show_subscribe?: boolean;
   show_memories?: boolean;
   show_events?: boolean;
+  // When true, shared memories are posted publicly on the page (default: private).
+  memories_public?: boolean;
 };
 
 export type Family = {

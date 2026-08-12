@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import GiftManager from "./GiftManager";
 import EventManager from "./EventManager";
+import MessageAssist, { type AiContext } from "./MessageAssist";
 
 type FamilyLite = {
   slug: string;
@@ -11,9 +12,11 @@ type FamilyLite = {
   town: string | null;
   has_kids: boolean;
   is_public: boolean;
+  contact_email: string;
   edit_token: string;
   hero_image_url: string | null;
   intro_message: string;
+  memories_public: boolean;
   memorial_title: string;
   memorial_intro: string;
   memorial_when: string;
@@ -98,7 +101,9 @@ export default function ManageFamily({
   const [town, setTown] = useState(family.town || "");
   const [hasKids, setHasKids] = useState(family.has_kids);
   const [isPublic, setIsPublic] = useState(family.is_public);
+  const [contactEmail, setContactEmail] = useState(family.contact_email || "");
   const [introMessage, setIntroMessage] = useState(family.intro_message);
+  const [memoriesPublic, setMemoriesPublic] = useState(family.memories_public);
 
   const [memTitle, setMemTitle] = useState(family.memorial_title);
   const [memIntro, setMemIntro] = useState(family.memorial_intro);
@@ -126,41 +131,20 @@ export default function ManageFamily({
   const [saved, setSaved] = useState(false);
   const [saveErr, setSaveErr] = useState("");
 
-  // AI "write it for me" drafting
-  const [aiOpen, setAiOpen] = useState(false);
-  const [aiNotes, setAiNotes] = useState("");
-  const [aiBusy, setAiBusy] = useState(false);
-  const [aiErr, setAiErr] = useState("");
-
   const pageUrl = `/${family.slug}`;
 
-  async function onDraft() {
-    setAiBusy(true);
-    setAiErr("");
-    try {
-      const res = await fetch("/api/ai-intro", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: family.edit_token,
-          displayName,
-          honoring,
-          town,
-          hasKids,
-          notes: aiNotes,
-        }),
-      });
-      const out = await res.json().catch(() => ({}));
-      if (!res.ok || !out.ok) throw new Error(out?.error || "bad");
-      setIntroMessage(out.text);
-      setAiOpen(false);
-    } catch (err) {
-      const m = err instanceof Error ? err.message : "";
-      setAiErr(m && m !== "bad" ? m : "Couldn't draft a message. Please try again.");
-    } finally {
-      setAiBusy(false);
-    }
-  }
+  // Shared context handed to the AI drafting helper.
+  const aiContext: AiContext = { displayName, honoring, town, hasKids };
+  const who = honoring.trim();
+
+  // Editable "standard message" starting points.
+  const introTemplate = who
+    ? `In the wake of losing ${who}, so many people have wanted to know how to show up for this family — and haven’t always known how.\n\nThere is no way to fill the space that’s been left behind. But there are ways to surround them with presence, consistency, and care.\n\nThis page is simply a way to do that together — meals, visits, a hand with everyday life, and memories worth keeping — for as long as it takes.`
+    : `After a loss, so many people want to show up for the family — and don’t always know how.\n\nThere is no way to fill the space that’s been left behind. But there are ways to surround them with presence, consistency, and care.\n\nThis page is simply a way to do that together — meals, visits, a hand with everyday life, and memories worth keeping — for as long as it takes.`;
+  const memorialTemplate = who
+    ? `We’ll be gathering to remember ${who} and to hold one another close. If ${who} touched your life, you are warmly welcome — come just as you are.\n\nThere’s nothing you need to bring but yourself, and, if you’d like, a memory to share.`
+    : `We’ll be gathering to remember someone dear to us and to hold one another close. If they touched your life, you are warmly welcome — come just as you are.\n\nThere’s nothing you need to bring but yourself, and, if you’d like, a memory to share.`;
+  const giftTemplate = `If you’d like to help in a more tangible way, anything shared here goes directly to the family — for meals, everyday costs, or simply a little breathing room. There’s no expected amount, and every bit is felt.`;
 
   async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -200,7 +184,9 @@ export default function ManageFamily({
           town,
           hasKids,
           isPublic,
+          contactEmail,
           introMessage,
+          memoriesPublic,
           memorialTitle: memTitle,
           memorialIntro: memIntro,
           memorialWhen: memWhen,
@@ -287,61 +273,34 @@ export default function ManageFamily({
         </div>
 
         <div className="mt-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <label className="field-label">Your opening message</label>
-            <button
-              type="button"
-              onClick={() => setAiOpen((v) => !v)}
-              className="text-xs font-medium text-bronze hover:underline"
-            >
-              ✨ Write it for me
-            </button>
-          </div>
+          <label className="field-label">Notification email</label>
+          <input
+            type="email"
+            className="field"
+            value={contactEmail}
+            onChange={(e) => setContactEmail(e.target.value)}
+            maxLength={200}
+            placeholder="name@email.com"
+          />
+          <p className="mt-1.5 text-xs text-ink-faint">
+            Every meal sign-up, RSVP, and shared memory is sent here. Use the main
+            family member’s address.
+          </p>
+        </div>
 
-          {aiOpen && (
-            <div className="mt-2 rounded-sm border border-line bg-bone/40 p-4">
-              <p className="text-sm leading-relaxed text-ink-soft">
-                Share a few words about who you’re honoring — a name, what they
-                were like, anything at all. We’ll draft a gentle opening you can
-                edit. Or leave it blank and we’ll start from the basics.
-              </p>
-              <textarea
-                className="field mt-3 min-h-[5rem]"
-                value={aiNotes}
-                onChange={(e) => setAiNotes(e.target.value)}
-                maxLength={600}
-                placeholder="e.g. Joe was a dad of two who coached little league and made the best pancakes…"
-              />
-              <div className="mt-3 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={onDraft}
-                  disabled={aiBusy}
-                  className="btn disabled:opacity-60"
-                >
-                  {aiBusy ? "Writing…" : "Draft my message"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAiOpen(false)}
-                  className="text-sm text-ink-faint hover:underline"
-                >
-                  Cancel
-                </button>
-              </div>
-              {aiErr && <p className="mt-2 text-sm text-bronze">{aiErr}</p>}
-              <p className="mt-3 text-xs text-ink-faint">
-                A draft is just a starting point — read it over and make it yours
-                before you save.
-              </p>
-            </div>
-          )}
-
-          <textarea
-            className="field mt-2 min-h-[9rem]"
+        <div className="mt-6">
+          <MessageAssist
+            label="Your opening message"
             value={introMessage}
-            onChange={(e) => setIntroMessage(e.target.value)}
+            onChange={setIntroMessage}
+            token={family.edit_token}
+            kind="intro"
+            context={aiContext}
+            template={introTemplate}
+            notesHelp="Share a few words about who you’re honoring — a name, what they were like, anything at all. Or leave it blank and we’ll start from the basics."
+            notesPlaceholder="e.g. Joe was a dad of two who coached little league and made the best pancakes…"
             maxLength={6000}
+            minHeightClass="min-h-[9rem]"
           />
         </div>
 
@@ -398,6 +357,29 @@ export default function ManageFamily({
         </div>
 
         <div className="mt-10 border-t border-line/60 pt-8">
+          <p className="eyebrow">When a memory is shared</p>
+          <p className="mt-1 text-sm text-ink-faint">
+            Choose what happens when someone shares a story or photo.
+          </p>
+          <div className="mt-3 space-y-2 text-sm text-ink">
+            <label className="flex items-start gap-2.5">
+              <input type="radio" name="memvis" checked={!memoriesPublic} onChange={() => setMemoriesPublic(false)} className="mt-1 text-bronze focus:ring-bronze/40" />
+              <span>
+                Keep it private — sent to your notification email, and visible
+                only to you here on this page.
+              </span>
+            </label>
+            <label className="flex items-start gap-2.5">
+              <input type="radio" name="memvis" checked={memoriesPublic} onChange={() => setMemoriesPublic(true)} className="mt-1 text-bronze focus:ring-bronze/40" />
+              <span>
+                Post it on your page — shared stories appear for everyone who
+                visits (you’re still emailed each one).
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div className="mt-10 border-t border-line/60 pt-8">
           <p className="eyebrow">Memorial gathering — optional</p>
           <p className="mt-1 text-sm text-ink-faint">
             Fill this in to show a memorial section with RSVPs on your page.
@@ -418,8 +400,19 @@ export default function ManageFamily({
             </div>
           </div>
           <div className="mt-6">
-            <label className="field-label">Invitation message</label>
-            <textarea className="field min-h-[6rem]" value={memIntro} onChange={(e) => setMemIntro(e.target.value)} maxLength={3000} />
+            <MessageAssist
+              label="Invitation message"
+              value={memIntro}
+              onChange={setMemIntro}
+              token={family.edit_token}
+              kind="memorial"
+              context={aiContext}
+              template={memorialTemplate}
+              notesHelp="Anything you want people to know about the gathering — the tone, who’s welcome, what to expect. The date, time, and place are set in the fields above."
+              notesPlaceholder="e.g. Casual gathering at our home, kids welcome, bring a story to share"
+              maxLength={3000}
+              minHeightClass="min-h-[6rem]"
+            />
           </div>
           <div className="mt-6">
             <label className="field-label">A closing note — optional</label>
@@ -439,8 +432,19 @@ export default function ManageFamily({
             themselves below.
           </p>
           <div className="mt-4">
-            <label className="field-label">Intro message</label>
-            <textarea className="field min-h-[5rem]" value={giftsIntro} onChange={(e) => setGiftsIntro(e.target.value)} maxLength={2000} />
+            <MessageAssist
+              label="Intro message"
+              value={giftsIntro}
+              onChange={setGiftsIntro}
+              token={family.edit_token}
+              kind="gift"
+              context={aiContext}
+              template={giftTemplate}
+              notesHelp="A line or two about what contributions would help with — meals, travel, everyday costs. Or leave it blank for a gentle standard note."
+              notesPlaceholder="e.g. Helping cover groceries and the kids’ activities while things settle"
+              maxLength={2000}
+              minHeightClass="min-h-[5rem]"
+            />
           </div>
           <div className="mt-4 grid gap-6 sm:grid-cols-3">
             <div>

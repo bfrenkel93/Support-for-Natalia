@@ -34,6 +34,16 @@ export async function POST(req: Request) {
   const isPublic = body.isPublic === true || body.isPublic === "true";
   const introMessage = multiline(body.introMessage, 6000);
 
+  // Notification email — where sign-ups, RSVPs, and memories are sent.
+  const contactEmailRaw = clean(body.contactEmail, 200);
+  if (contactEmailRaw && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmailRaw)) {
+    return NextResponse.json(
+      { ok: false, error: "That notification email doesn’t look right." },
+      { status: 400 }
+    );
+  }
+  const contactEmail = contactEmailRaw || family.contact_email;
+
   const content = {
     ...(family.content || {}),
     intro_title: displayName,
@@ -53,6 +63,7 @@ export async function POST(req: Request) {
     show_subscribe: body.showSubscribe !== false,
     show_memories: body.showMemories !== false,
     show_events: body.showEvents !== false,
+    memories_public: body.memoriesPublic === true,
   };
 
   const supabase = getSupabase();
@@ -68,6 +79,7 @@ export async function POST(req: Request) {
       town: town || null,
       has_kids: hasKids,
       is_public: isPublic,
+      contact_email: contactEmail,
       content,
     })
     .eq("id", family.id);
