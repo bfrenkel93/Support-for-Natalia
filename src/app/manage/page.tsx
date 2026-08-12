@@ -6,6 +6,7 @@ import { getFamilySubscriberCount } from "@/lib/subscribers";
 import { getFamilyGathering } from "@/lib/gathering";
 import { getFamilyGifts } from "@/lib/gifts";
 import { getFamilyEvents } from "@/lib/events";
+import { getFamilyRequests } from "@/lib/requests";
 import ManageFamily from "@/components/ManageFamily";
 
 export const dynamic = "force-dynamic";
@@ -43,9 +44,17 @@ export default async function ManagePage({
   const gathering = await getFamilyGathering(family.id);
   const gifts = await getFamilyGifts(family.id);
   const events = await getFamilyEvents(family.id);
+  const requests = await getFamilyRequests(family.id);
 
   return (
     <ManageFamily
+      requests={requests.map((r) => ({
+        id: r.id,
+        title: r.title,
+        details: r.details,
+        needed_date: r.needed_date,
+        claimed_by: r.claimed_by,
+      }))}
       subscriberCount={subscriberCount}
       gatheringTotal={gathering.total}
       gatheringParties={gathering.parties}

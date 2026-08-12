@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import GiftManager from "./GiftManager";
 import EventManager from "./EventManager";
+import RequestManager, { type RequestRow } from "./RequestManager";
 import MessageAssist, { type AiContext } from "./MessageAssist";
 
 type FamilyLite = {
@@ -114,6 +115,7 @@ export default function ManageFamily({
   gatheringParties,
   gifts,
   events,
+  requests,
 }: {
   family: FamilyLite;
   bookings: BookingLite[];
@@ -123,6 +125,7 @@ export default function ManageFamily({
   gatheringParties: number;
   gifts: GiftRow[];
   events: EventRow[];
+  requests: RequestRow[];
 }) {
   const [displayName, setDisplayName] = useState(family.display_name);
   const [honoring, setHonoring] = useState(family.honoring || "");
@@ -623,6 +626,8 @@ export default function ManageFamily({
       <GiftManager token={family.edit_token} initialGifts={gifts} />
 
       <EventManager token={family.edit_token} initialEvents={events} />
+
+      <RequestManager token={family.edit_token} initialRequests={requests} />
 
       {/* Sign-ups */}
       <section className="mt-14 border-t border-line/60 pt-10">

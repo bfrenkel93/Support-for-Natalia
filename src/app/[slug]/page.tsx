@@ -11,8 +11,10 @@ import AccessGate from "@/components/AccessGate";
 import { getFamilyBookings } from "@/lib/bookings";
 import { getFamilyGifts } from "@/lib/gifts";
 import { getFamilyEvents } from "@/lib/events";
+import { getFamilyRequests } from "@/lib/requests";
 import { getFamilyMemoriesWithUrls } from "@/lib/memories";
 import SectionShell from "@/components/SectionShell";
+import FamilyRequests from "@/components/FamilyRequests";
 import Reveal from "@/components/Reveal";
 import MealHelp from "@/components/MealHelp";
 import FamilyBookingCalendar from "@/components/FamilyBookingCalendar";
@@ -98,6 +100,7 @@ export default async function FamilyPage({
     pledgeCount: g.pledges.length,
     pledgedTotal: g.pledges.reduce((n, p) => n + (p.amount || 0), 0),
   }));
+  const requests = await getFamilyRequests(family.id);
   const events = await getFamilyEvents(family.id);
   const eventsLite = events.map((ev) => ({
     id: ev.id,
@@ -138,6 +141,7 @@ export default async function FamilyPage({
 
   const showCalendar = content.show_calendar !== false;
   const showMemorial = hasMemorial && content.show_memorial !== false;
+  const showRequests = requests.length > 0;
   const showSupport = Boolean(supportAddress) && content.show_support !== false;
   const showGifts = giftsLite.length > 0 && content.show_gifts !== false;
   const showSubscribe = content.show_subscribe !== false;
@@ -171,6 +175,7 @@ export default async function FamilyPage({
   const ordered: string[] = [];
   if (showMemorial) ordered.push("gathering");
   if (showCalendar) ordered.push("calendar");
+  if (showRequests) ordered.push("requests");
   if (showSupport) ordered.push("support");
   if (showGifts) ordered.push("gifts");
   if (showEvents) ordered.push("events");
@@ -181,6 +186,7 @@ export default async function FamilyPage({
   const navLinks = [
     showMemorial ? { href: "#gathering", label: "Gathering" } : null,
     showCalendar ? { href: "#calendar", label: "Calendar" } : null,
+    showRequests ? { href: "#requests", label: "Help Now" } : null,
     showSupport ? { href: "#support", label: `For ${supportName}` } : null,
     showGifts ? { href: "#gifts", label: "Give a Gift" } : null,
     showEvents ? { href: "#events", label: "Events" } : null,
@@ -311,6 +317,29 @@ export default async function FamilyPage({
                 bookings={bookings}
               />
             </div>
+          </SectionShell>
+        )}
+
+        {/* Ways to help right now */}
+        {showRequests && (
+          <SectionShell
+            id="requests"
+            number={num("requests")}
+            label="Ways to help right now"
+            title="A few specific needs"
+            intro="Small, specific things that would help this week. If one fits, claim it — the family will know it’s covered."
+            tone={tone("requests")}
+          >
+            <FamilyRequests
+              slug={family.slug}
+              requests={requests.map((r) => ({
+                id: r.id,
+                title: r.title,
+                details: r.details,
+                needed_date: r.needed_date,
+                claimed_by: r.claimed_by,
+              }))}
+            />
           </SectionShell>
         )}
 
