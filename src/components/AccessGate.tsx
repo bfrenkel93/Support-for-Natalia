@@ -46,6 +46,7 @@ export default function AccessGate({
           className="field text-center"
           value={code}
           onChange={(e) => setCode(e.target.value)}
+          aria-label="Access code"
           placeholder="Access code"
           autoComplete="off"
           autoFocus

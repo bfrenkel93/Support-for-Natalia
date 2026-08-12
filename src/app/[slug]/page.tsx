@@ -290,7 +290,11 @@ export default async function FamilyPage({
             <div className="animate-fade-up lg:col-span-7">
               <div className="relative aspect-[5/4] w-full overflow-hidden bg-limestone shadow-quiet sm:aspect-[16/11]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={heroPhoto} alt="" className="h-full w-full object-cover" />
+                <img
+                  src={heroPhoto}
+                  alt={content.hero_image_url ? `A photo shared for ${title}` : ""}
+                  className="h-full w-full object-cover"
+                />
               </div>
             </div>
 

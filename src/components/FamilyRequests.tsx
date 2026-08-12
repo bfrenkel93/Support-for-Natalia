@@ -60,8 +60,8 @@ function Card({ slug, req }: { slug: string; req: Req }) {
         <p className="mt-4 text-sm text-bronze">Covered by {claimedBy} — thank you 💛</p>
       ) : open ? (
         <form onSubmit={onClaim} className="mt-4 space-y-3">
-          <input className="field" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" maxLength={200} autoFocus />
-          <input className="field" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (optional)" maxLength={200} />
+          <input className="field" aria-label="Your name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" maxLength={200} autoFocus />
+          <input className="field" aria-label="Email (optional)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (optional)" maxLength={200} />
           <div className="flex items-center gap-3">
             <button type="submit" disabled={busy} className="btn disabled:opacity-50">
               {busy ? "Sending…" : "I’ve got this"}

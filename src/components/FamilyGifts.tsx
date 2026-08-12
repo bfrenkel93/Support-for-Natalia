@@ -71,10 +71,10 @@ function GiftCard({ slug, gift }: { slug: string; gift: GiftLite }) {
         <p className="mt-3 text-sm text-bronze">{message}</p>
       ) : open ? (
         <form onSubmit={submit} className="mt-4 grid gap-3">
-          <input name="name" required placeholder="Your name" className="field" />
+          <input name="name" required aria-label="Your name" placeholder="Your name" className="field" />
           <div className="grid gap-3 sm:grid-cols-2">
-            <input name="amount" placeholder="Amount (optional)" className="field" inputMode="decimal" />
-            <input name="note" placeholder="Note (optional)" className="field" />
+            <input name="amount" aria-label="Amount (optional)" placeholder="Amount (optional)" className="field" inputMode="decimal" />
+            <input name="note" aria-label="Note (optional)" placeholder="Note (optional)" className="field" />
           </div>
           {status === "error" && <p className="text-sm text-bronze">{message}</p>}
           <div className="flex items-center gap-4">

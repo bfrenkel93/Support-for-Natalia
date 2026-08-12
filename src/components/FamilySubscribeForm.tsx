@@ -47,6 +47,7 @@ export default function FamilySubscribeForm({ slug }: { slug: string }) {
         type="email"
         required
         autoComplete="email"
+        aria-label="Your email address"
         placeholder="you@example.com"
         className="field flex-1"
       />
