@@ -78,10 +78,15 @@ export async function POST(req: Request) {
     });
   }
 
+  // A story can be public only if this family allows public stories at all.
+  const allowPublic = family.content?.memories_public === true;
+  const wantsPublic = String(form.get("isPublic") || "") === "true";
+
   const result = await saveFamilyMemory(family.id, {
     authorName: name,
     authorEmail: email,
     story,
+    isPublic: allowPublic && wantsPublic,
     files,
   });
   if (!result.ok) {

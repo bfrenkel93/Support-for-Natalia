@@ -489,15 +489,15 @@ export default function ManageFamily({
             <label className="flex items-start gap-2.5">
               <input type="radio" name="memvis" checked={!memoriesPublic} onChange={() => setMemoriesPublic(false)} className="mt-1 text-bronze focus:ring-bronze/40" />
               <span>
-                Keep it private — sent to your notification email, and visible
-                only to you here on this page.
+                Private only — every story goes just to the family (you’re
+                emailed each one).
               </span>
             </label>
             <label className="flex items-start gap-2.5">
               <input type="radio" name="memvis" checked={memoriesPublic} onChange={() => setMemoriesPublic(true)} className="mt-1 text-bronze focus:ring-bronze/40" />
               <span>
-                Post it on your page — shared stories appear for everyone who
-                visits (you’re still emailed each one).
+                Let people choose — each person can post their story publicly on
+                the page, or keep it just for the family.
               </span>
             </label>
           </div>

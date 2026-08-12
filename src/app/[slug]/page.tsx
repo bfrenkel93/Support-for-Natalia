@@ -149,9 +149,11 @@ export default async function FamilyPage({
   const showEvents = eventsLite.length > 0 && content.show_events !== false;
   const memoriesPublic = content.memories_public === true;
 
-  const publicMemories =
-    showMemories && memoriesPublic
-      ? (await getFamilyMemoriesWithUrls(family.id)).map((m) => ({
+  // The public "wall" shows only memories each sharer marked public.
+  const publicMemories = showMemories
+    ? (await getFamilyMemoriesWithUrls(family.id))
+        .filter((m) => m.is_public)
+        .map((m) => ({
           id: m.id,
           author_name: m.author_name,
           story: m.story,
@@ -159,7 +161,7 @@ export default async function FamilyPage({
             .map((md) => md.viewUrl)
             .filter((u): u is string => Boolean(u)),
         }))
-      : [];
+    : [];
 
   // Neutral botanical placeholder until the family adds their own photo.
   const heroPhoto = content.hero_image_url?.trim() || "/marketing-hero.jpg";
@@ -406,33 +408,36 @@ export default async function FamilyPage({
             title={family.honoring ? `Share a story about ${family.honoring}` : "Share a story"}
             intro={
               memoriesPublic
-                ? "Some memories are worth saving before they fade. What you share here appears on this page for others who loved them."
+                ? "Some memories are worth saving before they fade. Share yours with everyone who loved them, or keep it just for the family."
                 : "Some memories are worth saving before they fade. Everything you share here is private — it goes only to the family."
             }
             tone={tone("stories")}
           >
-            <FamilyMemoryForm slug={family.slug} />
+            <FamilyMemoryForm slug={family.slug} allowPublic={memoriesPublic} />
             {publicMemories.length > 0 && (
-              <ul className="mt-12 space-y-10">
-                {publicMemories.map((m) => (
-                  <li key={m.id} className="border-t border-line/60 pt-8">
-                    {m.author_name && (
-                      <p className="font-serif text-lg font-light text-ink">{m.author_name}</p>
-                    )}
-                    {m.story && (
-                      <p className="mt-1 whitespace-pre-line leading-relaxed text-ink-soft">{m.story}</p>
-                    )}
-                    {m.photos.length > 0 && (
-                      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                        {m.photos.map((src, i) => (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img key={i} src={src} alt="" className="h-32 w-full rounded-sm object-cover" />
-                        ))}
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-12">
+                <p className="eyebrow mb-6">Shared by the people who loved them</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {publicMemories.map((m) => (
+                    <div key={m.id} className="rounded-sm border border-line bg-bone/40 p-5">
+                      {m.story && (
+                        <p className="whitespace-pre-line leading-relaxed text-ink-soft">{m.story}</p>
+                      )}
+                      {m.photos.length > 0 && (
+                        <div className="mt-3 grid grid-cols-2 gap-2">
+                          {m.photos.map((src, i) => (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img key={i} src={src} alt="" className="h-32 w-full rounded-sm object-cover" />
+                          ))}
+                        </div>
+                      )}
+                      {m.author_name && (
+                        <p className="mt-3 font-serif text-sm italic text-bronze">— {m.author_name}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </SectionShell>
         )}

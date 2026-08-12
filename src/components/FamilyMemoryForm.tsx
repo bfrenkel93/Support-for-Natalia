@@ -2,7 +2,13 @@
 
 import { useState, type FormEvent } from "react";
 
-export default function FamilyMemoryForm({ slug }: { slug: string }) {
+export default function FamilyMemoryForm({
+  slug,
+  allowPublic = false,
+}: {
+  slug: string;
+  allowPublic?: boolean;
+}) {
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
 
@@ -78,6 +84,22 @@ export default function FamilyMemoryForm({ slug }: { slug: string }) {
           className="block w-full text-sm text-ink-soft file:mr-3 file:cursor-pointer file:rounded-sm file:border file:border-line-strong file:bg-transparent file:px-4 file:py-2 file:text-[0.72rem] file:font-medium file:uppercase file:tracking-wide file:text-ink hover:file:bg-bone"
         />
       </div>
+
+      {allowPublic && (
+        <div className="mt-6">
+          <p className="field-label">Who can see this?</p>
+          <div className="mt-2 space-y-2 text-sm text-ink">
+            <label className="flex items-start gap-2.5">
+              <input type="radio" name="isPublic" value="false" defaultChecked className="mt-1 text-bronze focus:ring-bronze/40" />
+              <span>Just the family — private</span>
+            </label>
+            <label className="flex items-start gap-2.5">
+              <input type="radio" name="isPublic" value="true" className="mt-1 text-bronze focus:ring-bronze/40" />
+              <span>Share on this page for everyone who visits</span>
+            </label>
+          </div>
+        </div>
+      )}
 
       {status === "error" && message && (
         <p className="mt-4 text-sm text-bronze">{message}</p>

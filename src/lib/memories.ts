@@ -52,6 +52,7 @@ export type Memory = {
   author_name: string | null;
   author_email: string | null;
   story: string | null;
+  is_public: boolean;
   created_at: string;
   media: MemoryMedia[];
 };
@@ -256,6 +257,7 @@ export async function saveFamilyMemory(
     authorName?: string | null;
     authorEmail?: string | null;
     story?: string | null;
+    isPublic?: boolean;
     files: IncomingFile[];
   }
 ): Promise<SaveMemoryResult> {
@@ -271,6 +273,7 @@ export async function saveFamilyMemory(
       author_name: input.authorName || null,
       author_email: input.authorEmail || null,
       story: input.story || null,
+      is_public: input.isPublic === true,
     })
     .select("id")
     .single();
