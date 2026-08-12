@@ -21,6 +21,14 @@ type BookingLite = {
   private: boolean;
 };
 
+type MemoryLite = {
+  id: string;
+  author_name: string | null;
+  story: string | null;
+  created_at: string;
+  photos: string[];
+};
+
 const KIND_SHORT: Record<string, string> = {
   meal: "Meal",
   visit: "Visit",
@@ -38,9 +46,11 @@ function pretty(ymd: string): string {
 export default function ManageFamily({
   family,
   bookings,
+  memories,
 }: {
   family: FamilyLite;
   bookings: BookingLite[];
+  memories: MemoryLite[];
 }) {
   const [displayName, setDisplayName] = useState(family.display_name);
   const [honoring, setHonoring] = useState(family.honoring || "");
@@ -218,6 +228,47 @@ export default function ManageFamily({
                 <span className="font-medium text-bronze">{pretty(b.event_date)}</span>
                 <span className="text-ink-soft">{KIND_SHORT[b.kind] || b.kind}</span>
                 <span className="text-right text-ink">{b.private ? "Someone" : b.name}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Memories & stories (private to the family) */}
+      <section className="mt-14 border-t border-line/60 pt-10">
+        <p className="eyebrow">Memories &amp; stories</p>
+        <p className="mt-1 text-sm text-ink-faint">
+          Private — shared just for your family.
+        </p>
+        {memories.length === 0 ? (
+          <p className="mt-3 text-sm text-ink-faint">Nothing shared yet.</p>
+        ) : (
+          <ul className="mt-5 space-y-8">
+            {memories.map((m) => (
+              <li key={m.id} className="border-b border-line/60 pb-8 last:border-0">
+                {m.author_name && (
+                  <p className="font-serif text-lg font-light text-ink">
+                    {m.author_name}
+                  </p>
+                )}
+                {m.story && (
+                  <p className="mt-1 whitespace-pre-line leading-relaxed text-ink-soft">
+                    {m.story}
+                  </p>
+                )}
+                {m.photos.length > 0 && (
+                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {m.photos.map((src, i) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={i}
+                        src={src}
+                        alt=""
+                        className="h-32 w-full rounded-sm object-cover"
+                      />
+                    ))}
+                  </div>
+                )}
               </li>
             ))}
           </ul>

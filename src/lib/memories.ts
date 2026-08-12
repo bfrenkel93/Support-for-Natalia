@@ -242,3 +242,113 @@ export async function deleteMemoryEverywhere(id: string): Promise<void> {
   // memory_media rows cascade-delete with the parent memory.
   await supabase.from("memories").delete().eq("id", id);
 }
+
+// ------------------------------------------------------------------
+// Multi-tenant (family) versions — scoped by family_id. The family page
+// submits memories publicly; the family views them from their manage screen
+// (already gated by their secret edit token, so no isAdmin() check here).
+// ------------------------------------------------------------------
+
+/** Persist a memory + photos for a specific family. */
+export async function saveFamilyMemory(
+  familyId: string,
+  input: {
+    authorName?: string | null;
+    authorEmail?: string | null;
+    story?: string | null;
+    files: IncomingFile[];
+  }
+): Promise<SaveMemoryResult> {
+  const supabase = getSupabase();
+  if (!supabase) {
+    return { ok: false, photoCount: 0, error: "Storage isn't connected yet." };
+  }
+
+  const { data: memory, error: memErr } = await supabase
+    .from("memories")
+    .insert({
+      family_id: familyId,
+      author_name: input.authorName || null,
+      author_email: input.authorEmail || null,
+      story: input.story || null,
+    })
+    .select("id")
+    .single();
+
+  if (memErr || !memory) {
+    console.error("[saveFamilyMemory] insert failed:", memErr);
+    return { ok: false, photoCount: 0, error: "Couldn't save. Please try again." };
+  }
+
+  const memoryId = (memory as { id: string }).id;
+  let photoCount = 0;
+
+  for (const file of input.files) {
+    const path = `${familyId}/${memoryId}/${crypto.randomUUID()}${extFor(
+      file.contentType,
+      file.fileName
+    )}`;
+
+    const { error: upErr } = await supabase.storage
+      .from(MEMORIES_BUCKET)
+      .upload(path, file.buffer, { contentType: file.contentType, upsert: false });
+    if (upErr) {
+      console.error("[saveFamilyMemory] upload failed:", upErr);
+      continue;
+    }
+
+    const { error: mediaErr } = await supabase.from("memory_media").insert({
+      family_id: familyId,
+      memory_id: memoryId,
+      storage_path: path,
+      file_name: file.fileName.slice(0, 200),
+      content_type: file.contentType,
+      size_bytes: file.sizeBytes,
+    });
+    if (mediaErr) {
+      console.error("[saveFamilyMemory] media row failed:", mediaErr);
+      await supabase.storage.from(MEMORIES_BUCKET).remove([path]);
+      continue;
+    }
+    photoCount += 1;
+  }
+
+  return { ok: true, memoryId, photoCount };
+}
+
+/** A family's memories with short-lived signed photo URLs (for the manage screen). */
+export async function getFamilyMemoriesWithUrls(
+  familyId: string
+): Promise<MemoryWithUrls[]> {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("memories")
+    .select("*, media:memory_media(*)")
+    .eq("family_id", familyId)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) {
+    if (error) console.error("[getFamilyMemoriesWithUrls]", error);
+    return [];
+  }
+
+  const memories = (data as Memory[]).map((m) => ({
+    ...m,
+    media: (m.media || []).sort((a, b) => a.created_at.localeCompare(b.created_at)),
+  }));
+
+  const result: MemoryWithUrls[] = [];
+  for (const m of memories) {
+    const media: MemoryMediaWithUrls[] = [];
+    for (const md of m.media) {
+      const view = await supabase.storage
+        .from(MEMORIES_BUCKET)
+        .createSignedUrl(md.storage_path, SIGNED_URL_TTL_SECONDS);
+      media.push({ ...md, viewUrl: view.data?.signedUrl ?? null, downloadUrl: null });
+    }
+    result.push({ ...m, media });
+  }
+  return result;
+}

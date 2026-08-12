@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getFamilyBySlug, type FamilyContent } from "@/lib/families";
 import { getFamilyBookings } from "@/lib/bookings";
 import FamilyBookingCalendar from "@/components/FamilyBookingCalendar";
+import FamilyMemoryForm from "@/components/FamilyMemoryForm";
 
 export const dynamic = "force-dynamic";
 
@@ -133,6 +134,21 @@ export default async function FamilyPage({
             hasKids={family.has_kids}
             bookings={bookings}
           />
+        </div>
+      </section>
+
+      {/* Memories & stories */}
+      <section className="mt-16 border-t border-line/60 pt-12 text-center">
+        <p className="eyebrow">Memories &amp; stories</p>
+        <h2 className="mx-auto mt-2 max-w-md font-serif text-2xl font-light text-ink sm:text-3xl">
+          {family.honoring ? `Tell them about ${family.honoring}` : "Share a memory"}
+        </h2>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
+          Some memories are worth saving before they fade. Everything you share
+          here is private — it goes only to the family.
+        </p>
+        <div className="mt-8">
+          <FamilyMemoryForm slug={family.slug} />
         </div>
       </section>
 
