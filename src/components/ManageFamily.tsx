@@ -126,7 +126,41 @@ export default function ManageFamily({
   const [saved, setSaved] = useState(false);
   const [saveErr, setSaveErr] = useState("");
 
+  // AI "write it for me" drafting
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiNotes, setAiNotes] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiErr, setAiErr] = useState("");
+
   const pageUrl = `/${family.slug}`;
+
+  async function onDraft() {
+    setAiBusy(true);
+    setAiErr("");
+    try {
+      const res = await fetch("/api/ai-intro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: family.edit_token,
+          displayName,
+          honoring,
+          town,
+          hasKids,
+          notes: aiNotes,
+        }),
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || !out.ok) throw new Error(out?.error || "bad");
+      setIntroMessage(out.text);
+      setAiOpen(false);
+    } catch (err) {
+      const m = err instanceof Error ? err.message : "";
+      setAiErr(m && m !== "bad" ? m : "Couldn't draft a message. Please try again.");
+    } finally {
+      setAiBusy(false);
+    }
+  }
 
   async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -253,9 +287,58 @@ export default function ManageFamily({
         </div>
 
         <div className="mt-6">
-          <label className="field-label">Your opening message</label>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label className="field-label">Your opening message</label>
+            <button
+              type="button"
+              onClick={() => setAiOpen((v) => !v)}
+              className="text-xs font-medium text-bronze hover:underline"
+            >
+              ✨ Write it for me
+            </button>
+          </div>
+
+          {aiOpen && (
+            <div className="mt-2 rounded-sm border border-line bg-bone/40 p-4">
+              <p className="text-sm leading-relaxed text-ink-soft">
+                Share a few words about who you’re honoring — a name, what they
+                were like, anything at all. We’ll draft a gentle opening you can
+                edit. Or leave it blank and we’ll start from the basics.
+              </p>
+              <textarea
+                className="field mt-3 min-h-[5rem]"
+                value={aiNotes}
+                onChange={(e) => setAiNotes(e.target.value)}
+                maxLength={600}
+                placeholder="e.g. Joe was a dad of two who coached little league and made the best pancakes…"
+              />
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={onDraft}
+                  disabled={aiBusy}
+                  className="btn disabled:opacity-60"
+                >
+                  {aiBusy ? "Writing…" : "Draft my message"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAiOpen(false)}
+                  className="text-sm text-ink-faint hover:underline"
+                >
+                  Cancel
+                </button>
+              </div>
+              {aiErr && <p className="mt-2 text-sm text-bronze">{aiErr}</p>}
+              <p className="mt-3 text-xs text-ink-faint">
+                A draft is just a starting point — read it over and make it yours
+                before you save.
+              </p>
+            </div>
+          )}
+
           <textarea
-            className="field min-h-[9rem]"
+            className="field mt-2 min-h-[9rem]"
             value={introMessage}
             onChange={(e) => setIntroMessage(e.target.value)}
             maxLength={6000}
