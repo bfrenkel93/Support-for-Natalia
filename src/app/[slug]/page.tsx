@@ -60,8 +60,24 @@ export default async function FamilyPage({
         </span>
       </div>
 
+      {/* Hero photo */}
+      {content.hero_image_url && (
+        <div className="mt-8 overflow-hidden rounded-sm">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={content.hero_image_url}
+            alt=""
+            className="h-64 w-full object-cover sm:h-96"
+          />
+        </div>
+      )}
+
       {/* Hero */}
-      <header className="pt-16 pb-10 text-center sm:pt-24">
+      <header
+        className={`pb-10 text-center ${
+          content.hero_image_url ? "pt-10" : "pt-16 sm:pt-24"
+        }`}
+      >
         <p className="eyebrow">{kicker}</p>
         <h1 className="mt-5 font-serif text-4xl font-light leading-[1.05] text-ink sm:text-5xl">
           {title}

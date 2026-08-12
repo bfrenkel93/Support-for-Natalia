@@ -33,6 +33,7 @@ export type FamilyContent = {
   kicker?: string;
   intro_title?: string;
   intro_message?: string;
+  hero_image_url?: string;
 };
 
 export type Family = {
