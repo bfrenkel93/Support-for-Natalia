@@ -163,9 +163,9 @@ export default async function FamilyPage({
     content.eyebrow?.trim() ||
     (family.honoring ? `For the people who love ${family.honoring}` : null);
   // Warm, pronoun-free descriptor under the name (e.g. "A beloved father & husband").
-  const heroMeta = [relLabel ? `A beloved ${relLabel}` : null, family.town]
-    .filter(Boolean)
-    .join(" · ");
+  // The town is intentionally not shown here — it lives with the memorial info
+  // and the meal-drop-off map instead.
+  const heroMeta = relLabel ? `A beloved ${relLabel}` : "";
 
   // Numbered sections (subscribe is a quiet closing band, like Natalia's).
   const ordered: string[] = [];

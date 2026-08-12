@@ -179,6 +179,29 @@ export default function ManageFamily({
   const [saved, setSaved] = useState(false);
   const [saveErr, setSaveErr] = useState("");
 
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteErr, setDeleteErr] = useState("");
+
+  async function onDelete() {
+    setDeleting(true);
+    setDeleteErr("");
+    try {
+      const res = await fetch("/api/manage/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: family.edit_token }),
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || !out.ok) throw new Error(out?.error || "bad");
+      window.location.href = "/";
+    } catch (err) {
+      const m = err instanceof Error ? err.message : "";
+      setDeleteErr(m && m !== "bad" ? m : "Couldn’t delete. Please try again.");
+      setDeleting(false);
+    }
+  }
+
   const pageUrl = `/${family.slug}`;
 
   // Shared context handed to the AI drafting helper.
@@ -270,6 +293,10 @@ export default function ManageFamily({
         <div>
           <p className="eyebrow">Manage your page</p>
           <h1 className="mt-1 font-serif text-3xl font-light text-ink">{displayName}</h1>
+          <p className="mt-1 text-sm text-ink-faint">
+            This page’s address:{" "}
+            <span className="text-bronze">familygriefsupport.org/{family.slug}</span>
+          </p>
         </div>
         <a href={pageUrl} className="btn-ghost" target="_blank" rel="noreferrer">
           View page ↗
@@ -659,6 +686,30 @@ export default function ManageFamily({
             ))}
           </ul>
         )}
+      </section>
+
+      {/* Danger zone */}
+      <section className="mt-14 border-t border-line/60 pt-10">
+        <p className="eyebrow text-bronze">Delete this page</p>
+        <p className="mt-1 max-w-md text-sm text-ink-faint">
+          Permanently removes this page and everything on it — sign-ups, RSVPs,
+          memories, gifts, and settings. This can’t be undone.
+        </p>
+        {!confirmDelete ? (
+          <button type="button" onClick={() => setConfirmDelete(true)} className="btn-ghost mt-4">
+            Delete this page
+          </button>
+        ) : (
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <button type="button" onClick={onDelete} disabled={deleting} className="btn disabled:opacity-50">
+              {deleting ? "Deleting…" : "Yes, delete permanently"}
+            </button>
+            <button type="button" onClick={() => setConfirmDelete(false)} className="text-sm text-ink-faint hover:underline">
+              Cancel
+            </button>
+          </div>
+        )}
+        {deleteErr && <p className="mt-2 text-sm text-bronze">{deleteErr}</p>}
       </section>
     </main>
   );
