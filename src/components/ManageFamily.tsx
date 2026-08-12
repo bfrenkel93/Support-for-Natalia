@@ -77,6 +77,22 @@ function pretty(ymd: string): string {
   });
 }
 
+// Editable "standard message" starting points. These pre-fill the message
+// fields by default so a family is never staring at a blank box.
+function mkIntro(who: string): string {
+  return who
+    ? `In the wake of losing ${who}, so many people have wanted to know how to show up for this family — and haven’t always known how.\n\nThere is no way to fill the space that’s been left behind. But there are ways to surround them with presence, consistency, and care.\n\nThis page is simply a way to do that together — meals, visits, a hand with everyday life, and memories worth keeping — for as long as it takes.`
+    : `After a loss, so many people want to show up for the family — and don’t always know how.\n\nThere is no way to fill the space that’s been left behind. But there are ways to surround them with presence, consistency, and care.\n\nThis page is simply a way to do that together — meals, visits, a hand with everyday life, and memories worth keeping — for as long as it takes.`;
+}
+function mkMemorial(who: string): string {
+  return who
+    ? `We’ll be gathering to remember ${who} and to hold one another close. If ${who} touched your life, you are warmly welcome — come just as you are.\n\nThere’s nothing you need to bring but yourself, and, if you’d like, a memory to share.`
+    : `We’ll be gathering to remember someone dear to us and to hold one another close. If they touched your life, you are warmly welcome — come just as you are.\n\nThere’s nothing you need to bring but yourself, and, if you’d like, a memory to share.`;
+}
+function mkGift(): string {
+  return `If you’d like to help in a more tangible way, anything shared here goes directly to the family — for meals, everyday costs, or simply a little breathing room. There’s no expected amount, and every bit is felt.`;
+}
+
 export default function ManageFamily({
   family,
   bookings,
@@ -102,16 +118,20 @@ export default function ManageFamily({
   const [hasKids, setHasKids] = useState(family.has_kids);
   const [isPublic, setIsPublic] = useState(family.is_public);
   const [contactEmail, setContactEmail] = useState(family.contact_email || "");
-  const [introMessage, setIntroMessage] = useState(family.intro_message);
+  const [introMessage, setIntroMessage] = useState(
+    family.intro_message || mkIntro((family.honoring || "").trim())
+  );
   const [memoriesPublic, setMemoriesPublic] = useState(family.memories_public);
 
   const [memTitle, setMemTitle] = useState(family.memorial_title);
-  const [memIntro, setMemIntro] = useState(family.memorial_intro);
+  const [memIntro, setMemIntro] = useState(
+    family.memorial_intro || mkMemorial((family.honoring || "").trim())
+  );
   const [memWhen, setMemWhen] = useState(family.memorial_when);
   const [memWhere, setMemWhere] = useState(family.memorial_where);
   const [memNote, setMemNote] = useState(family.memorial_note);
 
-  const [giftsIntro, setGiftsIntro] = useState(family.gifts_intro);
+  const [giftsIntro, setGiftsIntro] = useState(family.gifts_intro || mkGift());
   const [payVenmo, setPayVenmo] = useState(family.pay_venmo);
   const [payCashapp, setPayCashapp] = useState(family.pay_cashapp);
   const [payZelle, setPayZelle] = useState(family.pay_zelle);
@@ -136,15 +156,9 @@ export default function ManageFamily({
   // Shared context handed to the AI drafting helper.
   const aiContext: AiContext = { displayName, honoring, town, hasKids };
   const who = honoring.trim();
-
-  // Editable "standard message" starting points.
-  const introTemplate = who
-    ? `In the wake of losing ${who}, so many people have wanted to know how to show up for this family — and haven’t always known how.\n\nThere is no way to fill the space that’s been left behind. But there are ways to surround them with presence, consistency, and care.\n\nThis page is simply a way to do that together — meals, visits, a hand with everyday life, and memories worth keeping — for as long as it takes.`
-    : `After a loss, so many people want to show up for the family — and don’t always know how.\n\nThere is no way to fill the space that’s been left behind. But there are ways to surround them with presence, consistency, and care.\n\nThis page is simply a way to do that together — meals, visits, a hand with everyday life, and memories worth keeping — for as long as it takes.`;
-  const memorialTemplate = who
-    ? `We’ll be gathering to remember ${who} and to hold one another close. If ${who} touched your life, you are warmly welcome — come just as you are.\n\nThere’s nothing you need to bring but yourself, and, if you’d like, a memory to share.`
-    : `We’ll be gathering to remember someone dear to us and to hold one another close. If they touched your life, you are warmly welcome — come just as you are.\n\nThere’s nothing you need to bring but yourself, and, if you’d like, a memory to share.`;
-  const giftTemplate = `If you’d like to help in a more tangible way, anything shared here goes directly to the family — for meals, everyday costs, or simply a little breathing room. There’s no expected amount, and every bit is felt.`;
+  const introTemplate = mkIntro(who);
+  const memorialTemplate = mkMemorial(who);
+  const giftTemplate = mkGift();
 
   async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

@@ -72,15 +72,14 @@ export default async function FamilyPage({
     attendees: ev.rsvps.map((r) => r.name),
   }));
   const content: FamilyContent = family.content || {};
-  const kicker = content.kicker || "For the people who love them";
   const title = content.intro_title || family.display_name;
   const intro = paragraphs(content.intro_message);
   const ways = family.has_kids ? ALL_WAYS : ALL_WAYS.filter((w) => w.key !== "kids");
+  // A memorial section shows once there's an actual gathering to announce —
+  // a title, date, or place. The invitation message alone (which is pre-filled
+  // by default) doesn't force the section to appear.
   const hasMemorial = Boolean(
-    content.memorial_title ||
-      content.memorial_intro ||
-      content.memorial_when ||
-      content.memorial_where
+    content.memorial_title || content.memorial_when || content.memorial_where
   );
 
   const showCalendar = content.show_calendar !== false;
@@ -132,8 +131,7 @@ export default async function FamilyPage({
           content.hero_image_url ? "pt-10" : "pt-16 sm:pt-24"
         }`}
       >
-        <p className="eyebrow">{kicker}</p>
-        <h1 className="mt-5 font-serif text-4xl font-light leading-[1.05] text-ink sm:text-5xl">
+        <h1 className="font-serif text-4xl font-light leading-[1.05] text-ink sm:text-5xl">
           {title}
         </h1>
         {(family.honoring || family.town) && (
