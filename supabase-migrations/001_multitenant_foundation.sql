@@ -57,6 +57,11 @@ declare
   ];
 begin
   foreach t in array content_tables loop
+    -- Skip any table this database doesn't have (schemas vary over time).
+    if to_regclass('public.' || t) is null then
+      raise notice 'Skipping % (table not found)', t;
+      continue;
+    end if;
     execute format(
       'alter table public.%I add column if not exists family_id uuid
          references public.families(id) on delete cascade
