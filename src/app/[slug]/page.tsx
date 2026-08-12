@@ -203,7 +203,7 @@ export default async function FamilyPage({
       {content.is_demo && (
         <div className="bg-charcoal px-6 py-2.5 text-center text-parchment">
           <span className="text-xs sm:text-sm text-parchment/85">
-            You’re viewing an example page.{" "}
+            You’re viewing a sample page.{" "}
           </span>
           <a href="/create" className="text-xs font-medium underline underline-offset-2 sm:text-sm">
             Create one for your family →

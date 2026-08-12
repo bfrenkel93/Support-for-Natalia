@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   if (family.content?.is_demo) {
     return NextResponse.json({
       ok: true,
-      message: "This is an example page — create your own to try this for real. 💛",
+      message: "This is a sample page — create your own to try this for real. 💛",
     });
   }
 

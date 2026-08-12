@@ -1,16 +1,16 @@
 -- ==================================================================
--- Example / demo page  (Migration 010)
+-- Sample / demo page  (Migration 010)
 -- Run once in the Supabase SQL Editor.
 --
--- Seeds a polished, fictional example family ("the Bennett Family") at
--- /example so the landing page can link to a real "See an example" page.
--- Idempotent: safe to re-run (it resets the example's sample content).
+-- Seeds a polished, fictional sample family ("the Bennett Family") at
+-- /sample so the landing page can link to a real "See a sample" page.
+-- Idempotent: safe to re-run (it resets the sample's content).
 -- ==================================================================
 
 insert into public.families (id, slug, display_name, honoring, town, has_kids, is_public, contact_email, content)
 values (
   '22222222-2222-2222-2222-222222222222',
-  'example',
+  'sample',
   'For the Bennett Family',
   'Michael',
   'Ridgewood, NJ',
