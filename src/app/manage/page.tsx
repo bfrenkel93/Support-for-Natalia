@@ -81,6 +81,11 @@ export default async function ManagePage({
         pay_venmo: family.content?.pay_venmo ?? "",
         pay_cashapp: family.content?.pay_cashapp ?? "",
         pay_zelle: family.content?.pay_zelle ?? "",
+        show_calendar: family.content?.show_calendar !== false,
+        show_memorial: family.content?.show_memorial !== false,
+        show_gifts: family.content?.show_gifts !== false,
+        show_subscribe: family.content?.show_subscribe !== false,
+        show_memories: family.content?.show_memories !== false,
       }}
       bookings={bookings.map((b) => ({
         event_date: b.event_date,

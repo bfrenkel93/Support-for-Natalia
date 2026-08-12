@@ -43,6 +43,12 @@ export type FamilyContent = {
   pay_venmo?: string;
   pay_cashapp?: string;
   pay_zelle?: string;
+  // Section visibility — undefined means "on" (so existing pages are unchanged).
+  show_calendar?: boolean;
+  show_memorial?: boolean;
+  show_gifts?: boolean;
+  show_subscribe?: boolean;
+  show_memories?: boolean;
 };
 
 export type Family = {

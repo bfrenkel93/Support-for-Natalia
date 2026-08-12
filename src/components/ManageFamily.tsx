@@ -22,6 +22,11 @@ type FamilyLite = {
   pay_venmo: string;
   pay_cashapp: string;
   pay_zelle: string;
+  show_calendar: boolean;
+  show_memorial: boolean;
+  show_gifts: boolean;
+  show_subscribe: boolean;
+  show_memories: boolean;
 };
 
 type GiftRow = {
@@ -95,6 +100,12 @@ export default function ManageFamily({
   const [payCashapp, setPayCashapp] = useState(family.pay_cashapp);
   const [payZelle, setPayZelle] = useState(family.pay_zelle);
 
+  const [showCalendar, setShowCalendar] = useState(family.show_calendar);
+  const [showMemorial, setShowMemorial] = useState(family.show_memorial);
+  const [showGifts, setShowGifts] = useState(family.show_gifts);
+  const [showSubscribe, setShowSubscribe] = useState(family.show_subscribe);
+  const [showMemories, setShowMemories] = useState(family.show_memories);
+
   const [heroUrl, setHeroUrl] = useState<string | null>(family.hero_image_url);
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState("");
@@ -153,6 +164,11 @@ export default function ManageFamily({
           payVenmo,
           payCashapp,
           payZelle,
+          showCalendar,
+          showMemorial,
+          showGifts,
+          showSubscribe,
+          showMemories,
         }),
       });
       const out = await res.json().catch(() => ({}));
@@ -248,6 +264,35 @@ export default function ManageFamily({
             <label className="flex items-center gap-2.5">
               <input type="radio" name="vis" checked={isPublic} onChange={() => setIsPublic(true)} className="text-bronze focus:ring-bronze/40" />
               Public — listed and findable
+            </label>
+          </div>
+        </div>
+
+        <div className="mt-10 border-t border-line/60 pt-8">
+          <p className="eyebrow">Sections on your page</p>
+          <p className="mt-1 text-sm text-ink-faint">
+            Show only what your family needs — uncheck anything to hide it.
+          </p>
+          <div className="mt-3 space-y-2 text-sm text-ink">
+            <label className="flex items-center gap-2.5">
+              <input type="checkbox" checked={showCalendar} onChange={(e) => setShowCalendar(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+              Sign-up calendar (meals, visits, help)
+            </label>
+            <label className="flex items-center gap-2.5">
+              <input type="checkbox" checked={showMemorial} onChange={(e) => setShowMemorial(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+              Memorial gathering
+            </label>
+            <label className="flex items-center gap-2.5">
+              <input type="checkbox" checked={showGifts} onChange={(e) => setShowGifts(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+              Give a gift
+            </label>
+            <label className="flex items-center gap-2.5">
+              <input type="checkbox" checked={showSubscribe} onChange={(e) => setShowSubscribe(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+              Stay involved (email updates)
+            </label>
+            <label className="flex items-center gap-2.5">
+              <input type="checkbox" checked={showMemories} onChange={(e) => setShowMemories(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+              Memories &amp; stories
             </label>
           </div>
         </div>

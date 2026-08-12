@@ -47,6 +47,11 @@ export async function POST(req: Request) {
     pay_venmo: clean(body.payVenmo, 120),
     pay_cashapp: clean(body.payCashapp, 120),
     pay_zelle: clean(body.payZelle, 120),
+    show_calendar: body.showCalendar !== false,
+    show_memorial: body.showMemorial !== false,
+    show_gifts: body.showGifts !== false,
+    show_subscribe: body.showSubscribe !== false,
+    show_memories: body.showMemories !== false,
   };
 
   const supabase = getSupabase();

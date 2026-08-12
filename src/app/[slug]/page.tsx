@@ -70,6 +70,12 @@ export default async function FamilyPage({
       content.memorial_where
   );
 
+  const showCalendar = content.show_calendar !== false;
+  const showMemorial = hasMemorial && content.show_memorial !== false;
+  const showGifts = giftsLite.length > 0 && content.show_gifts !== false;
+  const showSubscribe = content.show_subscribe !== false;
+  const showMemories = content.show_memories !== false;
+
   return (
     <main className="mx-auto max-w-2xl px-6">
       {/* Top bar */}
@@ -121,7 +127,7 @@ export default async function FamilyPage({
       )}
 
       {/* Memorial gathering */}
-      {hasMemorial && (
+      {showMemorial && (
         <section className="mt-14 rounded-sm border border-line bg-bone/40 p-8 text-center">
           <p className="eyebrow">{content.memorial_title || "A gathering"}</p>
           {content.memorial_intro && (
@@ -146,6 +152,8 @@ export default async function FamilyPage({
         </section>
       )}
 
+      {showCalendar && (
+        <>
       {/* Ways to show up */}
       <section className="mt-14 text-center">
         <p className="eyebrow">Ways to show up</p>
@@ -181,9 +189,11 @@ export default async function FamilyPage({
           />
         </div>
       </section>
+        </>
+      )}
 
       {/* Give a gift */}
-      {giftsLite.length > 0 && (
+      {showGifts && (
         <section className="mt-16 border-t border-line/60 pt-12 text-center">
           <p className="eyebrow">Give a gift</p>
           <h2 className="mx-auto mt-2 max-w-md font-serif text-2xl font-light text-ink sm:text-3xl">
@@ -205,6 +215,7 @@ export default async function FamilyPage({
       )}
 
       {/* Stay involved */}
+      {showSubscribe && (
       <section className="mt-16 border-t border-line/60 pt-12 text-center">
         <p className="eyebrow">Stay involved</p>
         <h2 className="mx-auto mt-2 max-w-md font-serif text-2xl font-light text-ink sm:text-3xl">
@@ -218,8 +229,10 @@ export default async function FamilyPage({
           <FamilySubscribeForm slug={family.slug} />
         </div>
       </section>
+      )}
 
       {/* Memories & stories */}
+      {showMemories && (
       <section className="mt-16 border-t border-line/60 pt-12 text-center">
         <p className="eyebrow">Memories &amp; stories</p>
         <h2 className="mx-auto mt-2 max-w-md font-serif text-2xl font-light text-ink sm:text-3xl">
@@ -233,6 +246,7 @@ export default async function FamilyPage({
           <FamilyMemoryForm slug={family.slug} />
         </div>
       </section>
+      )}
 
       {/* Footer */}
       <footer className="mt-20 border-t border-line/60 py-10 text-center text-[0.7rem] uppercase tracking-[0.16em] text-ink-faint">
