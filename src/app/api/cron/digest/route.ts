@@ -1,4 +1,5 @@
 import { runFamilyDigests } from "@/lib/digest";
+import { resolveBaseUrl } from "@/lib/urls";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -20,9 +21,7 @@ export async function GET(req: Request) {
     return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const proto = req.headers.get("x-forwarded-proto") || "https";
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
-  const baseUrl = process.env.SITE_URL || (host ? `${proto}://${host}` : "");
+  const baseUrl = resolveBaseUrl(req);
   const force = url.searchParams.get("force") === "1";
 
   const result = await runFamilyDigests(baseUrl, force);

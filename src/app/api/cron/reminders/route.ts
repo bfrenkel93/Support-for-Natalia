@@ -1,4 +1,5 @@
 import { sendDueReminders } from "@/lib/reminders";
+import { resolveBaseUrl } from "@/lib/urls";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -30,9 +31,7 @@ export async function GET(req: Request) {
     ? (url.searchParams.get("date") as string)
     : tomorrow;
 
-  const proto = req.headers.get("x-forwarded-proto") || "https";
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
-  const baseUrl = process.env.SITE_URL || (host ? `${proto}://${host}` : "");
+  const baseUrl = resolveBaseUrl(req);
 
   const result = await sendDueReminders(target, baseUrl);
   return Response.json({ ok: true, date: target, ...result, ranAt: new Date().toISOString() });
