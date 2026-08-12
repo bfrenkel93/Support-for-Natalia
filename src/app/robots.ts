@@ -14,6 +14,8 @@ export default function robots(): MetadataRoute.Robots {
   if (MARKETING_HOSTS.has(host)) {
     return {
       rules: { userAgent: "*", allow: "/" },
+      sitemap: "https://familygriefsupport.org/sitemap.xml",
+      host: "https://familygriefsupport.org",
     };
   }
 

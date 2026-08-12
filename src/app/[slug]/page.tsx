@@ -34,6 +34,29 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const family = await getFamilyBySlug(params.slug);
   if (!family) return { title: "Not found" };
+
+  // The seeded sample/demo page is a public showcase of the product — give it
+  // rich, descriptive metadata so it's a useful search & social result.
+  if (family.content?.is_demo) {
+    const title = "A sample support page · Family Grief Support";
+    const description =
+      "See what a Family Grief Support page looks like: a private place where a community coordinates meals, time with the kids, practical help, and shared memories for a grieving family.";
+    return {
+      title,
+      description,
+      alternates: { canonical: "https://familygriefsupport.org/sample" },
+      robots: { index: true, follow: true },
+      openGraph: {
+        type: "website",
+        url: "https://familygriefsupport.org/sample",
+        siteName: "Family Grief Support",
+        title,
+        description,
+      },
+      twitter: { card: "summary_large_image", title, description },
+    };
+  }
+
   return {
     title: family.display_name,
     robots: family.is_public

@@ -38,6 +38,30 @@ export function middleware(req: NextRequest) {
     return res;
   }
 
+  // Evergreen resources hub (guides for helping a grieving family). Clean
+  // /resources URL is served from the static resources.html; both are indexed.
+  if (isMarketing && (path === "/resources" || path === "/resources.html")) {
+    const res =
+      path === "/resources"
+        ? NextResponse.rewrite(new URL("/resources.html", req.url))
+        : NextResponse.next();
+    res.headers.set("X-Robots-Tag", "index, follow");
+    return res;
+  }
+
+  // The public sample page is a real support page seeded as a demo. Let search
+  // engines index it so people can find a concrete example of the product.
+  if (isMarketing && path === "/sample") {
+    const res = NextResponse.next();
+    res.headers.set("X-Robots-Tag", "index, follow");
+    return res;
+  }
+
+  // Sitemap and robots must always be crawlable.
+  if (isMarketing && (path === "/sitemap.xml" || path === "/robots.txt")) {
+    return NextResponse.next();
+  }
+
   // Everything else — Natalia's private site, the admin, app routes, and any
   // non-landing path even on the marketing domain — stays out of search.
   const res = NextResponse.next();

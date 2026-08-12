@@ -4,19 +4,53 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Ctext%20y=%22.9em%22%20font-size=%2290%22%3E%F0%9F%92%9B%3C/text%3E%3C/svg%3E">
-<title>Family Grief Support</title>
-<meta name="description" content="A private, gentle place for the people who love a grieving family to show up — with meals, visits, memories, and care, for as long as it takes.">
+<title>Family Grief Support — help a grieving family, together</title>
+<meta name="description" content="Create one private page where friends and family can coordinate meals, time with the kids, practical help, and shared memories for a grieving family — in the first weeks after a death and the long months after.">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://familygriefsupport.org/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Family Grief Support">
 <meta property="og:url" content="https://familygriefsupport.org/">
-<meta property="og:title" content="Family Grief Support">
-<meta property="og:description" content="A private, gentle place for the people who love a grieving family to show up — with meals, visits, memories, and care.">
+<meta property="og:title" content="Family Grief Support — help a grieving family, together">
+<meta property="og:description" content="One private page where a community can coordinate meals, help with the children, practical support, and memories for a grieving family — for as long as it's needed.">
 <meta property="og:image" content="https://familygriefsupport.org/marketing-hero.jpg">
+<meta property="og:image:alt" content="A quiet, sunlit still life — the mood of Family Grief Support.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Family Grief Support">
-<meta name="twitter:description" content="A private, gentle place for the people who love a grieving family to show up — with meals, visits, memories, and care.">
+<meta name="twitter:title" content="Family Grief Support — help a grieving family, together">
+<meta name="twitter:description" content="One private page where a community can coordinate meals, help with the children, practical support, and memories for a grieving family.">
 <meta name="twitter:image" content="https://familygriefsupport.org/marketing-hero.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://familygriefsupport.org/#org",
+      "name": "Family Grief Support",
+      "url": "https://familygriefsupport.org/",
+      "email": "support@familygriefsupport.org",
+      "description": "Family Grief Support helps a community organize meals, childcare, practical help, and shared memories for a grieving family — in the first weeks after a death and the long months and years that follow."
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://familygriefsupport.org/#website",
+      "url": "https://familygriefsupport.org/",
+      "name": "Family Grief Support",
+      "inLanguage": "en",
+      "publisher": { "@id": "https://familygriefsupport.org/#org" }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://familygriefsupport.org/#webpage",
+      "url": "https://familygriefsupport.org/",
+      "name": "Family Grief Support — help a grieving family, together",
+      "isPartOf": { "@id": "https://familygriefsupport.org/#website" },
+      "about": { "@id": "https://familygriefsupport.org/#org" },
+      "description": "Create one private page where friends and family can coordinate meals, time with the children, practical help, and shared memories for a grieving family."
+    }
+  ]
+}
+</script>
 <style>
   :root {
     --paper: #F5F1E8;
@@ -110,6 +144,14 @@
   }
   .btn:hover { transform: translateY(-1px); opacity: 0.92; }
   .btn:focus-visible { outline: 2px solid var(--bronze); outline-offset: 3px; }
+  .btn-ghost {
+    display: inline-block; font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+    background: transparent; color: var(--ink); text-decoration: none;
+    padding: 1rem 2rem; border: 1px solid var(--line); border-radius: 2px;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .btn-ghost:hover { border-color: var(--bronze); color: var(--bronze); }
 
   /* nav */
   nav {
@@ -165,13 +207,14 @@
     font-size: clamp(2.25rem, 3.4vw, 3rem); line-height: 1.0;
     letter-spacing: -0.01em; margin: 1.5rem 0 0;
   }
-  .hero-body { max-width: 500px; margin: 3rem 0 0; }
+  .hero-body { max-width: 500px; margin: 2.75rem 0 0; }
   .hero-body p {
     font-size: clamp(1.0625rem, 1.1vw, 1.125rem); line-height: 1.6;
     color: var(--ink); font-weight: 400; margin: 0;
   }
   .hero-body p + p { margin-top: 1.25rem; }
-  .hero-body .hero-final { margin-top: 1.75rem; font-weight: 500; }
+  .hero-body .hero-final { margin-top: 1.6rem; font-weight: 500; }
+  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.9rem 1.1rem; margin-top: 2rem; }
   .hero-cta {
     display: inline-flex; align-items: center; gap: 0.6rem;
     font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
@@ -179,19 +222,19 @@
     font-size: 0.85rem; letter-spacing: 0.14em;
     background: var(--btn-bg); color: var(--btn-fg); text-decoration: none;
     min-height: 58px; padding: 0 2.25rem; border-radius: 1px;
-    margin-top: 2rem; transition: transform .15s ease, opacity .15s ease;
+    transition: transform .15s ease, opacity .15s ease;
   }
   .hero-cta span { font-size: 1rem; transition: transform .18s ease; }
   .hero-cta:hover { opacity: 0.92; }
   .hero-cta:hover span { transform: translateX(3px); }
   .hero-cta:focus-visible { outline: 2px solid var(--bronze); outline-offset: 3px; }
   .hero-see {
-    display: inline-block; margin-top: 1rem;
+    display: inline-flex; align-items: center; gap: 0.4rem;
     font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
     font-size: 0.9rem; letter-spacing: 0.02em;
     color: var(--bronze); text-decoration: none;
     border-bottom: 1px solid rgba(139,106,67,0.35);
-    padding-bottom: 1px; transition: border-color .15s ease;
+    padding-bottom: 2px; transition: border-color .15s ease;
   }
   .hero-see:hover { border-bottom-color: var(--bronze); }
 
@@ -229,39 +272,73 @@
   .measure { max-width: 46ch; }
   .center .measure { margin-left: auto; margin-right: auto; }
 
-  /* feature cards */
-  .cards { display: grid; gap: 1.1rem; margin-top: 2.6rem; }
-  @media (min-width: 700px) { .cards { grid-template-columns: 1fr 1fr; } }
-  .card {
-    background: var(--surface); border: 1px solid var(--line); border-radius: 5px;
-    padding: 1.7rem 1.7rem 1.8rem; position: relative; overflow: hidden;
+  /* product preview — an editorial excerpt of a real page, not a screenshot */
+  .pv-grid {
+    display: grid; grid-template-columns: 1fr; gap: clamp(2.5rem, 5vw, 3.5rem);
+    align-items: center; max-width: 1080px; margin: clamp(2.4rem, 5vw, 3.4rem) auto 0;
   }
-  .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent, var(--bronze)); }
-  .card h3 { font-weight: 400; font-size: 1.3rem; margin: 0 0 0.55rem; display: flex; align-items: center; gap: 0.6rem; }
-  .card h3 .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent, var(--bronze)); flex: none; }
-  .card p { font-family: "Avenir Next", system-ui, sans-serif; font-size: 0.94rem; color: var(--ink-soft); margin: 0; line-height: 1.65; }
-  .card .prompt {
-    margin-top: 1rem; font-style: italic; font-family: "Iowan Old Style", Palatino, Georgia, serif;
-    font-size: 1rem; color: var(--ink); line-height: 1.6;
+  @media (min-width: 900px) {
+    .pv-grid { grid-template-columns: 0.92fr 1.08fr; column-gap: clamp(3rem, 5vw, 4.75rem); }
   }
-  .card.full { grid-column: 1 / -1; }
+  .pv-frame {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+    padding: clamp(1.5rem, 3vw, 2rem) clamp(1.4rem, 3vw, 1.9rem) clamp(1.4rem, 3vw, 1.7rem);
+    box-shadow: 0 1px 0 var(--line-soft), 0 26px 44px -34px rgba(46,42,35,0.55);
+  }
+  .pv-eyebrow {
+    font-family: "Avenir Next", system-ui, sans-serif; text-transform: uppercase;
+    letter-spacing: 0.18em; font-size: 0.6rem; color: var(--bronze); font-weight: 600; margin: 0;
+  }
+  .pv-name { font-weight: 400; font-size: clamp(1.5rem, 3vw, 1.9rem); line-height: 1.05; margin: 0.5rem 0 0.35rem; color: var(--ink); }
+  .pv-meta { font-family: "Avenir Next", system-ui, sans-serif; font-size: 0.76rem; color: var(--ink-faint); margin: 0 0 1.15rem; letter-spacing: 0.02em; }
+  .pv-rows { border-top: 1px solid var(--line-soft); }
+  .pv-row { padding: 0.8rem 0; border-bottom: 1px solid var(--line-soft); }
+  .pv-row-label {
+    display: flex; align-items: center; gap: 0.55rem;
+    font-family: "Avenir Next", system-ui, sans-serif; text-transform: uppercase;
+    letter-spacing: 0.1em; font-size: 0.64rem; color: var(--ink-soft); font-weight: 600;
+  }
+  .pv-row-label .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent, var(--bronze)); flex: none; }
+  .pv-entry { font-size: 1.0rem; color: var(--ink); margin: 0.35rem 0 0; line-height: 1.45; }
+  .pv-entry.q { font-style: italic; color: var(--ink-soft); }
+  .pv-caption {
+    text-align: center; font-family: "Avenir Next", system-ui, sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.06em; color: var(--ink-faint); margin: 0.95rem 0 0;
+  }
 
-  /* stanza (do-list) — botanical background, slightly deeper warm wash */
-  .stanza {
-    text-align: left; position: relative; isolation: isolate;
-    background-color: var(--limestone);
-    background-image: var(--hero-bg, none);
-    background-size: cover; background-position: center right;
-    border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft);
+  .cats { list-style: none; margin: 0; padding: 0; }
+  .cats li { padding: 0.95rem 0; border-bottom: 1px solid var(--line-soft); }
+  .cats li:first-child { border-top: 1px solid var(--line-soft); }
+  .cat-name { font-weight: 400; font-size: 1.18rem; color: var(--ink); margin: 0; }
+  .cat-desc { font-family: "Avenir Next", system-ui, sans-serif; font-size: 0.92rem; line-height: 1.5; color: var(--ink-soft); margin: 0.25rem 0 0; }
+  .pv-link {
+    display: inline-block; margin-top: 1.5rem; font-family: "Avenir Next", system-ui, sans-serif;
+    font-size: 0.9rem; color: var(--bronze); text-decoration: none;
+    border-bottom: 1px solid rgba(139,106,67,0.35); padding-bottom: 2px;
   }
-  .stanza::before {
-    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-    background: color-mix(in srgb, var(--paper) 46%, transparent);
+  .pv-link:hover { border-bottom-color: var(--bronze); }
+  .pv-pull {
+    font-size: clamp(1.15rem, 2.4vw, 1.4rem); line-height: 1.4; color: var(--ink);
+    margin: 2.2rem 0 0; text-wrap: balance; font-weight: 400;
   }
+
+  /* grief keeps going — ongoing moments */
+  .moments {
+    max-width: 34ch; margin: 1.9rem auto 0; text-align: center;
+    font-size: clamp(1.15rem, 2.6vw, 1.45rem); line-height: 1.7; color: var(--ink-soft);
+  }
+  .moments .last { color: var(--ink); font-style: italic; }
+
+  .fade-list { margin: 1.8rem auto 0; max-width: 30ch; text-align: center; }
+  .fade-list p { font-size: 1.1rem; margin: 0; padding: 0.45rem 0; color: var(--ink-soft); }
+  .fade-list p:nth-child(1) { opacity: 1; }
+  .fade-list p:nth-child(2) { opacity: 0.78; }
+  .fade-list p:nth-child(3) { opacity: 0.6; }
+  .fade-list .stays { opacity: 1; color: var(--ink); font-style: italic; margin-top: 0.7rem; }
 
   /* two ways support is sustained over time */
   .sustain {
-    display: grid; gap: 1.75rem; max-width: 760px; margin: 0 auto;
+    display: grid; gap: 1.75rem; max-width: 760px; margin: 2.6rem auto 0;
     padding-top: 2.5rem; border-top: 1px solid var(--line); text-align: left;
   }
   @media (min-width: 640px) { .sustain { grid-template-columns: 1fr 1fr; gap: 2.75rem; } }
@@ -277,74 +354,17 @@
     font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
     font-size: 0.95rem; line-height: 1.65; color: var(--ink-soft); margin: 0;
   }
-  /* "There is no perfect thing to say" — editorial two-column composition */
-  .stanza-inner {
-    position: relative; z-index: 1;
-    max-width: 1180px; margin: 0 auto;
-    padding: clamp(3.75rem, 6.5vw, 5.25rem) clamp(1.5rem, 5vw, 4rem);
-    display: grid; grid-template-columns: 1fr;
-    row-gap: clamp(2.5rem, 6vw, 3rem);
-  }
-  @media (min-width: 900px) {
-    .stanza-inner {
-      grid-template-columns: 0.44fr 0.56fr;
-      column-gap: clamp(3rem, 5vw, 5rem);
-      align-items: center;
-    }
-  }
 
-  .stanza h2 {
-    font-weight: 400; margin: 0; max-width: 560px; color: var(--ink);
-    font-size: clamp(2rem, 1.2rem + 2.8vw, 3.4rem);
-    line-height: 1.0; letter-spacing: -0.015em;
+  /* point of view */
+  .pov h2 {
+    font-weight: 400; font-size: clamp(1.9rem, 4.4vw, 2.5rem); line-height: 1.1;
+    letter-spacing: -0.015em; margin: 0.7rem auto 0; max-width: 18ch; text-wrap: balance;
   }
-  .stanza .subline {
-    font-family: "Iowan Old Style", Palatino, Georgia, serif;
-    font-style: italic; font-weight: 400; color: var(--bronze);
-    font-size: clamp(1.2rem, 1.05rem + 0.55vw, 1.375rem);
-    line-height: 1.4; margin: 1.4rem 0 0; max-width: 400px;
+  .pov .subline {
+    font-style: italic; color: var(--bronze); font-size: clamp(1.2rem, 2.2vw, 1.4rem);
+    margin: 1.1rem auto 0; max-width: 30ch;
   }
-
-  .stanza-close { margin-top: clamp(2.25rem, 4vw, 3rem); }
-  .stanza .kicker {
-    font-weight: 400; margin: 0; max-width: 24ch; color: var(--ink-soft);
-    font-size: clamp(1.1875rem, 1.1rem + 0.35vw, 1.3125rem); line-height: 1.35;
-  }
-  .stanza-close .cta-row { margin-top: 1.5rem; }
-  .stanza .btn { padding: 0.9rem 1.75rem; font-size: 0.7rem; letter-spacing: 0.14em; }
-
-  .acts { counter-reset: act; list-style: none; margin: 0; padding: 0; max-width: none; }
-  .acts li {
-    counter-increment: act;
-    display: grid; grid-template-columns: 1.5rem 1fr; align-items: baseline; gap: 0.7rem;
-    padding: 0.85rem 0; border-bottom: 1px solid var(--line);
-    color: var(--ink); font-weight: 400;
-    font-size: clamp(1.375rem, 0.95rem + 1vw, 1.6rem); line-height: 1.25;
-  }
-  .acts li:first-child { border-top: 1px solid var(--line); }
-  .acts li::before {
-    content: counter(act, decimal-leading-zero);
-    font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
-    font-size: 0.66rem; letter-spacing: 0.16em; color: var(--bronze);
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* long-after list */
-  .fade-list { margin: 1.8rem 0 0; max-width: 30ch; }
-  .fade-list p { font-size: 1.1rem; margin: 0; padding: 0.5rem 0; color: var(--ink-soft); }
-  .fade-list p:nth-child(1) { opacity: 1; }
-  .fade-list p:nth-child(2) { opacity: 0.8; }
-  .fade-list p:nth-child(3) { opacity: 0.62; }
-  .fade-list .stays { opacity: 1; color: var(--ink); font-style: italic; margin-top: 0.8rem; }
-
-  /* pull emphasis block */
-  .pull {
-    font-size: clamp(1.3rem, 3.6vw, 1.75rem); line-height: 1.45; text-wrap: balance;
-    max-width: 24ch; margin: 1.6rem auto 0; font-weight: 400;
-  }
-
-  /* made-with list */
-  .nos { list-style: none; margin: 2rem auto 0; padding: 0; max-width: 26ch; }
+  .nos { list-style: none; margin: 2.2rem auto 0; padding: 0; max-width: 26ch; }
   .nos li {
     font-family: "Avenir Next", system-ui, sans-serif; font-size: 1rem; color: var(--ink-soft);
     padding: 0.7rem 0; border-bottom: 1px solid var(--line-soft); display: flex; gap: 0.7rem; align-items: baseline;
@@ -377,31 +397,13 @@
   footer .free { font-family: "Avenir Next", system-ui, sans-serif; font-style: normal; font-size: 0.85rem; color: var(--ink-faint); letter-spacing: 0.02em; }
   footer .dot-sep { color: var(--bronze); margin: 0 0.5rem; }
   footer .brandline { margin-top: 1.3rem; font-size: 1rem; color: var(--ink-soft); }
+  footer .footlinks { font-family: "Avenir Next", system-ui, sans-serif; font-size: 0.82rem; margin-top: 1.1rem; color: var(--ink-faint); }
+  footer .footlinks a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line); }
+  footer .footlinks a:hover { color: var(--bronze); border-color: var(--bronze); }
   footer .footmail { font-family: "Avenir Next", system-ui, sans-serif; font-size: 0.82rem; color: var(--ink-faint); margin-top: 0.9rem; }
   footer .footmail a { color: var(--bronze); text-decoration: none; border-bottom: 1px solid var(--line); }
 
   :root { --hero-bg: url("/marketing-hero.jpg"); }
-
-  /* request form */
-  .request { background: var(--paper); border-top: 1px solid var(--line-soft); }
-  .rform { max-width: 520px; margin: 2.4rem auto 0; display: grid; gap: 1.1rem; text-align: left; }
-  .rform label { display: grid; gap: 0.4rem; font-family: "Avenir Next","Segoe UI",system-ui,sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-soft); }
-  .rform .opt { color: var(--ink-faint); text-transform: none; letter-spacing: 0; }
-  .rform input, .rform textarea { font-family: "Iowan Old Style",Palatino,Georgia,serif; font-size: 1.05rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 0.75rem 0.9rem; width: 100%; }
-  .rform textarea { resize: vertical; }
-  .rform input:focus, .rform textarea:focus { outline: 2px solid var(--bronze); outline-offset: 1px; border-color: var(--bronze); }
-  .rbtn { justify-self: start; margin-top: 0.4rem; border: 0; cursor: pointer; }
-  .rnote { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.92rem; margin: 0.4rem 0 0; min-height: 1.3em; color: var(--ink-soft); }
-  .rnote.ok { color: var(--kids); }
-  .rnote.err { color: var(--visit); }
-  .rform select { font-family: "Avenir Next","Segoe UI",system-ui,sans-serif; font-size: 1rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 0.7rem 0.85rem; width: 100%; }
-  .rform .rcheck { display: flex; flex-direction: row; align-items: center; gap: 0.6rem; text-transform: none; letter-spacing: 0; font-size: 1rem; font-family: "Iowan Old Style",Palatino,Georgia,serif; color: var(--ink); }
-  .rform .rcheck input { width: auto; margin: 0; }
-  .rdone { max-width: 520px; margin: 1rem auto 0; text-align: center; }
-  .rdone-title { font-weight: 400; font-size: 1.5rem; margin: 0 0 0.6rem; color: var(--ink); }
-  .rdone-sub { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.95rem; color: var(--ink-soft); margin: 0 0 0.8rem; }
-  .rdone-link { display: inline-block; font-family: "Avenir Next",system-ui,sans-serif; font-size: 1rem; color: var(--bronze); word-break: break-all; margin-bottom: 1rem; }
-  .rdone-note { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.85rem; color: var(--ink-faint); margin: 0; }
 </style>
 </head>
 <body>
@@ -414,7 +416,7 @@
   </nav>
 </div>
 
-<!-- HERO -->
+<!-- HERO — someone died, everyone wants to help -->
 <header class="hero">
   <div class="hero-grid">
     <div class="hero-text">
@@ -422,118 +424,127 @@
       <h1 class="hero-head">Everyone asks the <br class="hb">same question.</h1>
       <p class="hero-ask">“What can I do?”</p>
       <div class="hero-body">
-        <p>There are meals to bring. Kids who still need joy and normalcy. Appointments, errands, school pickups, and ordinary life that somehow keeps moving.</p>
-        <p>There are stories to remember. Photos to save. People who want to show up, but don’t always know how.</p>
-        <p class="hero-final">This is a place to bring all of that together.</p>
+        <p>There are meals to bring and errands to run. Kids who still need joy and normalcy. Stories worth keeping, and people who want to show up but don’t always know how.</p>
+        <p class="hero-final">Family Grief Support gives a grieving family one private page where their whole community can help — meals, the children, practical needs, and memories — for as long as it takes.</p>
       </div>
-      <a class="hero-cta" href="/create">Create a support page <span aria-hidden="true">→</span></a>
-      <div><a class="hero-see" href="/sample">See a sample page first →</a></div>
+      <div class="hero-actions">
+        <a class="hero-cta" href="/create">Create a support page <span aria-hidden="true">→</span></a>
+        <a class="hero-see" href="/sample">See a sample <span aria-hidden="true">→</span></a>
+      </div>
     </div>
   </div>
 </header>
 
-<!-- OVERWHELMING -->
+<!-- TRANSITION — the family shouldn't have to coordinate it -->
 <section class="band">
-  <div class="wide">
-    <div class="center">
-      <p class="eyebrow">A simpler way to help</p>
-      <h2 class="head">Grief is overwhelming.<br>Supporting someone shouldn’t be.</h2>
-      <p class="body measure">In the days and months after a loss, friends and family often want to help. But coordinating that help can become another responsibility for the very people who have the least capacity to manage it.</p>
-      <p class="body measure" style="color:var(--ink);">A support page gives your community one thoughtful place to show up.</p>
-    </div>
-
-    <div class="cards">
-      <div class="card" style="--accent:var(--meal)">
-        <h3><span class="dot"></span>Bring a Meal</h3>
-        <p>Coordinate meals and practical help without endless group texts or overlapping plans.</p>
-      </div>
-      <div class="card" style="--accent:var(--visit)">
-        <h3><span class="dot"></span>Spend Time Together</h3>
-        <p>Organize visits, outings, childcare, school pickups, or time with the kids.</p>
-      </div>
-      <div class="card" style="--accent:var(--errand)">
-        <h3><span class="dot"></span>Help With What Matters</h3>
-        <p>Create specific needs your community can step into, from groceries and errands to appointments and everyday logistics.</p>
-      </div>
-      <div class="card" style="--accent:var(--memory)">
-        <h3><span class="dot"></span>Share Stories &amp; Memories</h3>
-        <p>Collect photographs, stories, and voice notes about the person who died — something the family can return to for years. Point it right at the children, or hold it for the whole family.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- THINGS WE CAN DO -->
-<section class="stanza">
-  <div class="stanza-inner">
-    <div class="stanza-lead">
-      <h2>There is no perfect<br>thing to say.</h2>
-      <p class="subline">Sometimes, the most meaningful thing is simply to do.</p>
-      <div class="stanza-close">
-        <p class="kicker">Grief keeps going.<br>So should support.</p>
-        <div class="cta-row"><a class="btn" href="/create">Create a support page <span aria-hidden="true">→</span></a></div>
-      </div>
-    </div>
-    <ol class="acts">
-      <li>Bring dinner.</li>
-      <li>Give the kids a good day.</li>
-      <li>Sit beside them.</li>
-      <li>Take something off their plate.</li>
-      <li>Tell the stories worth keeping.</li>
-      <li>Remember the days that still matter.</li>
-      <li>Keep showing up when everyone else has gone home.</li>
-    </ol>
-  </div>
-</section>
-
-<!-- LONG AFTER -->
-<section class="band-stone">
-  <div class="wide">
-    <div style="display:grid; gap:2rem; align-items:center;">
-      <div class="center">
-        <p class="eyebrow">Built for the long after</p>
-        <h2 class="head">Most people are surrounded by support immediately after a loss.</h2>
-        <p class="body measure" style="margin-left:auto;margin-right:auto;">Then life moves forward.</p>
-      </div>
-      <div class="fade-list" style="margin-left:auto;margin-right:auto;">
-        <p>The texts slow down.</p>
-        <p>The meals stop arriving.</p>
-        <p>Everyone returns to their routines.</p>
-        <p class="stays">The grieving family doesn’t.</p>
-      </div>
-      <p class="body measure center" style="margin-left:auto;margin-right:auto; color:var(--ink);">Create support that can continue for weeks, months, even years — so the people who love them can keep showing up in meaningful ways.</p>
-
-      <div class="sustain">
-        <div class="sustain-item">
-          <h3>The family shares what’s ahead</h3>
-          <p>They can post the moments still to come — a birthday, a school game, a hard anniversary, a week that needs extra hands — so people always know how and when to show up.</p>
-        </div>
-        <div class="sustain-item">
-          <h3>Everyone can subscribe for updates</h3>
-          <p>Friends and family opt in to occasional, gentle notes — no noise, unsubscribe anytime — so the circle stays close for years, not just the first few weeks.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ONE PAGE, A COMMUNITY -->
-<section>
   <div class="wrap center">
-    <p class="eyebrow">One page. A whole community.</p>
-    <h2 class="head">Create a private home for the people surrounding a grieving family.</h2>
-    <p class="body measure">Share the page only with the people you choose. Let friends and family sign up for what they can genuinely offer, while giving the family space to receive support without having to coordinate all of it themselves.</p>
-    <p class="pull"><strong style="font-weight:500;">No one person has to do everything.<br>Everyone can do something.</strong></p>
-    <div class="cta-row" style="margin-top:2.4rem;">
-      <a class="btn" href="/create">Create a support page</a>
+    <p class="eyebrow">A simpler way to help</p>
+    <h2 class="head">The people grieving shouldn’t have to coordinate their own support.</h2>
+    <p class="body measure">Friends and family want to show up. A private support page gives them one place to do it — so the family can receive help without having to organize all of it themselves.</p>
+  </div>
+</section>
+
+<!-- PRODUCT PREVIEW — here is what it actually looks like -->
+<section>
+  <div class="wide center">
+    <p class="eyebrow">What it looks like</p>
+    <h2 class="head">One page holds everything a family needs.</h2>
+  </div>
+  <div class="wide">
+    <div class="pv-grid">
+      <!-- an editorial excerpt of a real support page -->
+      <div>
+        <div class="pv-frame">
+          <p class="pv-eyebrow">For the people who love Michael</p>
+          <p class="pv-name">For the Bennett Family</p>
+          <p class="pv-meta">A beloved father &amp; husband · Ridgewood, NJ</p>
+          <div class="pv-rows">
+            <div class="pv-row" style="--accent:var(--meal)">
+              <div class="pv-row-label"><span class="dot"></span>Meals</div>
+              <p class="pv-entry">The Alvarez family — Tuesday</p>
+            </div>
+            <div class="pv-row" style="--accent:var(--kids)">
+              <div class="pv-row-label"><span class="dot"></span>Time with the kids</div>
+              <p class="pv-entry">Coach Dan — Saturday morning</p>
+            </div>
+            <div class="pv-row" style="--accent:var(--errand)">
+              <div class="pv-row-label"><span class="dot"></span>Practical help</div>
+              <p class="pv-entry">A ride to the airport — <span style="color:var(--ink-faint)">open</span></p>
+            </div>
+            <div class="pv-row" style="--accent:var(--memory)">
+              <div class="pv-row-label"><span class="dot"></span>A memory</div>
+              <p class="pv-entry q">“He made pancakes shaped like whatever the kids asked for…”</p>
+            </div>
+            <div class="pv-row" style="--accent:var(--visit)">
+              <div class="pv-row-label"><span class="dot"></span>Important dates</div>
+              <p class="pv-entry">Michael’s birthday — March 4</p>
+            </div>
+          </div>
+        </div>
+        <p class="pv-caption">A sample page · familygriefsupport.org/sample</p>
+      </div>
+      <!-- what can live on a page -->
+      <div>
+        <ul class="cats">
+          <li>
+            <p class="cat-name">Meals</p>
+            <p class="cat-desc">Coordinate food without the family ever having to organize it.</p>
+          </li>
+          <li>
+            <p class="cat-name">Kids</p>
+            <p class="cat-desc">School pickups, activities, and familiar faces who keep showing up.</p>
+          </li>
+          <li>
+            <p class="cat-name">Practical help</p>
+            <p class="cat-desc">Errands, rides, and appointments — whatever the week actually needs.</p>
+          </li>
+          <li>
+            <p class="cat-name">Memories</p>
+            <p class="cat-desc">Stories, photos, and voice notes — collect them for the children to have one day, or for the whole family to return to.</p>
+          </li>
+          <li>
+            <p class="cat-name">The long after</p>
+            <p class="cat-desc">Birthdays, anniversaries, and the ordinary days months later.</p>
+          </li>
+        </ul>
+        <a class="pv-link" href="/sample">See the full sample page →</a>
+        <p class="pv-pull"><strong style="font-weight:500;">No one person has to do everything.<br>Everyone can do something.</strong></p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- MADE WITH GRIEF IN MIND -->
-<section class="band">
+<!-- GRIEF KEEPS GOING — the differentiator, moved high -->
+<section class="band-stone">
+  <div class="wide center">
+    <p class="eyebrow">Built for the long after</p>
+    <h2 class="head">Grief keeps going.<br>So should support.</h2>
+    <div class="fade-list">
+      <p>The first weeks bring meals, flowers, and offers to help.</p>
+      <p>Then the messages slow, and everyone returns to their routines.</p>
+      <p class="stays">The grieving family doesn’t.</p>
+    </div>
+    <p class="moments">A birthday. An anniversary. The first day of school. The holidays. A hard week. A child’s milestone. <span class="last">An ordinary Tuesday, months later.</span></p>
+
+    <div class="sustain">
+      <div class="sustain-item">
+        <h3>The family shares what’s ahead</h3>
+        <p>They can post the moments still to come — a birthday, a school game, a hard anniversary, a week that needs extra hands — so people always know how and when to show up.</p>
+      </div>
+      <div class="sustain-item">
+        <h3>Everyone can stay close</h3>
+        <p>Friends and family opt in to occasional, gentle notes — no noise, unsubscribe anytime — so the circle stays for years, not just the first few weeks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POINT OF VIEW — there is no perfect thing to say -->
+<section class="pov">
   <div class="wrap center">
     <p class="eyebrow">Made with grief in mind</p>
+    <h2>There is no perfect thing to say.</h2>
+    <p class="subline">Sometimes the most meaningful thing is simply to do.</p>
     <ul class="nos">
       <li>No performative condolences.</li>
       <li>No pressure to respond.</li>
@@ -554,13 +565,12 @@
   </div>
 </section>
 
-<!-- create form lives on /create -->
-
 <footer>
   <div class="wrap">
     <p class="slogan">Built by a friend, for a friend.<br>In honor of Joe.</p>
     <p class="free">Free to create <span class="dot-sep">·</span> Built for families <span class="dot-sep">·</span> Made for the people who want to show up</p>
     <p class="brandline">family<strong style="font-weight:500;">grief</strong>support<span style="color:var(--bronze)">.org</span></p>
+    <p class="footlinks"><a href="/resources">How to help a grieving family</a> <span class="dot-sep" style="color:var(--line)">·</span> <a href="/sample">See a sample page</a></p>
     <p class="footmail">Questions? <a href="mailto:support@familygriefsupport.org">support@familygriefsupport.org</a></p>
   </div>
 </footer>
