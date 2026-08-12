@@ -70,6 +70,7 @@ export async function POST(req: Request) {
     show_memories: body.showMemories !== false,
     show_events: body.showEvents !== false,
     memories_public: body.memoriesPublic === true,
+    access_code: clean(body.accessCode, 100),
     support_name: clean(body.supportName, 120),
     support_address: clean(body.supportAddress, 300),
     support_note: clean(body.supportNote, 500),

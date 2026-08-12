@@ -12,6 +12,7 @@ type FamilyLite = {
   town: string | null;
   has_kids: boolean;
   is_public: boolean;
+  access_code: string;
   contact_email: string;
   edit_token: string;
   hero_image_url: string | null;
@@ -125,6 +126,7 @@ export default function ManageFamily({
   const [town, setTown] = useState(family.town || "");
   const [hasKids, setHasKids] = useState(family.has_kids);
   const [isPublic, setIsPublic] = useState(family.is_public);
+  const [accessCode, setAccessCode] = useState(family.access_code || "");
   const [contactEmail, setContactEmail] = useState(family.contact_email || "");
   const [introMessage, setIntroMessage] = useState(
     family.intro_message || mkIntro((family.honoring || "").trim())
@@ -212,6 +214,7 @@ export default function ManageFamily({
           town,
           hasKids,
           isPublic,
+          accessCode,
           contactEmail,
           introMessage,
           memoriesPublic,
@@ -373,6 +376,22 @@ export default function ManageFamily({
               <input type="radio" name="vis" checked={isPublic} onChange={() => setIsPublic(true)} className="text-bronze focus:ring-bronze/40" />
               Public — listed and findable
             </label>
+          </div>
+
+          <div className="mt-5">
+            <label className="field-label">Access code — optional</label>
+            <input
+              className="field"
+              value={accessCode}
+              onChange={(e) => setAccessCode(e.target.value)}
+              maxLength={100}
+              placeholder="e.g. a word or number only your circle knows"
+              autoComplete="off"
+            />
+            <p className="mt-1.5 text-xs text-ink-faint">
+              Set a code and visitors must enter it to see the page — a simple lock
+              for the link. Leave blank for no code.
+            </p>
           </div>
         </div>
 

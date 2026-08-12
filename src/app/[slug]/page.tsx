@@ -1,6 +1,13 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { getFamilyBySlug, type FamilyContent } from "@/lib/families";
+import {
+  getFamilyBySlug,
+  accessToken,
+  accessCookieName,
+  type FamilyContent,
+} from "@/lib/families";
+import AccessGate from "@/components/AccessGate";
 import { getFamilyBookings } from "@/lib/bookings";
 import { getFamilyGifts } from "@/lib/gifts";
 import { getFamilyEvents } from "@/lib/events";
@@ -71,6 +78,15 @@ export default async function FamilyPage({
 }) {
   const family = await getFamilyBySlug(params.slug);
   if (!family) notFound();
+
+  // Access-code gate: if the family set a code, require the matching cookie.
+  const gateCode = (family.content?.access_code || "").trim();
+  if (gateCode) {
+    const cookie = cookies().get(accessCookieName(family.id))?.value;
+    if (cookie !== accessToken(family.id, gateCode)) {
+      return <AccessGate slug={family.slug} displayName={family.display_name} />;
+    }
+  }
 
   const bookings = await getFamilyBookings(family.id);
   const gifts = await getFamilyGifts(family.id);

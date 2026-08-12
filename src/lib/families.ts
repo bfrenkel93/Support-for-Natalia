@@ -1,5 +1,18 @@
 import "server-only";
+import crypto from "crypto";
 import { getSupabase } from "./supabase";
+
+/**
+ * A per-family cookie token proving the visitor entered the right access code.
+ * Hashed so the raw code is never stored in the browser cookie.
+ */
+export function accessToken(familyId: string, code: string): string {
+  return crypto
+    .createHash("sha256")
+    .update(`${familyId}:${code.trim()}`)
+    .digest("hex");
+}
+export const accessCookieName = (familyId: string) => `fgs_ac_${familyId}`;
 
 // Natalia is family #1, with a fixed id (see supabase-migrations/001).
 // It's used as the DB default for every family_id column so the original
@@ -54,6 +67,8 @@ export type FamilyContent = {
   show_events?: boolean;
   // When true, shared memories are posted publicly on the page (default: private).
   memories_public?: boolean;
+  // Optional access code — visitors must enter it to view the page.
+  access_code?: string;
   // "Support for ___" section: who support is for, an address for the map, and a note.
   support_name?: string;
   support_address?: string;

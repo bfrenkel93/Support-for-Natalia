@@ -77,6 +77,7 @@ export default async function ManagePage({
         town: family.town,
         has_kids: family.has_kids,
         is_public: family.is_public,
+        access_code: family.content?.access_code ?? "",
         contact_email: family.contact_email ?? "",
         edit_token: family.edit_token,
         hero_image_url: family.content?.hero_image_url ?? null,
