@@ -331,6 +331,14 @@
   .rnote { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.92rem; margin: 0.4rem 0 0; min-height: 1.3em; color: var(--ink-soft); }
   .rnote.ok { color: var(--kids); }
   .rnote.err { color: var(--visit); }
+  .rform select { font-family: "Avenir Next","Segoe UI",system-ui,sans-serif; font-size: 1rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 0.7rem 0.85rem; width: 100%; }
+  .rform .rcheck { display: flex; flex-direction: row; align-items: center; gap: 0.6rem; text-transform: none; letter-spacing: 0; font-size: 1rem; font-family: "Iowan Old Style",Palatino,Georgia,serif; color: var(--ink); }
+  .rform .rcheck input { width: auto; margin: 0; }
+  .rdone { max-width: 520px; margin: 1rem auto 0; text-align: center; }
+  .rdone-title { font-weight: 400; font-size: 1.5rem; margin: 0 0 0.6rem; color: var(--ink); }
+  .rdone-sub { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.95rem; color: var(--ink-soft); margin: 0 0 0.8rem; }
+  .rdone-link { display: inline-block; font-family: "Avenir Next",system-ui,sans-serif; font-size: 1rem; color: var(--bronze); word-break: break-all; margin-bottom: 1rem; }
+  .rdone-note { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.85rem; color: var(--ink-faint); margin: 0; }
 </style>
 </head>
 <body>
@@ -486,20 +494,35 @@
   </div>
 </section>
 
-<!-- REQUEST A PAGE -->
+<!-- CREATE A PAGE -->
 <section id="start" class="request">
   <div class="wrap center">
     <p class="eyebrow">Start a page</p>
     <h2 class="head">Create a page for someone you love</h2>
-    <p class="body measure" style="margin-left:auto;margin-right:auto;">Tell us a little about the family you’d like to support. We’ll set up their private page and send you the link — usually within a day.</p>
+    <p class="body measure" style="margin-left:auto;margin-right:auto;">Fill this in and the family’s private page is ready in seconds — no approval, no waiting. You can change any of it later.</p>
     <form class="rform" id="rform" novalidate>
       <label>Your name<input name="name" required autocomplete="name"></label>
       <label>Your email<input name="email" type="email" required autocomplete="email"></label>
-      <label>Who would you like to support?<input name="honoring" placeholder="The family or person you have in mind"></label>
-      <label>Anything you’d like us to know? <span class="opt">(optional)</span><textarea name="message" rows="4"></textarea></label>
-      <button type="submit" class="btn rbtn">Request a page <span aria-hidden="true">→</span></button>
+      <label>What should the page be called?<input name="displayName" required placeholder="e.g. For the Rossi Family"></label>
+      <label>Who are you honoring? <span class="opt">(optional)</span><input name="honoring" placeholder="The person you’ve lost"></label>
+      <label>Town or city <span class="opt">(optional)</span><input name="town" placeholder="e.g. Newton, MA"></label>
+      <label class="rcheck"><input type="checkbox" name="hasKids"> There are children in the family</label>
+      <label>Who can see this page?
+        <select name="visibility">
+          <option value="private">Private — only people with the link</option>
+          <option value="public">Public — listed and findable</option>
+        </select>
+      </label>
+      <label>A few words to open the page <span class="opt">(optional — leave blank and we’ll start you with a gentle message you can edit)</span><textarea name="introMessage" rows="4"></textarea></label>
+      <button type="submit" class="btn rbtn">Create the page <span aria-hidden="true">→</span></button>
       <p class="rnote" id="rnote" role="status" aria-live="polite"></p>
     </form>
+    <div class="rdone" id="rdone" hidden>
+      <h3 class="rdone-title">Your page is ready. 💛</h3>
+      <p class="rdone-sub">This is its private link — share it with the people you’d like to invite:</p>
+      <a class="rdone-link" id="rdone-link" href="#">your page</a>
+      <p class="rdone-note">We’ve emailed you this link and a private link to manage the page. Keep that email safe.</p>
+    </div>
   </div>
 </section>
 
@@ -514,24 +537,42 @@
 (function () {
   var f = document.getElementById('rform');
   if (!f) return;
+  function val(n) { var el = f.elements[n]; return el ? String(el.value || '').trim() : ''; }
   f.addEventListener('submit', async function (e) {
     e.preventDefault();
     var note = document.getElementById('rnote');
     var btn = f.querySelector('button');
-    var name = f.name.value.trim(), email = f.email.value.trim();
-    if (!name || !email) { note.textContent = 'Please add your name and email so we can reach you.'; note.className = 'rnote err'; return; }
-    var data = { name: name, email: email, honoring: f.honoring.value.trim(), message: f.message.value.trim() };
-    btn.disabled = true; note.textContent = 'Sending…'; note.className = 'rnote';
-    try {
-      var res = await fetch('/api/request-page', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      if (!res.ok) throw new Error('bad');
-      f.reset();
-      note.textContent = 'Thank you — your request is in. We will be in touch soon. 💛';
-      note.className = 'rnote ok';
-    } catch (err) {
-      note.textContent = 'Something went wrong. Please email brookefrenkel@gmail.com and we will help right away.';
+    var name = val('name'), email = val('email'), displayName = val('displayName');
+    if (!name || !email || !displayName) {
+      note.textContent = 'Please add your name, your email, and a name for the page.';
       note.className = 'rnote err';
-    } finally { btn.disabled = false; }
+      return;
+    }
+    var data = {
+      name: name, email: email, displayName: displayName,
+      honoring: val('honoring'), town: val('town'),
+      hasKids: !!(f.elements['hasKids'] && f.elements['hasKids'].checked),
+      isPublic: val('visibility') === 'public',
+      introMessage: val('introMessage')
+    };
+    btn.disabled = true; note.textContent = 'Creating your page…'; note.className = 'rnote';
+    try {
+      var res = await fetch('/api/create-page', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      var out = await res.json().catch(function () { return {}; });
+      if (!res.ok || !out.ok) throw new Error((out && out.error) || 'bad');
+      var link = document.getElementById('rdone-link');
+      link.href = out.pageUrl; link.textContent = out.pageUrl;
+      f.hidden = true; note.textContent = '';
+      var done = document.getElementById('rdone');
+      done.hidden = false;
+      done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      note.textContent = (err && err.message && err.message !== 'bad')
+        ? err.message
+        : 'Something went wrong. Please email brookefrenkel@gmail.com and we will help right away.';
+      note.className = 'rnote err';
+      btn.disabled = false;
+    }
   });
 })();
 </script>
