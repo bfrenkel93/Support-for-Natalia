@@ -86,6 +86,7 @@ export default async function AdminPage() {
           <h1 className="font-serif text-3xl font-light text-ink">Family admin</h1>
         </div>
         <div className="flex items-center gap-5">
+          <a href="/admin/impact" className="btn-link">Impact ↗</a>
           <a href="/" className="btn-link">View the page ↗</a>
           <form action={logout}>
             <button className={DEL}>Log out</button>
