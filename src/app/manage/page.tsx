@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getFamilyByEditToken } from "@/lib/families";
 import { getFamilyBookings } from "@/lib/bookings";
 import { getFamilyMemoriesWithUrls } from "@/lib/memories";
+import { getFamilySubscriberCount } from "@/lib/subscribers";
 import ManageFamily from "@/components/ManageFamily";
 
 export const dynamic = "force-dynamic";
@@ -35,9 +36,11 @@ export default async function ManagePage({
 
   const bookings = await getFamilyBookings(family.id);
   const memories = await getFamilyMemoriesWithUrls(family.id);
+  const subscriberCount = await getFamilySubscriberCount(family.id);
 
   return (
     <ManageFamily
+      subscriberCount={subscriberCount}
       memories={memories.map((m) => ({
         id: m.id,
         author_name: m.author_name,

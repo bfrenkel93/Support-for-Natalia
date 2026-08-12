@@ -35,6 +35,54 @@ export async function addSubscriber(
   return { ok: true, token: (data as { token: string }).token };
 }
 
+/** Add (or re-activate) a subscriber for a specific family. */
+export async function addFamilySubscriber(
+  familyId: string,
+  emailRaw: string
+): Promise<{ ok: boolean; token?: string }> {
+  const supabase = getSupabase();
+  if (!supabase) return { ok: false };
+  const email = emailRaw.trim().toLowerCase();
+
+  const { data: existing } = await supabase
+    .from("subscribers")
+    .select("*")
+    .eq("family_id", familyId)
+    .ilike("email", email)
+    .maybeSingle();
+
+  if (existing) {
+    const row = existing as Subscriber;
+    if (row.unsubscribed_at) {
+      await supabase
+        .from("subscribers")
+        .update({ unsubscribed_at: null })
+        .eq("id", row.id);
+    }
+    return { ok: true, token: row.token };
+  }
+
+  const { data, error } = await supabase
+    .from("subscribers")
+    .insert({ family_id: familyId, email })
+    .select("token")
+    .single();
+  if (error || !data) return { ok: false };
+  return { ok: true, token: (data as { token: string }).token };
+}
+
+/** Count of active subscribers for a family. */
+export async function getFamilySubscriberCount(familyId: string): Promise<number> {
+  const supabase = getSupabase();
+  if (!supabase) return 0;
+  const { count } = await supabase
+    .from("subscribers")
+    .select("id", { count: "exact", head: true })
+    .eq("family_id", familyId)
+    .is("unsubscribed_at", null);
+  return count ?? 0;
+}
+
 export async function getActiveSubscribers(): Promise<Subscriber[]> {
   const supabase = getSupabase();
   if (!supabase) return [];

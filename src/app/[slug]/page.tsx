@@ -4,6 +4,7 @@ import { getFamilyBySlug, type FamilyContent } from "@/lib/families";
 import { getFamilyBookings } from "@/lib/bookings";
 import FamilyBookingCalendar from "@/components/FamilyBookingCalendar";
 import FamilyMemoryForm from "@/components/FamilyMemoryForm";
+import FamilySubscribeForm from "@/components/FamilySubscribeForm";
 
 export const dynamic = "force-dynamic";
 
@@ -134,6 +135,21 @@ export default async function FamilyPage({
             hasKids={family.has_kids}
             bookings={bookings}
           />
+        </div>
+      </section>
+
+      {/* Stay involved */}
+      <section className="mt-16 border-t border-line/60 pt-12 text-center">
+        <p className="eyebrow">Stay involved</p>
+        <h2 className="mx-auto mt-2 max-w-md font-serif text-2xl font-light text-ink sm:text-3xl">
+          A gentle way to stay close
+        </h2>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
+          Leave your email and we’ll send an occasional note — when there’s a way
+          to help, or news to share. Nothing more, and you can unsubscribe anytime.
+        </p>
+        <div className="mt-6">
+          <FamilySubscribeForm slug={family.slug} />
         </div>
       </section>
 

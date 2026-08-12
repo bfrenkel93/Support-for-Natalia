@@ -47,10 +47,12 @@ export default function ManageFamily({
   family,
   bookings,
   memories,
+  subscriberCount,
 }: {
   family: FamilyLite;
   bookings: BookingLite[];
   memories: MemoryLite[];
+  subscriberCount: number;
 }) {
   const [displayName, setDisplayName] = useState(family.display_name);
   const [honoring, setHonoring] = useState(family.honoring || "");
@@ -218,7 +220,12 @@ export default function ManageFamily({
 
       {/* Sign-ups */}
       <section className="mt-14 border-t border-line/60 pt-10">
-        <p className="eyebrow">Who’s signed up</p>
+        <div className="flex items-baseline justify-between">
+          <p className="eyebrow">Who’s signed up</p>
+          <p className="text-xs text-ink-faint">
+            {subscriberCount} following updates
+          </p>
+        </div>
         {bookings.length === 0 ? (
           <p className="mt-3 text-sm text-ink-faint">No sign-ups yet.</p>
         ) : (
