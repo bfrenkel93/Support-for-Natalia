@@ -239,7 +239,7 @@
 
   /* stanza (do-list) — botanical background, slightly deeper warm wash */
   .stanza {
-    text-align: center; position: relative; isolation: isolate;
+    text-align: left; position: relative; isolation: isolate;
     background-color: var(--limestone);
     background-image: var(--hero-bg, none);
     background-size: cover; background-position: center right;
@@ -249,7 +249,6 @@
     content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
     background: color-mix(in srgb, var(--paper) 34%, transparent);
   }
-  .stanza > .wrap { position: relative; z-index: 1; }
 
   /* two ways support is sustained over time */
   .sustain {
@@ -269,18 +268,63 @@
     font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
     font-size: 0.95rem; line-height: 1.65; color: var(--ink-soft); margin: 0;
   }
-  .stanza h2 { font-weight: 400; font-size: clamp(1.9rem, 5.5vw, 2.8rem); line-height: 1.15; margin: 0; text-wrap: balance; }
-  .stanza .subline { font-size: clamp(1.1rem, 2.6vw, 1.35rem); color: var(--ink-soft); margin-top: 1rem; }
-  .acts { margin: 2.8rem auto 0; max-width: 30ch; }
-  .acts p {
-    font-size: clamp(1.15rem, 3vw, 1.5rem); line-height: 1.35; color: var(--ink);
-    margin: 0; padding: 0.85rem 0; border-bottom: 1px solid var(--line-soft); font-weight: 400;
+  /* "There is no perfect thing to say" — editorial two-column composition */
+  .stanza-inner {
+    position: relative; z-index: 1;
+    max-width: 1220px; margin: 0 auto;
+    padding: clamp(4.5rem, 8vw, 6.25rem) clamp(1.5rem, 5vw, 4rem);
+    display: grid; grid-template-columns: 1fr;
+    grid-template-areas: "lead" "acts" "close";
+    row-gap: clamp(2.25rem, 5vw, 2.75rem);
   }
-  .acts p:last-child { border-bottom: 0; }
-  .kicker {
-    font-size: clamp(1.2rem, 3.2vw, 1.6rem); line-height: 1.4; margin: 2.8rem auto 0;
-    max-width: 26ch; font-weight: 400; text-wrap: balance;
+  @media (min-width: 900px) {
+    .stanza-inner {
+      grid-template-columns: 0.42fr 0.58fr;
+      grid-template-areas: "lead acts" "close acts";
+      column-gap: clamp(3rem, 5vw, 5.5rem);
+      row-gap: clamp(2rem, 3vw, 2.75rem);
+    }
+    .stanza-lead { align-self: start; }
+    .stanza-close { align-self: end; }
   }
+  .stanza-lead { grid-area: lead; }
+  .acts { grid-area: acts; }
+  .stanza-close { grid-area: close; }
+
+  .stanza h2 {
+    font-weight: 400; margin: 0; max-width: 700px; color: var(--ink);
+    font-size: clamp(2.375rem, 1.55rem + 3vw, 3.75rem);
+    line-height: 1.05; letter-spacing: -0.015em;
+  }
+  .stanza .subline {
+    font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-style: italic; font-weight: 400; color: var(--bronze);
+    font-size: clamp(1.1875rem, 1rem + 0.8vw, 1.5rem);
+    line-height: 1.4; margin: 1.15rem 0 0; max-width: 30ch;
+  }
+  .stanza-rule { display: block; width: 44px; height: 1px; background: var(--line); margin: 1.75rem 0 0; }
+
+  .acts { counter-reset: act; list-style: none; margin: 0; padding: 0; max-width: none; }
+  .acts li {
+    counter-increment: act;
+    display: grid; grid-template-columns: 2.25rem 1fr; align-items: baseline; gap: 1rem;
+    padding: 1.2rem 0; border-bottom: 1px solid var(--line);
+    color: var(--ink); font-weight: 400;
+    font-size: clamp(1.3125rem, 1.05rem + 1.1vw, 1.75rem); line-height: 1.3;
+  }
+  .acts li:first-child { border-top: 1px solid var(--line); }
+  .acts li::before {
+    content: counter(act, decimal-leading-zero);
+    font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    font-size: 0.68rem; letter-spacing: 0.18em; color: var(--bronze);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stanza .kicker {
+    font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.2rem); line-height: 1.5;
+    color: var(--ink-soft); margin: 0; max-width: 30ch; font-weight: 400;
+  }
+  .stanza-close .cta-row { margin-top: 1.75rem; }
 
   /* long-after list */
   .fade-list { margin: 1.8rem 0 0; max-width: 30ch; }
@@ -407,21 +451,24 @@
 
 <!-- THINGS WE CAN DO -->
 <section class="stanza">
-  <div class="wrap">
-    <h2>There is no perfect thing to say.</h2>
-    <p class="subline">But there are things we can do.</p>
-    <div class="acts">
-      <p>Bring dinner.</p>
-      <p>Take the kids somewhere fun.</p>
-      <p>Sit beside someone.</p>
-      <p>Handle the thing they shouldn’t have to think about.</p>
-      <p>Tell a story they haven’t heard before.</p>
-      <p>Remember the birthday.</p>
-      <p>Keep showing up after everyone else has gone home.</p>
+  <div class="stanza-inner">
+    <div class="stanza-lead">
+      <h2>There is no perfect thing to say.</h2>
+      <p class="subline">But there are things we can do.</p>
+      <span class="stanza-rule" aria-hidden="true"></span>
     </div>
-    <p class="kicker">Grief doesn’t end after the first few weeks. Support shouldn’t either.</p>
-    <div class="cta-row" style="margin-top:2.6rem;">
-      <a class="btn" href="#start">Start a page for someone you love</a>
+    <ol class="acts">
+      <li>Bring dinner.</li>
+      <li>Take the kids somewhere fun.</li>
+      <li>Sit beside someone.</li>
+      <li>Handle the thing they shouldn’t have to think about.</li>
+      <li>Tell a story they haven’t heard before.</li>
+      <li>Remember the birthday.</li>
+      <li>Keep showing up after everyone else has gone home.</li>
+    </ol>
+    <div class="stanza-close">
+      <p class="kicker">Grief doesn’t end after the first few weeks. Support shouldn’t either.</p>
+      <div class="cta-row"><a class="btn" href="#start">Start a page for someone you love</a></div>
     </div>
   </div>
 </section>
