@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Ctext%20y=%22.9em%22%20font-size=%2290%22%3E%F0%9F%92%9B%3C/text%3E%3C/svg%3E">
+<title>familygriefsupport.org</title>
+<style>
+  :root {
+    --paper: #F5F1E8;
+    --ivory: #FBF9F3;
+    --limestone: #EDE7DA;
+    --surface: #FBF9F3;
+    --ink: #2E2A23;
+    --ink-soft: #675f52;
+    --ink-faint: #9a917f;
+    --bronze: #8B6A43;
+    --line: #DBD0BB;
+    --line-soft: #E6DCC9;
+    --btn-bg: #2A2620;
+    --btn-fg: #F5F1E8;
+    --kids: #7A8B5E;
+    --meal: #6E8A94;
+    --visit: #B0785A;
+    --errand: #8A7CA0;
+    --memory: #8B6A43;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --paper: #14110A;
+      --ivory: #1c1810;
+      --limestone: #211d14;
+      --surface: #1e1a12;
+      --ink: #ece4d4;
+      --ink-soft: #b3a993;
+      --ink-faint: #837a66;
+      --bronze: #c59c68;
+      --line: #332d21;
+      --line-soft: #2a2519;
+      --btn-bg: #e9e0cf;
+      --btn-fg: #1a1710;
+      --kids: #93a473;
+      --meal: #85a2ac;
+      --visit: #c58f6f;
+      --errand: #a294b7;
+      --memory: #c59c68;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14110A;
+    --ivory: #1c1810;
+    --limestone: #211d14;
+    --surface: #1e1a12;
+    --ink: #ece4d4;
+    --ink-soft: #b3a993;
+    --ink-faint: #837a66;
+    --bronze: #c59c68;
+    --line: #332d21;
+    --line-soft: #2a2519;
+    --btn-bg: #e9e0cf;
+    --btn-fg: #1a1710;
+    --kids: #93a473;
+    --meal: #85a2ac;
+    --visit: #c58f6f;
+    --errand: #a294b7;
+    --memory: #c59c68;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .sans { font-family: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif; }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 1.5rem; }
+  .wide { max-width: 940px; margin: 0 auto; padding: 0 1.5rem; }
+
+  .eyebrow {
+    font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    text-transform: uppercase; letter-spacing: 0.24em; font-size: 0.68rem;
+    color: var(--bronze); font-weight: 600;
+  }
+
+  /* buttons */
+  .btn {
+    display: inline-block; font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+    background: var(--btn-bg); color: var(--btn-fg); text-decoration: none;
+    padding: 1rem 2rem; border-radius: 2px; transition: transform .15s ease, opacity .15s ease;
+    border: 0; cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-1px); opacity: 0.92; }
+  .btn:focus-visible { outline: 2px solid var(--bronze); outline-offset: 3px; }
+
+  /* nav */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--line-soft);
+  }
+  nav .brand { font-size: 1.05rem; letter-spacing: 0.01em; }
+  nav .brand b { font-weight: 500; }
+  nav .navcta {
+    font-family: "Avenir Next", system-ui, sans-serif; font-size: 0.72rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); text-decoration: none;
+    border: 1px solid var(--line); padding: 0.55rem 1rem; border-radius: 2px;
+  }
+  nav .navcta:hover { color: var(--ink); border-color: var(--bronze); }
+
+  /* hero — full-bleed background image with left-aligned editorial text */
+  .nav-wrap { position: relative; z-index: 2; max-width: 1360px; margin: 0 auto; padding: 0 clamp(1.5rem, 5vw, 4.5rem); }
+  .hero {
+    position: relative; isolation: isolate; padding: 0;
+    background-color: var(--limestone);
+    background-image: var(--hero-bg, none);
+    background-size: cover; background-position: center right;
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: linear-gradient(90deg,
+      color-mix(in srgb, var(--paper) 82%, transparent) 0%,
+      color-mix(in srgb, var(--paper) 72%, transparent) 34%,
+      color-mix(in srgb, var(--paper) 32%, transparent) 62%,
+      color-mix(in srgb, var(--paper) 0%, transparent) 88%);
+  }
+  .hero-grid {
+    position: relative; z-index: 1;
+    max-width: 1360px; margin: 0 auto;
+    min-height: clamp(560px, 78vh, 820px);
+    display: flex; align-items: center;
+    padding: clamp(5rem, 8vh, 6.25rem) clamp(1.5rem, 5vw, 4.5rem) clamp(6.25rem, 10vh, 7.5rem);
+  }
+  .hero-text { max-width: 600px; min-width: 0; text-align: left; }
+
+  .hero-eyebrow {
+    font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    text-transform: uppercase; font-weight: 500;
+    font-size: 0.8125rem; letter-spacing: 0.22em; color: var(--bronze);
+    margin: 0 0 1.5rem;
+  }
+  .hero-head {
+    font-weight: 400; letter-spacing: -0.015em; color: var(--ink);
+    font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.0; margin: 0;
+  }
+  .hero-ask {
+    font-style: italic; font-weight: 400; color: var(--bronze);
+    font-size: clamp(2.25rem, 3.4vw, 3rem); line-height: 1.0;
+    letter-spacing: -0.01em; margin: 1.5rem 0 0;
+  }
+  .hero-body { max-width: 500px; margin: 3rem 0 0; }
+  .hero-body p {
+    font-size: clamp(1.0625rem, 1.1vw, 1.125rem); line-height: 1.6;
+    color: var(--ink); font-weight: 400; margin: 0;
+  }
+  .hero-body p + p { margin-top: 1.25rem; }
+  .hero-body .hero-final { margin-top: 1.75rem; font-weight: 500; }
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    text-transform: uppercase; font-weight: 600;
+    font-size: 0.85rem; letter-spacing: 0.14em;
+    background: var(--btn-bg); color: var(--btn-fg); text-decoration: none;
+    min-height: 58px; padding: 0 2.25rem; border-radius: 1px;
+    margin-top: 2rem; transition: transform .15s ease, opacity .15s ease;
+  }
+  .hero-cta span { font-size: 1rem; transition: transform .18s ease; }
+  .hero-cta:hover { opacity: 0.92; }
+  .hero-cta:hover span { transform: translateX(3px); }
+  .hero-cta:focus-visible { outline: 2px solid var(--bronze); outline-offset: 3px; }
+
+  .hb { display: none; }
+  @media (min-width: 768px) { .hb { display: inline; } }
+
+  @media (max-width: 767px) {
+    .hero { background-position: center right; }
+    .hero::before {
+      background: linear-gradient(180deg,
+        color-mix(in srgb, var(--paper) 60%, transparent) 0%,
+        color-mix(in srgb, var(--paper) 52%, transparent) 100%);
+    }
+    .hero-grid { padding-left: 24px; padding-right: 24px; min-height: auto; }
+    .hero-text { max-width: 100%; }
+    .hero-eyebrow { font-size: 0.72rem; letter-spacing: 0.2em; margin-bottom: 1.25rem; }
+    .hero-head   { font-size: clamp(2.75rem, 9vw, 3rem); }
+    .hero-ask    { font-size: clamp(2.25rem, 7.5vw, 2.5rem); margin-top: 1.25rem; }
+    .hero-body   { max-width: none; }
+    .hero-body p { font-size: 1.0625rem; }
+    .hero-cta    { align-self: flex-start; }
+  }
+
+  /* generic section */
+  section { padding: clamp(3.2rem, 8vw, 5.5rem) 0; }
+  .band { background: var(--ivory); border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+  .band-stone { background: var(--limestone); border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+
+  h2.head {
+    font-weight: 400; font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.2;
+    margin: 0.7rem 0 0; text-wrap: balance; letter-spacing: -0.01em;
+  }
+  .center { text-align: center; }
+  p.body { color: var(--ink-soft); font-size: 1.06rem; line-height: 1.8; margin: 1.2rem 0 0; }
+  .measure { max-width: 46ch; }
+  .center .measure { margin-left: auto; margin-right: auto; }
+
+  /* feature cards */
+  .cards { display: grid; gap: 1.1rem; margin-top: 2.6rem; }
+  @media (min-width: 700px) { .cards { grid-template-columns: 1fr 1fr; } }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 5px;
+    padding: 1.7rem 1.7rem 1.8rem; position: relative; overflow: hidden;
+  }
+  .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent, var(--bronze)); }
+  .card h3 { font-weight: 400; font-size: 1.3rem; margin: 0 0 0.55rem; display: flex; align-items: center; gap: 0.6rem; }
+  .card h3 .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent, var(--bronze)); flex: none; }
+  .card p { font-family: "Avenir Next", system-ui, sans-serif; font-size: 0.94rem; color: var(--ink-soft); margin: 0; line-height: 1.65; }
+  .card .prompt {
+    margin-top: 1rem; font-style: italic; font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-size: 1rem; color: var(--ink); line-height: 1.6;
+  }
+  .card.full { grid-column: 1 / -1; }
+
+  /* stanza (do-list) — botanical background, slightly deeper warm wash */
+  .stanza {
+    text-align: center; position: relative; isolation: isolate;
+    background-color: var(--limestone);
+    background-image: var(--hero-bg, none);
+    background-size: cover; background-position: center right;
+    border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft);
+  }
+  .stanza::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: color-mix(in srgb, var(--paper) 34%, transparent);
+  }
+  .stanza > .wrap { position: relative; z-index: 1; }
+
+  /* two ways support is sustained over time */
+  .sustain {
+    display: grid; gap: 1.75rem; max-width: 760px; margin: 0 auto;
+    padding-top: 2.5rem; border-top: 1px solid var(--line); text-align: left;
+  }
+  @media (min-width: 640px) { .sustain { grid-template-columns: 1fr 1fr; gap: 2.75rem; } }
+  .sustain-item h3 {
+    font-weight: 400; font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--ink);
+    display: flex; align-items: baseline; gap: 0.6rem;
+  }
+  .sustain-item h3::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--bronze); flex: none; transform: translateY(-1px);
+  }
+  .sustain-item p {
+    font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    font-size: 0.95rem; line-height: 1.65; color: var(--ink-soft); margin: 0;
+  }
+  .stanza h2 { font-weight: 400; font-size: clamp(1.9rem, 5.5vw, 2.8rem); line-height: 1.15; margin: 0; text-wrap: balance; }
+  .stanza .subline { font-size: clamp(1.1rem, 2.6vw, 1.35rem); color: var(--ink-soft); margin-top: 1rem; }
+  .acts { margin: 2.8rem auto 0; max-width: 30ch; }
+  .acts p {
+    font-size: clamp(1.15rem, 3vw, 1.5rem); line-height: 1.35; color: var(--ink);
+    margin: 0; padding: 0.85rem 0; border-bottom: 1px solid var(--line-soft); font-weight: 400;
+  }
+  .acts p:last-child { border-bottom: 0; }
+  .kicker {
+    font-size: clamp(1.2rem, 3.2vw, 1.6rem); line-height: 1.4; margin: 2.8rem auto 0;
+    max-width: 26ch; font-weight: 400; text-wrap: balance;
+  }
+
+  /* long-after list */
+  .fade-list { margin: 1.8rem 0 0; max-width: 30ch; }
+  .fade-list p { font-size: 1.1rem; margin: 0; padding: 0.5rem 0; color: var(--ink-soft); }
+  .fade-list p:nth-child(1) { opacity: 1; }
+  .fade-list p:nth-child(2) { opacity: 0.8; }
+  .fade-list p:nth-child(3) { opacity: 0.62; }
+  .fade-list .stays { opacity: 1; color: var(--ink); font-style: italic; margin-top: 0.8rem; }
+
+  /* pull emphasis block */
+  .pull {
+    font-size: clamp(1.3rem, 3.6vw, 1.75rem); line-height: 1.45; text-wrap: balance;
+    max-width: 24ch; margin: 1.6rem auto 0; font-weight: 400;
+  }
+
+  /* made-with list */
+  .nos { list-style: none; margin: 2rem auto 0; padding: 0; max-width: 26ch; }
+  .nos li {
+    font-family: "Avenir Next", system-ui, sans-serif; font-size: 1rem; color: var(--ink-soft);
+    padding: 0.7rem 0; border-bottom: 1px solid var(--line-soft); display: flex; gap: 0.7rem; align-items: baseline;
+  }
+  .nos li:last-child { border-bottom: 0; }
+  .nos li::before { content: "—"; color: var(--bronze); }
+
+  /* final */
+  .final { text-align: center; }
+  .final h2 { font-weight: 400; font-size: clamp(1.7rem, 4.6vw, 2.4rem); line-height: 1.25; margin: 0; text-wrap: balance; }
+  .final .big { font-size: clamp(1.9rem, 5vw, 2.6rem); line-height: 1.25; margin: 1.2rem auto 0; max-width: 22ch; text-wrap: balance; }
+
+  footer {
+    text-align: center; padding: 3.5rem 0; border-top: 1px solid var(--line-soft); background: var(--ivory);
+  }
+  footer .free { font-family: "Avenir Next", system-ui, sans-serif; font-style: normal; font-size: 0.85rem; color: var(--ink-faint); letter-spacing: 0.02em; }
+  footer .dot-sep { color: var(--bronze); margin: 0 0.5rem; }
+  footer .brandline { margin-top: 1.3rem; font-size: 1rem; color: var(--ink-soft); }
+
+  :root { --hero-bg: url("/marketing-hero.jpg"); }
+
+  /* request form */
+  .request { background: var(--paper); border-top: 1px solid var(--line-soft); }
+  .rform { max-width: 520px; margin: 2.4rem auto 0; display: grid; gap: 1.1rem; text-align: left; }
+  .rform label { display: grid; gap: 0.4rem; font-family: "Avenir Next","Segoe UI",system-ui,sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-soft); }
+  .rform .opt { color: var(--ink-faint); text-transform: none; letter-spacing: 0; }
+  .rform input, .rform textarea { font-family: "Iowan Old Style",Palatino,Georgia,serif; font-size: 1.05rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 0.75rem 0.9rem; width: 100%; }
+  .rform textarea { resize: vertical; }
+  .rform input:focus, .rform textarea:focus { outline: 2px solid var(--bronze); outline-offset: 1px; border-color: var(--bronze); }
+  .rbtn { justify-self: start; margin-top: 0.4rem; border: 0; cursor: pointer; }
+  .rnote { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.92rem; margin: 0.4rem 0 0; min-height: 1.3em; color: var(--ink-soft); }
+  .rnote.ok { color: var(--kids); }
+  .rnote.err { color: var(--visit); }
+</style>
+</head>
+<body>
+
+
+<div class="nav-wrap">
+  <nav>
+    <span class="brand">family<b>grief</b>support<span style="color:var(--bronze)">.org</span></span>
+    <a class="navcta" href="#start">Create a page</a>
+  </nav>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-grid">
+    <div class="hero-text">
+      <p class="hero-eyebrow">When someone you love is grieving</p>
+      <h1 class="hero-head">Everyone asks the <br class="hb">same question.</h1>
+      <p class="hero-ask">“What can I do?”</p>
+      <div class="hero-body">
+        <p>There are meals to bring. Kids who still need joy and normalcy. Appointments, errands, school pickups, and ordinary life that somehow keeps moving.</p>
+        <p>There are stories to remember. Photos to save. People who want to show up, but don’t always know how.</p>
+        <p class="hero-final">This is a place to bring all of that together.</p>
+      </div>
+      <a class="hero-cta" href="#start">Create a support page <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</header>
+
+<!-- OVERWHELMING -->
+<section class="band">
+  <div class="wide">
+    <div class="center">
+      <p class="eyebrow">A simpler way to help</p>
+      <h2 class="head">Grief is overwhelming.<br>Supporting someone shouldn’t be.</h2>
+      <p class="body measure">In the days and months after a loss, friends and family often want to help. But coordinating that help can become another responsibility for the very people who have the least capacity to manage it.</p>
+      <p class="body measure" style="color:var(--ink);">A support page gives your community one thoughtful place to show up.</p>
+    </div>
+
+    <div class="cards">
+      <div class="card" style="--accent:var(--meal)">
+        <h3><span class="dot"></span>Bring a Meal</h3>
+        <p>Coordinate meals and practical help without endless group texts or overlapping plans.</p>
+      </div>
+      <div class="card" style="--accent:var(--visit)">
+        <h3><span class="dot"></span>Spend Time Together</h3>
+        <p>Organize visits, outings, childcare, school pickups, or time with the kids.</p>
+      </div>
+      <div class="card" style="--accent:var(--errand)">
+        <h3><span class="dot"></span>Help With What Matters</h3>
+        <p>Create specific needs your community can step into, from groceries and errands to appointments and everyday logistics.</p>
+      </div>
+      <div class="card" style="--accent:var(--memory)">
+        <h3><span class="dot"></span>Share a Memory</h3>
+        <p>Collect photographs, stories, voice notes, and memories of the person who died, creating something their family can return to for years.</p>
+      </div>
+      <div class="card full" style="--accent:var(--kids)">
+        <h3><span class="dot"></span>Share Stories for Their Family</h3>
+        <p>Invite friends and family to share the stories and small details worth keeping — especially the ones the children may be too young to remember.</p>
+        <p class="prompt">What were they like at 25? What always made them laugh? What story should they know someday?</p>
+        <p style="margin-top:0.9rem; color:var(--ink); font-family:'Iowan Old Style',Palatino,Georgia,serif; font-size:1rem;">On each page, this can be pointed right at the children — or held for the whole family. Some stories are worth saving before they fade.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THINGS WE CAN DO -->
+<section class="stanza">
+  <div class="wrap">
+    <h2>There is no perfect thing to say.</h2>
+    <p class="subline">But there are things we can do.</p>
+    <div class="acts">
+      <p>Bring dinner.</p>
+      <p>Take the kids somewhere fun.</p>
+      <p>Sit beside someone.</p>
+      <p>Handle the thing they shouldn’t have to think about.</p>
+      <p>Tell a story they haven’t heard before.</p>
+      <p>Remember the birthday.</p>
+      <p>Keep showing up after everyone else has gone home.</p>
+    </div>
+    <p class="kicker">Grief doesn’t end after the first few weeks. Support shouldn’t either.</p>
+    <div class="cta-row" style="margin-top:2.6rem;">
+      <a class="btn" href="#start">Start a page for someone you love</a>
+    </div>
+  </div>
+</section>
+
+<!-- LONG AFTER -->
+<section class="band-stone">
+  <div class="wide">
+    <div style="display:grid; gap:2rem; align-items:center;">
+      <div class="center">
+        <p class="eyebrow">Built for the long after</p>
+        <h2 class="head">Most people are surrounded by support immediately after a loss.</h2>
+        <p class="body measure" style="margin-left:auto;margin-right:auto;">Then life moves forward.</p>
+      </div>
+      <div class="fade-list" style="margin-left:auto;margin-right:auto;">
+        <p>The texts slow down.</p>
+        <p>The meals stop arriving.</p>
+        <p>Everyone returns to their routines.</p>
+        <p class="stays">The grieving family doesn’t.</p>
+      </div>
+      <p class="body measure center" style="margin-left:auto;margin-right:auto; color:var(--ink);">Create support that can continue for weeks, months, even years — so the people who love them can keep showing up in meaningful ways.</p>
+
+      <div class="sustain">
+        <div class="sustain-item">
+          <h3>The family shares what’s ahead</h3>
+          <p>They can post the moments still to come — a birthday, a school game, a hard anniversary, a week that needs extra hands — so people always know how and when to show up.</p>
+        </div>
+        <div class="sustain-item">
+          <h3>Everyone can subscribe for updates</h3>
+          <p>Friends and family opt in to occasional, gentle notes — no noise, unsubscribe anytime — so the circle stays close for years, not just the first few weeks.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ONE PAGE, A COMMUNITY -->
+<section>
+  <div class="wrap center">
+    <p class="eyebrow">One page. A whole community.</p>
+    <h2 class="head">Create a private home for the people surrounding a grieving family.</h2>
+    <p class="body measure">Share the page only with the people you choose. Let friends and family sign up for what they can genuinely offer, while giving the family space to receive support without having to coordinate all of it themselves.</p>
+    <p class="pull"><strong style="font-weight:500;">No one person has to do everything.<br>Everyone can do something.</strong></p>
+    <div class="cta-row" style="margin-top:2.4rem;">
+      <a class="btn" href="#start">Create a support page</a>
+    </div>
+  </div>
+</section>
+
+<!-- MADE WITH GRIEF IN MIND -->
+<section class="band">
+  <div class="wrap center">
+    <p class="eyebrow">Made with grief in mind</p>
+    <ul class="nos">
+      <li>No performative condolences.</li>
+      <li>No pressure to respond.</li>
+      <li>No expectation that grief follows a timeline.</li>
+    </ul>
+    <p class="body measure" style="margin-left:auto;margin-right:auto; color:var(--ink);">Just a simpler way for people to care for one another when life becomes impossibly hard.</p>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="final">
+  <div class="wrap">
+    <h2>We can’t take away someone’s grief.</h2>
+    <p class="big"><strong style="font-weight:500;">But we can make sure they don’t have to carry everything else alone.</strong></p>
+    <div class="cta-row" style="margin-top:2.6rem;">
+      <a class="btn" href="#start">Create a page</a>
+    </div>
+  </div>
+</section>
+
+<!-- REQUEST A PAGE -->
+<section id="start" class="request">
+  <div class="wrap center">
+    <p class="eyebrow">Start a page</p>
+    <h2 class="head">Create a page for someone you love</h2>
+    <p class="body measure" style="margin-left:auto;margin-right:auto;">Tell us a little about the family you’d like to support. We’ll set up their private page and send you the link — usually within a day.</p>
+    <form class="rform" id="rform" novalidate>
+      <label>Your name<input name="name" required autocomplete="name"></label>
+      <label>Your email<input name="email" type="email" required autocomplete="email"></label>
+      <label>Who would you like to support?<input name="honoring" placeholder="The family or person you have in mind"></label>
+      <label>Anything you’d like us to know? <span class="opt">(optional)</span><textarea name="message" rows="4"></textarea></label>
+      <button type="submit" class="btn rbtn">Request a page <span aria-hidden="true">→</span></button>
+      <p class="rnote" id="rnote" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="free">Free to create <span class="dot-sep">·</span> Built for families <span class="dot-sep">·</span> Made for the people who want to show up</p>
+    <p class="brandline">family<strong style="font-weight:500;">grief</strong>support<span style="color:var(--bronze)">.org</span></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var f = document.getElementById('rform');
+  if (!f) return;
+  f.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var note = document.getElementById('rnote');
+    var btn = f.querySelector('button');
+    var name = f.name.value.trim(), email = f.email.value.trim();
+    if (!name || !email) { note.textContent = 'Please add your name and email so we can reach you.'; note.className = 'rnote err'; return; }
+    var data = { name: name, email: email, honoring: f.honoring.value.trim(), message: f.message.value.trim() };
+    btn.disabled = true; note.textContent = 'Sending…'; note.className = 'rnote';
+    try {
+      var res = await fetch('/api/request-page', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new Error('bad');
+      f.reset();
+      note.textContent = 'Thank you — your request is in. We will be in touch soon. 💛';
+      note.className = 'rnote ok';
+    } catch (err) {
+      note.textContent = 'Something went wrong. Please email brookefrenkel@gmail.com and we will help right away.';
+      note.className = 'rnote err';
+    } finally { btn.disabled = false; }
+  });
+})();
+</script>
+
+</body>
+</html>
