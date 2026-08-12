@@ -35,6 +35,7 @@ const RESERVED_SLUGS = new Set([
   "manage",
   "create",
   "new",
+  "example",
   "_next",
   "favicon",
   "favicon.ico",
@@ -69,6 +70,8 @@ export type FamilyContent = {
   memories_public?: boolean;
   // Optional access code — visitors must enter it to view the page.
   access_code?: string;
+  // Marks the built-in "See an example" demo page.
+  is_demo?: boolean;
   // "Support for ___" section: who support is for, an address for the map, and a note.
   support_name?: string;
   support_address?: string;

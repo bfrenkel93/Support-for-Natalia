@@ -185,6 +185,15 @@
   .hero-cta:hover { opacity: 0.92; }
   .hero-cta:hover span { transform: translateX(3px); }
   .hero-cta:focus-visible { outline: 2px solid var(--bronze); outline-offset: 3px; }
+  .hero-see {
+    display: inline-block; margin-top: 1rem;
+    font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    font-size: 0.9rem; letter-spacing: 0.02em;
+    color: var(--bronze); text-decoration: none;
+    border-bottom: 1px solid rgba(139,106,67,0.35);
+    padding-bottom: 1px; transition: border-color .15s ease;
+  }
+  .hero-see:hover { border-bottom-color: var(--bronze); }
 
   .hb { display: none; }
   @media (min-width: 768px) { .hb { display: inline; } }
@@ -418,6 +427,7 @@
         <p class="hero-final">This is a place to bring all of that together.</p>
       </div>
       <a class="hero-cta" href="/create">Create a support page <span aria-hidden="true">→</span></a>
+      <div><a class="hero-see" href="/example">See an example page first →</a></div>
     </div>
   </div>
 </header>

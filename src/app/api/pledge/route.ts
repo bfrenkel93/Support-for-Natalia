@@ -28,6 +28,12 @@ export async function POST(req: Request) {
 
   const family = slug ? await getFamilyBySlug(slug) : null;
   if (!family) return NextResponse.json({ ok: false, error: "That page couldn't be found." }, { status: 404 });
+  if (family.content?.is_demo) {
+    return NextResponse.json({
+      ok: true,
+      message: "This is an example page — create your own to try this for real. 💛",
+    });
+  }
 
   const supabase = getSupabase();
   if (!supabase) return NextResponse.json({ ok: false, error: "Not connected yet." }, { status: 503 });

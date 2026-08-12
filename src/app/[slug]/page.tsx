@@ -200,6 +200,17 @@ export default async function FamilyPage({
 
   return (
     <>
+      {content.is_demo && (
+        <div className="bg-charcoal px-6 py-2.5 text-center text-parchment">
+          <span className="text-xs sm:text-sm text-parchment/85">
+            You’re viewing an example page.{" "}
+          </span>
+          <a href="/create" className="text-xs font-medium underline underline-offset-2 sm:text-sm">
+            Create one for your family →
+          </a>
+        </div>
+      )}
+
       {/* Sticky dashboard bar */}
       <header className="sticky top-0 z-40 border-b border-line/60 bg-parchment/80 backdrop-blur-md">
         <nav className="mx-auto flex max-w-content flex-col gap-2 px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-10 sm:py-4">
