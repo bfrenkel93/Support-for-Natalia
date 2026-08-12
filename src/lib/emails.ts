@@ -46,32 +46,24 @@ export function creatorWelcomeEmail(input: WelcomeEmailInput): {
   const manageUrl = input.manageUrl;
 
   const headline = name
-    ? `Your support page for ${esc(name)} is ready.`
-    : `Your support page is ready.`;
+    ? `Your page for ${esc(name)} is ready.`
+    : `Your page is ready.`;
   const subject = name
-    ? `Your support page for ${name} is ready`
-    : `Your support page is ready`;
+    ? `Your page for ${name} is ready`
+    : `Your page is ready`;
+  const displayUrl = pageUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "");
 
   const eyebrow = (t: string) =>
     `<p style="margin:0; font-family:${SANS}; font-size:11px; line-height:1.4; letter-spacing:0.18em; text-transform:uppercase; color:${BRONZE};">${t}</p>`;
 
-  const h2 = (t: string) =>
-    `<h2 class="h2" style="margin:10px 0 0; font-family:${SERIF}; font-size:27px; line-height:1.15; font-weight:normal; color:${INK};">${t}</h2>`;
+  const actionH = (t: string) =>
+    `<h2 class="h2" style="margin:8px 0 0; font-family:${SERIF}; font-size:30px; line-height:1.12; font-weight:normal; color:${INK};">${t}</h2>`;
 
-  const body = (t: string, mt = 18) =>
-    `<p style="margin:${mt}px 0 0; font-family:${SERIF}; font-size:16px; line-height:1.62; color:${INK_SOFT};">${t}</p>`;
+  const lede = (t: string) =>
+    `<p style="margin:11px 0 0; font-family:${SANS}; font-size:15px; line-height:1.55; color:${INK_SOFT};">${t}</p>`;
 
-  const rule = (m = 48) =>
-    `<div style="border-top:1px solid ${LINE}; line-height:1px; font-size:1px; margin:${m}px 0;">&nbsp;</div>`;
-
-  const primaryBtn = (href: string, label: string) =>
-    `<a href="${esc(href)}" style="display:inline-block; background:${INK}; color:${BG_CARD}; font-family:${SANS}; font-size:12px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; text-decoration:none; padding:15px 30px; border-radius:2px;">${label}</a>`;
-
-  const outlineBtn = (href: string, label: string) =>
-    `<a href="${esc(href)}" style="display:inline-block; background:${BG_CARD}; color:${INK}; border:1px solid ${INK}; font-family:${SANS}; font-size:12px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; text-decoration:none; padding:14px 29px; border-radius:2px;">${label}</a>`;
-
-  const urlField = (url: string) =>
-    `<div style="margin:22px 0 0; background:${URL_BOX}; border:1px solid ${LINE}; border-radius:2px; padding:14px 16px; font-family:${SANS}; font-size:14px; line-height:1.5; color:${INK}; word-break:break-all; overflow-wrap:break-word;">${esc(url)}</div>`;
+  // A quiet ring emblem standing in for the logo mark (email-client safe).
+  const ornament = `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="46" height="46" align="center" valign="middle" style="width:46px; height:46px; border:1px solid #CBBEA2; border-radius:50%;"><span style="display:inline-block; width:6px; height:6px; background:${BRONZE}; border-radius:50%; line-height:6px; font-size:0;">&nbsp;</span></td></tr></table>`;
 
   const html = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -85,56 +77,56 @@ export function creatorWelcomeEmail(input: WelcomeEmailInput): {
   a { color:${BRONZE}; }
   @media only screen and (max-width:620px) {
     .container { width:100% !important; }
-    .pad { padding:28px 24px !important; }
-    .h1 { font-size:31px !important; }
-    .h2 { font-size:23px !important; }
+    .pad { padding:32px 24px !important; }
+    .h1 { font-size:34px !important; }
+    .h2 { font-size:26px !important; }
   }
 </style>
 </head>
 <body style="margin:0; padding:0; background:${BG_OUTER};">
-  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:${BG_OUTER}; font-size:1px; line-height:1px;">Your support page is ready — share it with your community, and make it your own.</div>
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:${BG_OUTER}; font-size:1px; line-height:1px;">Your page is ready. Share the link, and use your private link to edit it.</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BG_OUTER};">
     <tr>
       <td align="center" style="padding:36px 16px;">
         <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; background:${BG_CARD};">
           <tr>
-            <td class="pad" style="padding:52px;">
+            <td class="pad" style="padding:48px;">
 
-              <!-- Masthead -->
-              <p style="margin:0; font-family:${SERIF}; font-size:16px; letter-spacing:0.01em; color:${INK};">Family Grief Support</p>
-              ${rule(28)}
+              <!-- Masthead (quiet) -->
+              <p style="margin:0; font-family:${SANS}; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:${INK_FAINT};">Family Grief Support</p>
 
               <!-- Welcome -->
-              ${eyebrow("Welcome to Family Grief Support")}
-              <h1 class="h1" style="margin:14px 0 0; font-family:${SERIF}; font-size:40px; line-height:1.12; font-weight:normal; color:${INK};">${headline}</h1>
-              ${body("You created a place where the people who care can know how to show up.", 22)}
-              ${body("You can begin making the page your own now. Add the family’s story, choose the kinds of support that would be most helpful, and share the page whenever you’re ready.")}
+              <div style="margin-top:30px;">${eyebrow("Welcome to Family Grief Support")}</div>
+              <h1 class="h1" style="margin:12px 0 0; max-width:520px; font-family:${SERIF}; font-size:45px; line-height:1.05; font-weight:normal; color:${INK};">${headline}</h1>
+              <p style="margin:16px 0 0; max-width:520px; font-family:${SANS}; font-size:17px; line-height:1.5; color:${INK_SOFT};">You created a place for the people who care to know how to show up.</p>
 
-              <div style="height:40px; line-height:40px; font-size:1px;">&nbsp;</div>
+              <!-- Ornament -->
+              <div style="margin:40px 0 4px;">${ornament}</div>
 
-              <!-- Section 1: share link -->
-              ${eyebrow("Your family’s page")}
-              ${h2("Share this link with your community.")}
-              ${body("This is the link for friends, family, neighbors, coworkers, and anyone else who wants to help. They can use it to see what is needed, sign up to help, and stay connected over time.")}
-              ${urlField(pageUrl)}
-              <div style="margin-top:24px;">${primaryBtn(pageUrl, "View &amp; share page &rarr;")}</div>
+              <!-- 01 · Share -->
+              ${eyebrow("01 &middot; Share")}
+              ${actionH("Invite your community.")}
+              ${lede("Send this link to friends and family so they can see what’s needed and find a way to help.")}
+              <a href="${esc(pageUrl)}" style="display:block; margin:18px 0 0; background:${URL_BOX}; border:1px solid ${LINE}; border-radius:2px; padding:13px 16px; font-family:${SANS}; font-size:15px; line-height:1.4; color:${INK}; text-decoration:none; word-break:break-all; overflow-wrap:break-word;">${esc(displayUrl)}</a>
+              <div style="margin-top:20px;"><a href="${esc(pageUrl)}" style="display:inline-block; background:${INK}; color:${BG_CARD}; font-family:${SANS}; font-size:12px; font-weight:600; letter-spacing:0.13em; text-transform:uppercase; text-decoration:none; padding:15px 30px; border-radius:2px;">View &amp; share page &rarr;</a></div>
 
-              ${rule(48)}
+              <!-- separation -->
+              <div style="border-top:1px solid ${LINE}; line-height:1px; font-size:1px; margin:54px 0;">&nbsp;</div>
 
-              <!-- Section 2: private admin link -->
-              ${eyebrow("For you")}
-              ${h2("Make the page yours.")}
-              ${body("Use your private admin link to edit the page, add or update needs, manage sign-ups, share announcements, and make changes as life changes.")}
-              <div style="margin-top:24px;">${outlineBtn(manageUrl, "Edit your support page &rarr;")}</div>
-              <p style="margin:20px 0 0; font-family:${SANS}; font-size:13px; line-height:1.55; color:${INK_FAINT};">Keep this link private. Anyone with this link may be able to manage your family’s support page.</p>
+              <!-- 02 · Manage -->
+              ${eyebrow("02 &middot; Manage")}
+              ${actionH("Make the page theirs.")}
+              ${lede("Add their story, choose what would be helpful, manage sign-ups, and update the page whenever things change.")}
+              <div style="margin-top:20px;"><a href="${esc(manageUrl)}" style="display:inline-block; background:${BG_CARD}; color:${BRONZE}; border:1px solid ${BRONZE}; font-family:${SANS}; font-size:12px; font-weight:600; letter-spacing:0.13em; text-transform:uppercase; text-decoration:none; padding:14px 29px; border-radius:2px;">Edit support page &rarr;</a></div>
+              <p style="margin:16px 0 0; font-family:${SANS}; font-size:12px; line-height:1.55; color:${INK_FAINT};">This is your private admin link. Keep it somewhere safe and don’t share it publicly.</p>
 
-              ${rule(48)}
+              <!-- separation -->
+              <div style="border-top:1px solid ${LINE}; line-height:1px; font-size:1px; margin:54px 0;">&nbsp;</div>
 
               <!-- Closing -->
-              <p style="margin:0; font-family:${SERIF}; font-size:18px; line-height:1.5; color:${INK};">You don’t have to have everything figured out today.</p>
-              ${body("Start with what would be helpful now. You can come back and change the page whenever you need to.")}
-              ${body("We’re glad you’re here.")}
-              <p style="margin:26px 0 0; font-family:${SERIF}; font-size:16px; color:${INK};">Family Grief Support</p>
+              <p style="margin:0; font-family:${SERIF}; font-size:18px; line-height:1.45; color:${INK};">You don’t have to finish everything today.</p>
+              <p style="margin:8px 0 0; font-family:${SANS}; font-size:15px; line-height:1.55; color:${INK_SOFT};">Start with what would help now. You can change the page anytime.</p>
+              <p style="margin:36px 0 0; font-family:${SERIF}; font-size:16px; color:${INK};">Family Grief Support</p>
               <p style="margin:4px 0 0; font-family:${SANS}; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:${INK_FAINT};">Showing up. Together.</p>
 
             </td>
@@ -144,7 +136,7 @@ export function creatorWelcomeEmail(input: WelcomeEmailInput): {
         <!-- Footer -->
         <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
           <tr>
-            <td style="padding:24px 8px 8px; font-family:${SANS}; font-size:11px; letter-spacing:0.06em; color:${INK_FAINT};" align="center">
+            <td style="padding:22px 8px 8px; font-family:${SANS}; font-size:11px; letter-spacing:0.06em; color:${INK_FAINT};" align="center">
               familygriefsupport.org
             </td>
           </tr>
@@ -158,25 +150,20 @@ export function creatorWelcomeEmail(input: WelcomeEmailInput): {
   const text = [
     "FAMILY GRIEF SUPPORT",
     "",
-    name ? `Your support page for ${name} is ready.` : "Your support page is ready.",
+    name ? `Your page for ${name} is ready.` : "Your page is ready.",
+    "You created a place for the people who care to know how to show up.",
     "",
-    "You created a place where the people who care can know how to show up.",
-    "You can begin making the page your own now — add the family’s story, choose",
-    "the kinds of support that would be most helpful, and share it when you’re ready.",
-    "",
-    "— YOUR FAMILY’S PAGE —",
-    "Share this link with friends, family, neighbors, and anyone who wants to help:",
+    "01 · SHARE — Invite your community.",
+    "Send this link to friends and family:",
     pageUrl,
     "",
-    "— FOR YOU —",
-    "Your private admin link — edit the page and manage sign-ups. Keep it private;",
-    "anyone with this link may be able to manage the page:",
+    "02 · MANAGE — Make the page theirs.",
+    "Your private admin link (keep it safe, don’t share it publicly):",
     manageUrl,
     "",
-    "You don’t have to have everything figured out today. Start with what would be",
-    "helpful now, and come back to change the page whenever you need to.",
+    "You don’t have to finish everything today. Start with what would help now —",
+    "you can change the page anytime.",
     "",
-    "We’re glad you’re here.",
     "Family Grief Support — Showing up. Together.",
   ].join("\n");
 
