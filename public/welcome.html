@@ -355,7 +355,19 @@
     font-size: 0.95rem; line-height: 1.65; color: var(--ink-soft); margin: 0;
   }
 
-  /* point of view */
+  /* point of view — restored photographic treatment (same asset & wash as the prior "stanza") */
+  .pov {
+    position: relative; isolation: isolate;
+    background-color: var(--limestone);
+    background-image: var(--hero-bg, none);
+    background-size: cover; background-position: center right;
+    border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft);
+  }
+  .pov::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: color-mix(in srgb, var(--paper) 46%, transparent);
+  }
+  .pov .wrap { position: relative; z-index: 1; }
   .pov h2 {
     font-weight: 400; font-size: clamp(1.9rem, 4.4vw, 2.5rem); line-height: 1.1;
     letter-spacing: -0.015em; margin: 0.7rem auto 0; max-width: 18ch; text-wrap: balance;
@@ -424,8 +436,8 @@
       <h1 class="hero-head">Everyone asks the <br class="hb">same question.</h1>
       <p class="hero-ask">“What can I do?”</p>
       <div class="hero-body">
-        <p>There are meals to bring and errands to run. Kids who still need joy and normalcy. Stories worth keeping, and people who want to show up but don’t always know how.</p>
-        <p class="hero-final">Family Grief Support gives a grieving family one private page where their whole community can help — meals, the children, practical needs, and memories — for as long as it takes.</p>
+        <p>There are meals to bring and errands to run. Kids who still need joy and normalcy. Stories worth keeping. And people who want to show up but don’t always know how.</p>
+        <p class="hero-final">Family Grief Support gives a grieving family one private page where the people who love them can coordinate meals, help with the kids, practical needs, memories, and the months that come after.</p>
       </div>
       <div class="hero-actions">
         <a class="hero-cta" href="/create">Create a support page <span aria-hidden="true">→</span></a>
@@ -440,7 +452,7 @@
   <div class="wrap center">
     <p class="eyebrow">A simpler way to help</p>
     <h2 class="head">The people grieving shouldn’t have to coordinate their own support.</h2>
-    <p class="body measure">Friends and family want to show up. A private support page gives them one place to do it — so the family can receive help without having to organize all of it themselves.</p>
+    <p class="body measure">Friends and family want to show up. A private support page gives them one place to see what would actually help, without asking the family to organize it themselves.</p>
   </div>
 </section>
 
@@ -488,23 +500,23 @@
         <ul class="cats">
           <li>
             <p class="cat-name">Meals</p>
-            <p class="cat-desc">Coordinate food without the family ever having to organize it.</p>
+            <p class="cat-desc">Coordinate food without the family having to organize it.</p>
           </li>
           <li>
             <p class="cat-name">Kids</p>
-            <p class="cat-desc">School pickups, activities, and familiar faces who keep showing up.</p>
+            <p class="cat-desc">School pickups, activities, visits, and familiar faces who keep showing up.</p>
           </li>
           <li>
             <p class="cat-name">Practical help</p>
-            <p class="cat-desc">Errands, rides, and appointments — whatever the week actually needs.</p>
+            <p class="cat-desc">Errands, rides, appointments, or whatever the week actually needs.</p>
           </li>
           <li>
             <p class="cat-name">Memories</p>
-            <p class="cat-desc">Stories, photos, and voice notes — collect them for the children to have one day, or for the whole family to return to.</p>
+            <p class="cat-desc">Stories, photos, and voice notes collected for the children to have one day, or for the whole family to return to.</p>
           </li>
           <li>
             <p class="cat-name">The long after</p>
-            <p class="cat-desc">Birthdays, anniversaries, and the ordinary days months later.</p>
+            <p class="cat-desc">Birthdays, anniversaries, holidays, milestones, and ordinary days months later.</p>
           </li>
         </ul>
         <a class="pv-link" href="/sample">See the full sample page →</a>
@@ -520,7 +532,7 @@
     <p class="eyebrow">Built for the long after</p>
     <h2 class="head">Grief keeps going.<br>So should support.</h2>
     <div class="fade-list">
-      <p>The first weeks bring meals, flowers, and offers to help.</p>
+      <p>The first weeks bring meals. Flowers. Messages. People checking in.</p>
       <p>Then the messages slow, and everyone returns to their routines.</p>
       <p class="stays">The grieving family doesn’t.</p>
     </div>
@@ -529,11 +541,11 @@
     <div class="sustain">
       <div class="sustain-item">
         <h3>The family shares what’s ahead</h3>
-        <p>They can post the moments still to come — a birthday, a school game, a hard anniversary, a week that needs extra hands — so people always know how and when to show up.</p>
+        <p>They can add the moments still to come: a birthday, a school game, a hard anniversary, or a week that needs a little more help.</p>
       </div>
       <div class="sustain-item">
         <h3>Everyone can stay close</h3>
-        <p>Friends and family opt in to occasional, gentle notes — no noise, unsubscribe anytime — so the circle stays for years, not just the first few weeks.</p>
+        <p>Friends and family can choose to keep showing up when those moments come, months after the first few weeks have passed.</p>
       </div>
     </div>
   </div>
@@ -550,7 +562,7 @@
       <li>No pressure to respond.</li>
       <li>No expectation that grief follows a timeline.</li>
     </ul>
-    <p class="body measure" style="margin-left:auto;margin-right:auto; color:var(--ink);">Just a simpler way for people to care for one another when life becomes impossibly hard.</p>
+    <p class="body measure" style="margin-left:auto;margin-right:auto; color:var(--ink);">Just a simple way for people to care for one another when life becomes impossibly hard.</p>
   </div>
 </section>
 
