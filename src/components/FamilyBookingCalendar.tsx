@@ -291,7 +291,11 @@ export default function FamilyBookingCalendar({
       )}
 
       {!selected && (
-        <p className="mt-6 text-sm text-ink-faint">Select any open day above to sign up.</p>
+        <p className="mt-6 text-sm text-ink-faint">
+          {bookings.length === 0
+            ? "No one has signed up yet — pick any open day to be the first."
+            : "Select any open day above to sign up."}
+        </p>
       )}
     </div>
   );

@@ -502,6 +502,11 @@ export default async function FamilyPage({
                 </div>
               </div>
             )}
+            {memoriesPublic && publicMemories.length === 0 && (
+              <p className="mt-10 text-center text-sm text-ink-faint">
+                No memories have been shared here yet — yours could be the first.
+              </p>
+            )}
           </SectionShell>
         )}
 
