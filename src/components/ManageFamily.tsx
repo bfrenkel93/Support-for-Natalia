@@ -309,8 +309,9 @@ export default function ManageFamily({
             placeholder="name@email.com"
           />
           <p className="mt-1.5 text-xs text-ink-faint">
-            Every meal sign-up, RSVP, and shared memory is sent here. Use the main
-            family member’s address.
+            Every meal sign-up, RSVP, and shared memory is sent here — use the
+            grieving family member’s address so it reaches them. You can add more
+            than one, separated by commas.
           </p>
         </div>
 

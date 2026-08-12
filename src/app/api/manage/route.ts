@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
-import { getFamilyByEditToken } from "@/lib/families";
+import { getFamilyByEditToken, parseRecipients } from "@/lib/families";
 
 // Save a family's page details. Gated by the secret edit token (their private
 // "manage" link) — no password.
@@ -34,15 +34,19 @@ export async function POST(req: Request) {
   const isPublic = body.isPublic === true || body.isPublic === "true";
   const introMessage = multiline(body.introMessage, 6000);
 
-  // Notification email — where sign-ups, RSVPs, and memories are sent.
-  const contactEmailRaw = clean(body.contactEmail, 200);
-  if (contactEmailRaw && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmailRaw)) {
+  // Notification email(s) — where sign-ups, RSVPs, and memories are sent. May
+  // hold more than one address (the family member and the friend who helps).
+  const contactEmailRaw = clean(body.contactEmail, 300);
+  const recipients = parseRecipients(contactEmailRaw);
+  if (contactEmailRaw && recipients.length === 0) {
     return NextResponse.json(
       { ok: false, error: "That notification email doesn’t look right." },
       { status: 400 }
     );
   }
-  const contactEmail = contactEmailRaw || family.contact_email;
+  const contactEmail = recipients.length
+    ? recipients.join(", ")
+    : family.contact_email;
 
   const content = {
     ...(family.content || {}),

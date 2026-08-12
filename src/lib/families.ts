@@ -77,6 +77,7 @@ export type Family = {
 export type CreateFamilyInput = {
   creatorName: string;
   contactEmail: string;
+  familyEmail?: string; // the grieving family member — gets sign-up notifications
   displayName: string;
   honoring?: string;
   town?: string;
@@ -84,6 +85,22 @@ export type CreateFamilyInput = {
   isPublic: boolean;
   introMessage?: string;
 };
+
+/**
+ * Turn a notification-email field into a clean list of recipients. Supports one
+ * address or several (comma / semicolon / space separated) so both the family
+ * member and the friend who set the page up can be notified.
+ */
+export function parseRecipients(raw: string | null | undefined): string[] {
+  return Array.from(
+    new Set(
+      String(raw || "")
+        .split(/[,;\s]+/)
+        .map((s) => s.trim())
+        .filter((s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s))
+    )
+  );
+}
 
 /** Look up a family by its URL slug (e.g. "natalia"). */
 export async function getFamilyBySlug(slug: string): Promise<Family | null> {
@@ -182,6 +199,10 @@ export async function createFamily(
     intro_message: input.introMessage?.trim() || defaultIntro(input),
   };
 
+  // Sign-up notifications go to the grieving family member when their email is
+  // given; otherwise to the person who created the page.
+  const contactEmail = input.familyEmail?.trim() || input.contactEmail;
+
   const { data, error } = await sb
     .from("families")
     .insert({
@@ -191,7 +212,7 @@ export async function createFamily(
       town: input.town?.trim() || null,
       has_kids: input.hasKids,
       is_public: input.isPublic,
-      contact_email: input.contactEmail,
+      contact_email: contactEmail,
       content,
     })
     .select("*")

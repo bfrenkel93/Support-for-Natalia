@@ -41,6 +41,7 @@ export async function POST(req: Request) {
 
   const creatorName = clean(body.name, 200);
   const email = clean(body.email, 200);
+  const familyEmail = clean(body.familyEmail, 200);
   const displayName = clean(body.displayName, 200);
   const honoring = clean(body.honoring, 200);
   const town = clean(body.town, 200);
@@ -58,6 +59,7 @@ export async function POST(req: Request) {
   const family = await createFamily({
     creatorName,
     contactEmail: email,
+    familyEmail: familyEmail || undefined,
     displayName,
     honoring,
     town,

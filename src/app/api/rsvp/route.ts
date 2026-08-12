@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getSupabase } from "@/lib/supabase";
-import { getFamilyBySlug } from "@/lib/families";
+import { getFamilyBySlug, parseRecipients } from "@/lib/families";
 
 // Public: RSVP to a family's event ("come cheer them on").
 export const runtime = "nodejs";
@@ -51,13 +51,14 @@ export async function POST(req: Request) {
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  if (apiKey && family.contact_email) {
+  const recipients = parseRecipients(family.contact_email);
+  if (apiKey && recipients.length) {
     try {
       const resend = new Resend(apiKey);
       const from = process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
       await resend.emails.send({
         from,
-        to: family.contact_email,
+        to: recipients,
         replyTo: email || undefined,
         subject: `New RSVP — ${name} for "${(event as { title: string }).title}"`,
         text: [

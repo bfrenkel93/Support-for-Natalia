@@ -409,6 +409,7 @@
       <label>Your email<input name="email" type="email" required autocomplete="email"></label>
       <label>What should the page be called?<input name="displayName" required placeholder="e.g. For the Rossi Family"></label>
       <label>Who are you honoring? <span class="opt">(optional)</span><input name="honoring" placeholder="The person you’ve lost"></label>
+      <label>Family member’s email <span class="opt">(optional — they’ll get an email whenever someone signs up to help)</span><input name="familyEmail" type="email" autocomplete="off" placeholder="e.g. the spouse or parent this is for"></label>
       <label>Town or city <span class="opt">(optional)</span><input name="town" placeholder="e.g. Newton, MA"></label>
       <label class="rcheck"><input type="checkbox" name="hasKids"> There are children in the family</label>
       <label>Who can see this page?
@@ -455,7 +456,7 @@
     }
     var data = {
       name: name, email: email, displayName: displayName,
-      honoring: val('honoring'), town: val('town'),
+      honoring: val('honoring'), town: val('town'), familyEmail: val('familyEmail'),
       hasKids: !!(f.elements['hasKids'] && f.elements['hasKids'].checked),
       isPublic: val('visibility') === 'public',
       introMessage: val('introMessage')

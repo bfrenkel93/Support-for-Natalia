@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { getFamilyBySlug } from "@/lib/families";
+import { getFamilyBySlug, parseRecipients } from "@/lib/families";
 import { stripJpegMetadata } from "@/lib/image";
 import {
   saveFamilyMemory,
@@ -93,14 +93,15 @@ export async function POST(req: Request) {
 
   // Notify the family that something was shared — never the content itself.
   const apiKey = process.env.RESEND_API_KEY;
-  if (apiKey && family.contact_email) {
+  const recipients = parseRecipients(family.contact_email);
+  if (apiKey && recipients.length) {
     try {
       const resend = new Resend(apiKey);
       const from = process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
       const origin = new URL(req.url).origin;
       await resend.emails.send({
         from,
-        to: family.contact_email,
+        to: recipients,
         subject: `A new memory was shared 💛`,
         text: [
           `${name || "Someone"} just shared ${
