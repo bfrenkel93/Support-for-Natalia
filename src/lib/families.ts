@@ -39,6 +39,10 @@ export type FamilyContent = {
   memorial_when?: string;
   memorial_where?: string;
   memorial_note?: string;
+  gifts_intro?: string;
+  pay_venmo?: string;
+  pay_cashapp?: string;
+  pay_zelle?: string;
 };
 
 export type Family = {

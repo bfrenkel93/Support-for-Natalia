@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getFamilyBySlug, type FamilyContent } from "@/lib/families";
 import { getFamilyBookings } from "@/lib/bookings";
+import { getFamilyGifts } from "@/lib/gifts";
 import FamilyBookingCalendar from "@/components/FamilyBookingCalendar";
+import FamilyGifts from "@/components/FamilyGifts";
 import FamilyMemoryForm from "@/components/FamilyMemoryForm";
 import FamilySubscribeForm from "@/components/FamilySubscribeForm";
 import FamilyGatheringForm from "@/components/FamilyGatheringForm";
@@ -47,6 +49,15 @@ export default async function FamilyPage({
   if (!family) notFound();
 
   const bookings = await getFamilyBookings(family.id);
+  const gifts = await getFamilyGifts(family.id);
+  const giftsLite = gifts.map((g) => ({
+    id: g.id,
+    title: g.title,
+    description: g.description,
+    cost: g.cost,
+    pledgeCount: g.pledges.length,
+    pledgedTotal: g.pledges.reduce((n, p) => n + (p.amount || 0), 0),
+  }));
   const content: FamilyContent = family.content || {};
   const kicker = content.kicker || "For the people who love them";
   const title = content.intro_title || family.display_name;
@@ -170,6 +181,28 @@ export default async function FamilyPage({
           />
         </div>
       </section>
+
+      {/* Give a gift */}
+      {giftsLite.length > 0 && (
+        <section className="mt-16 border-t border-line/60 pt-12 text-center">
+          <p className="eyebrow">Give a gift</p>
+          <h2 className="mx-auto mt-2 max-w-md font-serif text-2xl font-light text-ink sm:text-3xl">
+            A gift of rest
+          </h2>
+          <div className="mt-8">
+            <FamilyGifts
+              slug={family.slug}
+              gifts={giftsLite}
+              intro={content.gifts_intro}
+              pay={{
+                venmo: content.pay_venmo,
+                cashapp: content.pay_cashapp,
+                zelle: content.pay_zelle,
+              }}
+            />
+          </div>
+        </section>
+      )}
 
       {/* Stay involved */}
       <section className="mt-16 border-t border-line/60 pt-12 text-center">

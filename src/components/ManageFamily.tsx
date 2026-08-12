@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import GiftManager from "./GiftManager";
 
 type FamilyLite = {
   slug: string;
@@ -17,6 +18,17 @@ type FamilyLite = {
   memorial_when: string;
   memorial_where: string;
   memorial_note: string;
+  gifts_intro: string;
+  pay_venmo: string;
+  pay_cashapp: string;
+  pay_zelle: string;
+};
+
+type GiftRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  cost: number | null;
 };
 
 type BookingLite = {
@@ -55,6 +67,7 @@ export default function ManageFamily({
   subscriberCount,
   gatheringTotal,
   gatheringParties,
+  gifts,
 }: {
   family: FamilyLite;
   bookings: BookingLite[];
@@ -62,6 +75,7 @@ export default function ManageFamily({
   subscriberCount: number;
   gatheringTotal: number;
   gatheringParties: number;
+  gifts: GiftRow[];
 }) {
   const [displayName, setDisplayName] = useState(family.display_name);
   const [honoring, setHonoring] = useState(family.honoring || "");
@@ -75,6 +89,11 @@ export default function ManageFamily({
   const [memWhen, setMemWhen] = useState(family.memorial_when);
   const [memWhere, setMemWhere] = useState(family.memorial_where);
   const [memNote, setMemNote] = useState(family.memorial_note);
+
+  const [giftsIntro, setGiftsIntro] = useState(family.gifts_intro);
+  const [payVenmo, setPayVenmo] = useState(family.pay_venmo);
+  const [payCashapp, setPayCashapp] = useState(family.pay_cashapp);
+  const [payZelle, setPayZelle] = useState(family.pay_zelle);
 
   const [heroUrl, setHeroUrl] = useState<string | null>(family.hero_image_url);
   const [uploading, setUploading] = useState(false);
@@ -130,6 +149,10 @@ export default function ManageFamily({
           memorialWhen: memWhen,
           memorialWhere: memWhere,
           memorialNote: memNote,
+          giftsIntro,
+          payVenmo,
+          payCashapp,
+          payZelle,
         }),
       });
       const out = await res.json().catch(() => ({}));
@@ -264,6 +287,32 @@ export default function ManageFamily({
           )}
         </div>
 
+        <div className="mt-10 border-t border-line/60 pt-8">
+          <p className="eyebrow">Give a gift — optional</p>
+          <p className="mt-1 text-sm text-ink-faint">
+            An intro and where people can send money. Add the gift ideas
+            themselves below.
+          </p>
+          <div className="mt-4">
+            <label className="field-label">Intro message</label>
+            <textarea className="field min-h-[5rem]" value={giftsIntro} onChange={(e) => setGiftsIntro(e.target.value)} maxLength={2000} />
+          </div>
+          <div className="mt-4 grid gap-6 sm:grid-cols-3">
+            <div>
+              <label className="field-label">Venmo</label>
+              <input className="field" value={payVenmo} onChange={(e) => setPayVenmo(e.target.value)} maxLength={120} />
+            </div>
+            <div>
+              <label className="field-label">Cash App</label>
+              <input className="field" value={payCashapp} onChange={(e) => setPayCashapp(e.target.value)} maxLength={120} />
+            </div>
+            <div>
+              <label className="field-label">Zelle</label>
+              <input className="field" value={payZelle} onChange={(e) => setPayZelle(e.target.value)} maxLength={120} />
+            </div>
+          </div>
+        </div>
+
         <div className="mt-8 flex items-center gap-5">
           <button type="submit" disabled={saving} className="btn disabled:opacity-50">
             {saving ? "Saving…" : "Save changes"}
@@ -272,6 +321,8 @@ export default function ManageFamily({
           {saveErr && <span className="text-sm text-bronze">{saveErr}</span>}
         </div>
       </form>
+
+      <GiftManager token={family.edit_token} initialGifts={gifts} />
 
       {/* Sign-ups */}
       <section className="mt-14 border-t border-line/60 pt-10">

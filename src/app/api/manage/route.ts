@@ -43,6 +43,10 @@ export async function POST(req: Request) {
     memorial_when: clean(body.memorialWhen, 200),
     memorial_where: clean(body.memorialWhere, 300),
     memorial_note: multiline(body.memorialNote, 2000),
+    gifts_intro: multiline(body.giftsIntro, 2000),
+    pay_venmo: clean(body.payVenmo, 120),
+    pay_cashapp: clean(body.payCashapp, 120),
+    pay_zelle: clean(body.payZelle, 120),
   };
 
   const supabase = getSupabase();
