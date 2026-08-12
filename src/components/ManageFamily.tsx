@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import GiftManager from "./GiftManager";
 import EventManager from "./EventManager";
 import RequestManager, { type RequestRow } from "./RequestManager";
@@ -245,8 +245,42 @@ export default function ManageFamily({
     }
   }
 
-  async function onSave(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const payload = {
+    token: family.edit_token,
+    displayName,
+    honoring,
+    relationship: REL_OPTIONS.filter((r) => relationships.includes(r)).join(", "),
+    eyebrow,
+    town,
+    hasKids,
+    isPublic,
+    accessCode,
+    contactEmail,
+    introMessage,
+    memoriesPublic,
+    memorialTitle: memTitle,
+    memorialIntro: memIntro,
+    memorialWhen: memWhen,
+    memorialWhere: memWhere,
+    memorialNote: memNote,
+    giftsIntro,
+    payVenmo,
+    payCashapp,
+    payZelle,
+    showCalendar,
+    showMemorial,
+    showGifts,
+    showSubscribe,
+    showMemories,
+    showEvents,
+    supportName,
+    supportAddress,
+    supportNote,
+    showSupport,
+  };
+  const payloadStr = JSON.stringify(payload);
+
+  async function save() {
     setSaving(true);
     setSaved(false);
     setSaveErr("");
@@ -254,39 +288,7 @@ export default function ManageFamily({
       const res = await fetch("/api/manage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: family.edit_token,
-          displayName,
-          honoring,
-          relationship: REL_OPTIONS.filter((r) => relationships.includes(r)).join(", "),
-          eyebrow,
-          town,
-          hasKids,
-          isPublic,
-          accessCode,
-          contactEmail,
-          introMessage,
-          memoriesPublic,
-          memorialTitle: memTitle,
-          memorialIntro: memIntro,
-          memorialWhen: memWhen,
-          memorialWhere: memWhere,
-          memorialNote: memNote,
-          giftsIntro,
-          payVenmo,
-          payCashapp,
-          payZelle,
-          showCalendar,
-          showMemorial,
-          showGifts,
-          showSubscribe,
-          showMemories,
-          showEvents,
-          supportName,
-          supportAddress,
-          supportNote,
-          showSupport,
-        }),
+        body: payloadStr,
       });
       const out = await res.json().catch(() => ({}));
       if (!res.ok || !out.ok) throw new Error(out?.error || "bad");
@@ -299,8 +301,39 @@ export default function ManageFamily({
     }
   }
 
+  function onSave(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    void save();
+  }
+
+  // Auto-save: whenever a field changes, save ~1.2s after they stop typing.
+  const firstRun = useRef(true);
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false;
+      return;
+    }
+    const t = setTimeout(() => void save(), 1200);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [payloadStr]);
+
   return (
     <main className="mx-auto max-w-2xl px-6 py-14">
+      <div className="pointer-events-none sticky top-3 z-40 flex justify-end">
+        <span className="pointer-events-auto rounded-full border border-line bg-parchment/95 px-3 py-1 text-xs backdrop-blur">
+          {saving ? (
+            <span className="text-ink-soft">Saving…</span>
+          ) : saveErr ? (
+            <span className="text-bronze">{saveErr}</span>
+          ) : saved ? (
+            <span className="text-ink-soft">All changes saved ✓</span>
+          ) : (
+            <span className="text-ink-faint">Changes save automatically</span>
+          )}
+        </span>
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line/60 pb-6">
         <div>
           <p className="eyebrow">Manage your page</p>
@@ -624,11 +657,13 @@ export default function ManageFamily({
           )}
         </div>
 
-        <div className="mt-8 flex items-center gap-5">
+        <div className="mt-8 flex flex-wrap items-center gap-4">
           <button type="submit" disabled={saving} className="btn disabled:opacity-50">
-            {saving ? "Saving…" : "Save changes"}
+            {saving ? "Saving…" : "Save now"}
           </button>
-          {saved && <span className="text-sm text-bronze">Saved 💛</span>}
+          <span className="text-sm text-ink-faint">
+            Your changes save automatically as you go.
+          </span>
           {saveErr && <span className="text-sm text-bronze">{saveErr}</span>}
         </div>
       </form>
