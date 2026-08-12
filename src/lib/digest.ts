@@ -1,5 +1,6 @@
 import "server-only";
 import { getEvents } from "./events";
+import { getFamilyRequests } from "./requests";
 
 function fmtDate(ymd: string): string {
   const [y, m, d] = ymd.split("-").map(Number);
@@ -57,4 +58,44 @@ function escape(s: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+/**
+ * Per-family digest highlights: the open needs still waiting for a helper.
+ * These are the clearest "here's a concrete way to show up" items, so the
+ * gentle nudge always points at something real when there is something.
+ */
+export async function buildFamilyHighlights(familyId: string): Promise<{
+  html: string;
+  text: string;
+  count: number;
+}> {
+  const open = (await getFamilyRequests(familyId))
+    .filter((r) => !r.claimed_by)
+    .slice(0, 6);
+
+  if (open.length === 0) return { html: "", text: "", count: 0 };
+
+  const rowsHtml = open
+    .map(
+      (r) =>
+        `<li style="margin-bottom:10px;">` +
+        `<strong>${escape(r.title)}</strong>` +
+        `${r.needed_date ? `<br/><span style="color:#6B6356;">by ${fmtDate(r.needed_date)}</span>` : ""}` +
+        `${r.details ? `<br/><span style="color:#6B6356;">${escape(r.details)}</span>` : ""}` +
+        `</li>`
+    )
+    .join("");
+  const html = `<ul style="padding-left:18px;">${rowsHtml}</ul>`;
+
+  const text = open
+    .map(
+      (r) =>
+        `• ${r.title}` +
+        `${r.needed_date ? ` — by ${fmtDate(r.needed_date)}` : ""}` +
+        `${r.details ? ` (${r.details})` : ""}`
+    )
+    .join("\n");
+
+  return { html, text, count: open.length };
 }

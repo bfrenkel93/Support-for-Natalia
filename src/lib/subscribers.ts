@@ -83,6 +83,21 @@ export async function getFamilySubscriberCount(familyId: string): Promise<number
   return count ?? 0;
 }
 
+/** Active subscribers for one family (they only hear about their own family). */
+export async function getFamilyActiveSubscribers(
+  familyId: string
+): Promise<Subscriber[]> {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from("subscribers")
+    .select("*")
+    .eq("family_id", familyId)
+    .is("unsubscribed_at", null)
+    .order("created_at", { ascending: true });
+  return (data as Subscriber[]) ?? [];
+}
+
 export async function getActiveSubscribers(): Promise<Subscriber[]> {
   const supabase = getSupabase();
   if (!supabase) return [];
@@ -135,4 +150,17 @@ export async function setDigestLastSent(when: Date): Promise<void> {
   await supabase
     .from("settings")
     .upsert({ key: "digest_last_sent", value: when.toISOString() }, { onConflict: "key" });
+}
+
+/** Stamp a family's digest as sent (per-family cadence, migration 012). */
+export async function setFamilyDigestLastSent(
+  familyId: string,
+  when: Date
+): Promise<void> {
+  const supabase = getSupabase();
+  if (!supabase) return;
+  await supabase
+    .from("families")
+    .update({ digest_last_sent_at: when.toISOString() })
+    .eq("id", familyId);
 }
