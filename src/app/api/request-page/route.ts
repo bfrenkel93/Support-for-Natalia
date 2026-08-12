@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL || "brookefrenkel@gmail.com";
+  const to = process.env.NOTIFY_EMAIL || "support@familygriefsupport.org";
   const from =
     process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
 

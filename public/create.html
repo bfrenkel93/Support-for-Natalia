@@ -385,6 +385,8 @@
   .rform .rcheck input { width: auto; margin: 0; }
   .rform .relgrid { display: flex; flex-wrap: wrap; gap: 0.55rem 1.4rem; }
   .rform .relgrid .rcheck { gap: 0.5rem; }
+  .rhelp { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.85rem; color: var(--ink-faint); margin: 0.6rem 0 0; }
+  .rhelp a { color: var(--bronze); text-decoration: none; border-bottom: 1px solid var(--line); }
   .rdone { max-width: 520px; margin: 1rem auto 0; text-align: center; }
   .rdone-title { font-weight: 400; font-size: 1.5rem; margin: 0 0 0.6rem; color: var(--ink); }
   .rdone-sub { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.95rem; color: var(--ink-soft); margin: 0 0 0.8rem; }
@@ -437,6 +439,7 @@
       <label>A few words to open the page <span class="opt">(optional — leave blank and we’ll start you with a gentle message you can edit)</span><textarea name="introMessage" rows="4"></textarea></label>
       <button type="submit" class="btn rbtn">Create the page <span aria-hidden="true">→</span></button>
       <p class="rnote" id="rnote" role="status" aria-live="polite"></p>
+      <p class="rhelp">Need help? Email <a href="mailto:support@familygriefsupport.org">support@familygriefsupport.org</a>.</p>
     </form>
     <div class="rdone" id="rdone" hidden>
       <h3 class="rdone-title">Your page is ready.</h3>
@@ -493,7 +496,7 @@
     } catch (err) {
       note.textContent = (err && err.message && err.message !== 'bad')
         ? err.message
-        : 'Something went wrong. Please email brookefrenkel@gmail.com and we will help right away.';
+        : 'Something went wrong. Please email support@familygriefsupport.org and we will help right away.';
       note.className = 'rnote err';
       btn.disabled = false;
     }
