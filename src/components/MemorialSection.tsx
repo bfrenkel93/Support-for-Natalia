@@ -22,7 +22,7 @@ export default async function MemorialSection({ settings }: { settings: Settings
             {settings.memorial_title}
           </h2>
           {settings.memorial_intro && (
-            <p className="mx-auto mt-5 max-w-measure text-[1.02rem] leading-[1.85] text-ink-soft">
+            <p className="mx-auto mt-5 max-w-measure whitespace-pre-line text-[1.02rem] leading-[1.85] text-ink-soft">
               {settings.memorial_intro}
             </p>
           )}
@@ -47,7 +47,7 @@ export default async function MemorialSection({ settings }: { settings: Settings
           </div>
 
           {note && (
-            <p className="mx-auto mt-6 max-w-measure text-sm leading-relaxed text-ink-soft">
+            <p className="mx-auto mt-6 max-w-measure whitespace-pre-line text-sm leading-relaxed text-ink-soft">
               {note}
             </p>
           )}
