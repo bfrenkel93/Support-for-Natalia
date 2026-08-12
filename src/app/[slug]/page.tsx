@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getFamilyBySlug, defaultCreditLine, type FamilyContent } from "@/lib/families";
+import { getFamilyBySlug, type FamilyContent } from "@/lib/families";
 import { getFamilyBookings } from "@/lib/bookings";
 import { getFamilyGifts } from "@/lib/gifts";
 import { getFamilyEvents } from "@/lib/events";
@@ -90,8 +90,6 @@ export default async function FamilyPage({
   const showMemories = content.show_memories !== false;
   const showEvents = eventsLite.length > 0 && content.show_events !== false;
   const memoriesPublic = content.memories_public === true;
-  const showCredit = content.show_credit !== false;
-  const creditLine = (content.credit_line || "").trim() || defaultCreditLine(family.honoring);
 
   // Only pull the shared memories when the family has chosen to post them publicly.
   const publicMemories =
@@ -318,13 +316,8 @@ export default async function FamilyPage({
       )}
 
       {/* Footer */}
-      <footer className="mt-20 border-t border-line/60 py-10 text-center">
-        {showCredit && creditLine && (
-          <p className="font-serif text-sm italic text-ink-soft">{creditLine}</p>
-        )}
-        <p className="mt-3 text-[0.7rem] uppercase tracking-[0.16em] text-ink-faint">
-          familygriefsupport.org
-        </p>
+      <footer className="mt-20 border-t border-line/60 py-10 text-center text-[0.7rem] uppercase tracking-[0.16em] text-ink-faint">
+        familygriefsupport.org
       </footer>
     </main>
   );
