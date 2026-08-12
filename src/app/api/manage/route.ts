@@ -52,6 +52,7 @@ export async function POST(req: Request) {
     show_gifts: body.showGifts !== false,
     show_subscribe: body.showSubscribe !== false,
     show_memories: body.showMemories !== false,
+    show_events: body.showEvents !== false,
   };
 
   const supabase = getSupabase();

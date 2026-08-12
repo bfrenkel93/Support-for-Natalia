@@ -30,6 +30,31 @@ export async function getEvents(): Promise<FamilyEvent[]> {
   }));
 }
 
+/** Events + RSVPs for one family. */
+export async function getFamilyEvents(familyId: string): Promise<FamilyEvent[]> {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("events")
+    .select("*, rsvps:event_rsvps(*)")
+    .eq("family_id", familyId)
+    .order("sort_order", { ascending: true })
+    .order("event_date", { ascending: true });
+
+  if (error || !data) {
+    if (error) console.error("[getFamilyEvents]", error);
+    return [];
+  }
+
+  return (data as FamilyEvent[]).map((e) => ({
+    ...e,
+    rsvps: (e.rsvps || []).sort((a, b) =>
+      a.created_at.localeCompare(b.created_at)
+    ),
+  }));
+}
+
 export async function getEvent(id: string): Promise<FamilyEvent | null> {
   const supabase = getSupabase();
   if (!supabase) return null;

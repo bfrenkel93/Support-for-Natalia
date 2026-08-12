@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import GiftManager from "./GiftManager";
+import EventManager from "./EventManager";
 
 type FamilyLite = {
   slug: string;
@@ -27,6 +28,7 @@ type FamilyLite = {
   show_gifts: boolean;
   show_subscribe: boolean;
   show_memories: boolean;
+  show_events: boolean;
 };
 
 type GiftRow = {
@@ -34,6 +36,13 @@ type GiftRow = {
   title: string;
   description: string | null;
   cost: number | null;
+};
+
+type EventRow = {
+  id: string;
+  title: string;
+  event_date: string | null;
+  event_time: string | null;
 };
 
 type BookingLite = {
@@ -73,6 +82,7 @@ export default function ManageFamily({
   gatheringTotal,
   gatheringParties,
   gifts,
+  events,
 }: {
   family: FamilyLite;
   bookings: BookingLite[];
@@ -81,6 +91,7 @@ export default function ManageFamily({
   gatheringTotal: number;
   gatheringParties: number;
   gifts: GiftRow[];
+  events: EventRow[];
 }) {
   const [displayName, setDisplayName] = useState(family.display_name);
   const [honoring, setHonoring] = useState(family.honoring || "");
@@ -105,6 +116,7 @@ export default function ManageFamily({
   const [showGifts, setShowGifts] = useState(family.show_gifts);
   const [showSubscribe, setShowSubscribe] = useState(family.show_subscribe);
   const [showMemories, setShowMemories] = useState(family.show_memories);
+  const [showEvents, setShowEvents] = useState(family.show_events);
 
   const [heroUrl, setHeroUrl] = useState<string | null>(family.hero_image_url);
   const [uploading, setUploading] = useState(false);
@@ -169,6 +181,7 @@ export default function ManageFamily({
           showGifts,
           showSubscribe,
           showMemories,
+          showEvents,
         }),
       });
       const out = await res.json().catch(() => ({}));
@@ -294,6 +307,10 @@ export default function ManageFamily({
               <input type="checkbox" checked={showMemories} onChange={(e) => setShowMemories(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
               Memories &amp; stories
             </label>
+            <label className="flex items-center gap-2.5">
+              <input type="checkbox" checked={showEvents} onChange={(e) => setShowEvents(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+              Come cheer them on (events)
+            </label>
           </div>
         </div>
 
@@ -368,6 +385,8 @@ export default function ManageFamily({
       </form>
 
       <GiftManager token={family.edit_token} initialGifts={gifts} />
+
+      <EventManager token={family.edit_token} initialEvents={events} />
 
       {/* Sign-ups */}
       <section className="mt-14 border-t border-line/60 pt-10">

@@ -5,6 +5,7 @@ import { getFamilyMemoriesWithUrls } from "@/lib/memories";
 import { getFamilySubscriberCount } from "@/lib/subscribers";
 import { getFamilyGathering } from "@/lib/gathering";
 import { getFamilyGifts } from "@/lib/gifts";
+import { getFamilyEvents } from "@/lib/events";
 import ManageFamily from "@/components/ManageFamily";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,7 @@ export default async function ManagePage({
   const subscriberCount = await getFamilySubscriberCount(family.id);
   const gathering = await getFamilyGathering(family.id);
   const gifts = await getFamilyGifts(family.id);
+  const events = await getFamilyEvents(family.id);
 
   return (
     <ManageFamily
@@ -52,6 +54,12 @@ export default async function ManagePage({
         title: g.title,
         description: g.description,
         cost: g.cost,
+      }))}
+      events={events.map((ev) => ({
+        id: ev.id,
+        title: ev.title,
+        event_date: ev.event_date,
+        event_time: ev.event_time,
       }))}
       memories={memories.map((m) => ({
         id: m.id,
@@ -86,6 +94,7 @@ export default async function ManagePage({
         show_gifts: family.content?.show_gifts !== false,
         show_subscribe: family.content?.show_subscribe !== false,
         show_memories: family.content?.show_memories !== false,
+        show_events: family.content?.show_events !== false,
       }}
       bookings={bookings.map((b) => ({
         event_date: b.event_date,

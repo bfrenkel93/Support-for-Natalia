@@ -3,8 +3,10 @@ import type { Metadata } from "next";
 import { getFamilyBySlug, type FamilyContent } from "@/lib/families";
 import { getFamilyBookings } from "@/lib/bookings";
 import { getFamilyGifts } from "@/lib/gifts";
+import { getFamilyEvents } from "@/lib/events";
 import FamilyBookingCalendar from "@/components/FamilyBookingCalendar";
 import FamilyGifts from "@/components/FamilyGifts";
+import FamilyEvents from "@/components/FamilyEvents";
 import FamilyMemoryForm from "@/components/FamilyMemoryForm";
 import FamilySubscribeForm from "@/components/FamilySubscribeForm";
 import FamilyGatheringForm from "@/components/FamilyGatheringForm";
@@ -58,6 +60,16 @@ export default async function FamilyPage({
     pledgeCount: g.pledges.length,
     pledgedTotal: g.pledges.reduce((n, p) => n + (p.amount || 0), 0),
   }));
+  const events = await getFamilyEvents(family.id);
+  const eventsLite = events.map((ev) => ({
+    id: ev.id,
+    title: ev.title,
+    event_date: ev.event_date,
+    event_time: ev.event_time,
+    location: ev.location,
+    description: ev.description,
+    attendees: ev.rsvps.map((r) => r.name),
+  }));
   const content: FamilyContent = family.content || {};
   const kicker = content.kicker || "For the people who love them";
   const title = content.intro_title || family.display_name;
@@ -75,6 +87,7 @@ export default async function FamilyPage({
   const showGifts = giftsLite.length > 0 && content.show_gifts !== false;
   const showSubscribe = content.show_subscribe !== false;
   const showMemories = content.show_memories !== false;
+  const showEvents = eventsLite.length > 0 && content.show_events !== false;
 
   return (
     <main className="mx-auto max-w-2xl px-6">
@@ -128,7 +141,7 @@ export default async function FamilyPage({
 
       {/* Memorial gathering */}
       {showMemorial && (
-        <section className="mt-14 rounded-sm border border-line bg-bone/40 p-8 text-center">
+        <section className="mt-14 rounded-sm border border-line bg-bone/40 p-6 text-center sm:p-8">
           <p className="eyebrow">{content.memorial_title || "A gathering"}</p>
           {content.memorial_intro && (
             <p className="mx-auto mt-3 max-w-md leading-relaxed text-ink-soft">
@@ -210,6 +223,19 @@ export default async function FamilyPage({
                 zelle: content.pay_zelle,
               }}
             />
+          </div>
+        </section>
+      )}
+
+      {/* Come cheer them on */}
+      {showEvents && (
+        <section className="mt-16 border-t border-line/60 pt-12 text-center">
+          <p className="eyebrow">Come cheer them on</p>
+          <h2 className="mx-auto mt-2 max-w-md font-serif text-2xl font-light text-ink sm:text-3xl">
+            Show up for the little big moments
+          </h2>
+          <div className="mt-8">
+            <FamilyEvents slug={family.slug} events={eventsLite} />
           </div>
         </section>
       )}

@@ -49,6 +49,7 @@ export type FamilyContent = {
   show_gifts?: boolean;
   show_subscribe?: boolean;
   show_memories?: boolean;
+  show_events?: boolean;
 };
 
 export type Family = {
