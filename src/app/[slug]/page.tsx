@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
+import { unstable_noStore as noStore } from "next/cache";
 import type { Metadata } from "next";
 import {
   getFamilyBySlug,
@@ -78,6 +79,7 @@ export default async function FamilyPage({
 }: {
   params: { slug: string };
 }) {
+  noStore(); // never serve a cached copy — always reflect the latest edits
   const family = await getFamilyBySlug(params.slug);
   if (!family) notFound();
 
