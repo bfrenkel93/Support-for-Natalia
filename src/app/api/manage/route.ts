@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     ...(family.content || {}),
     intro_title: displayName,
     eyebrow: clean(body.eyebrow, 120),
-    relationship: clean(body.relationship, 60),
+    relationship: clean(body.relationship, 160),
     intro_message: introMessage,
     memorial_title: clean(body.memorialTitle, 200),
     memorial_intro: multiline(body.memorialIntro, 3000),

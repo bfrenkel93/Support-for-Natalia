@@ -111,7 +111,16 @@ export default async function FamilyPage({
 
   const content: FamilyContent = family.content || {};
   const title = content.intro_title?.trim() || family.honoring || family.display_name;
-  const relationship = (content.relationship || "").trim();
+  const relParts = (content.relationship || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const relLabel =
+    relParts.length === 0
+      ? null
+      : relParts.length === 1
+        ? relParts[0]
+        : `${relParts.slice(0, -1).join(", ")} & ${relParts[relParts.length - 1]}`;
   const story = paragraphs(content.intro_message);
   const ways = family.has_kids ? ALL_WAYS : ALL_WAYS.filter((w) => w.key !== "kids");
 
@@ -153,8 +162,8 @@ export default async function FamilyPage({
   const eyebrow =
     content.eyebrow?.trim() ||
     (family.honoring ? `For the people who love ${family.honoring}` : null);
-  // Warm, pronoun-free descriptor under the name (e.g. "A beloved brother").
-  const heroMeta = [relationship ? `A beloved ${relationship}` : null, family.town]
+  // Warm, pronoun-free descriptor under the name (e.g. "A beloved father & husband").
+  const heroMeta = [relLabel ? `A beloved ${relLabel}` : null, family.town]
     .filter(Boolean)
     .join(" · ");
 

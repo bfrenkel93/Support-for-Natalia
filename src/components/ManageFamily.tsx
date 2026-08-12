@@ -70,6 +70,11 @@ type MemoryLite = {
   photos: string[];
 };
 
+const REL_OPTIONS = [
+  "father", "mother", "husband", "wife", "partner", "son", "daughter",
+  "brother", "sister", "grandfather", "grandmother", "friend",
+];
+
 const KIND_SHORT: Record<string, string> = {
   meal: "Meal",
   visit: "Visit",
@@ -121,7 +126,16 @@ export default function ManageFamily({
 }) {
   const [displayName, setDisplayName] = useState(family.display_name);
   const [honoring, setHonoring] = useState(family.honoring || "");
-  const [relationship, setRelationship] = useState(family.relationship || "");
+  const [relationships, setRelationships] = useState<string[]>(
+    (family.relationship || "")
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean)
+  );
+  const toggleRel = (r: string) =>
+    setRelationships((cur) =>
+      cur.includes(r) ? cur.filter((x) => x !== r) : [...cur, r]
+    );
   const [eyebrow, setEyebrow] = useState(family.eyebrow || "");
   const [town, setTown] = useState(family.town || "");
   const [hasKids, setHasKids] = useState(family.has_kids);
@@ -209,7 +223,7 @@ export default function ManageFamily({
           token: family.edit_token,
           displayName,
           honoring,
-          relationship,
+          relationship: REL_OPTIONS.filter((r) => relationships.includes(r)).join(", "),
           eyebrow,
           town,
           hasKids,
@@ -298,25 +312,28 @@ export default function ManageFamily({
             <input className="field" value={honoring} onChange={(e) => setHonoring(e.target.value)} maxLength={200} placeholder="e.g. Joe" />
           </div>
           <div>
-            <label className="field-label">They were a…</label>
-            <select
-              className="field"
-              value={relationship}
-              onChange={(e) => setRelationship(e.target.value)}
-            >
-              <option value="">—</option>
-              {["father","mother","husband","wife","partner","son","daughter","brother","sister","grandfather","grandmother","friend"].map((r) => (
-                <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
-              ))}
-            </select>
-          </div>
-          <div>
             <label className="field-label">Town or city</label>
             <input className="field" value={town} onChange={(e) => setTown(e.target.value)} maxLength={200} placeholder="e.g. Newton, MA" />
           </div>
           <div>
             <label className="field-label">Page title</label>
             <input className="field" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={200} placeholder="Defaults to their name" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="field-label">They were a… <span className="text-ink-faint">(check all that fit)</span></label>
+            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink">
+              {REL_OPTIONS.map((r) => (
+                <label key={r} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={relationships.includes(r)}
+                    onChange={() => toggleRel(r)}
+                    className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40"
+                  />
+                  {r.charAt(0).toUpperCase() + r.slice(1)}
+                </label>
+              ))}
+            </div>
           </div>
           <div className="sm:col-span-2">
             <label className="field-label">Small line above the name</label>

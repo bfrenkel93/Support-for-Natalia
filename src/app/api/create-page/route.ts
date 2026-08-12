@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   const email = clean(body.email, 200);
   const familyEmail = clean(body.familyEmail, 200);
   const honoring = clean(body.honoring, 200);
-  const relationship = clean(body.relationship, 60);
+  const relationship = clean(body.relationship, 160);
   const town = clean(body.town, 200);
   const hasKids = body.hasKids === true || body.hasKids === "true";
   const isPublic = body.isPublic === true || body.isPublic === "true";

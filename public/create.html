@@ -383,6 +383,8 @@
   .rform select { font-family: "Avenir Next","Segoe UI",system-ui,sans-serif; font-size: 1rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 0.7rem 0.85rem; width: 100%; }
   .rform .rcheck { display: flex; flex-direction: row; align-items: center; gap: 0.6rem; text-transform: none; letter-spacing: 0; font-size: 1rem; font-family: "Iowan Old Style",Palatino,Georgia,serif; color: var(--ink); }
   .rform .rcheck input { width: auto; margin: 0; }
+  .rform .relgrid { display: flex; flex-wrap: wrap; gap: 0.55rem 1.4rem; }
+  .rform .relgrid .rcheck { gap: 0.5rem; }
   .rdone { max-width: 520px; margin: 1rem auto 0; text-align: center; }
   .rdone-title { font-weight: 400; font-size: 1.5rem; margin: 0 0 0.6rem; color: var(--ink); }
   .rdone-sub { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.95rem; color: var(--ink-soft); margin: 0 0 0.8rem; }
@@ -408,23 +410,21 @@
       <label>Your name<input name="name" required autocomplete="name"></label>
       <label>Your email<input name="email" type="email" required autocomplete="email"></label>
       <label>Name of the person who died<input name="honoring" required placeholder="e.g. Joe"></label>
-      <label>They were a… <span class="opt">(optional)</span>
-        <select name="relationship">
-          <option value="">—</option>
-          <option value="father">Father</option>
-          <option value="mother">Mother</option>
-          <option value="husband">Husband</option>
-          <option value="wife">Wife</option>
-          <option value="partner">Partner</option>
-          <option value="son">Son</option>
-          <option value="daughter">Daughter</option>
-          <option value="brother">Brother</option>
-          <option value="sister">Sister</option>
-          <option value="grandfather">Grandfather</option>
-          <option value="grandmother">Grandmother</option>
-          <option value="friend">Friend</option>
-        </select>
-      </label>
+      <label>They were a… <span class="opt">(optional — check all that fit)</span></label>
+      <div class="relgrid">
+        <label class="rcheck"><input type="checkbox" name="relationship" value="father"> Father</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="mother"> Mother</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="husband"> Husband</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="wife"> Wife</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="partner"> Partner</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="son"> Son</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="daughter"> Daughter</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="brother"> Brother</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="sister"> Sister</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="grandfather"> Grandfather</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="grandmother"> Grandmother</label>
+        <label class="rcheck"><input type="checkbox" name="relationship" value="friend"> Friend</label>
+      </div>
       <label>Family member’s email <span class="opt">(optional — they’ll get an email whenever someone signs up to help)</span><input name="familyEmail" type="email" autocomplete="off" placeholder="e.g. the spouse or parent this is for"></label>
       <label>Town or city <span class="opt">(optional)</span><input name="town" placeholder="e.g. Newton, MA"></label>
       <label class="rcheck"><input type="checkbox" name="hasKids"> There are children in the family</label>
@@ -472,7 +472,8 @@
     }
     var data = {
       name: name, email: email,
-      honoring: honoring, relationship: val('relationship'),
+      honoring: honoring,
+      relationship: Array.prototype.slice.call(f.querySelectorAll('input[name="relationship"]:checked')).map(function (el) { return el.value; }).join(', '),
       town: val('town'), familyEmail: val('familyEmail'),
       hasKids: !!(f.elements['hasKids'] && f.elements['hasKids'].checked),
       isPublic: val('visibility') === 'public',
