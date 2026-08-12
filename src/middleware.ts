@@ -27,6 +27,17 @@ export function middleware(req: NextRequest) {
     return res;
   }
 
+  // "Create a page" now lives on its own page, reached by clicking a button.
+  // Serve the clean /create URL from the static create.html, and let it be found.
+  if (isMarketing && (path === "/create" || path === "/create.html")) {
+    const res =
+      path === "/create"
+        ? NextResponse.rewrite(new URL("/create.html", req.url))
+        : NextResponse.next();
+    res.headers.set("X-Robots-Tag", "index, follow");
+    return res;
+  }
+
   // Everything else — Natalia's private site, the admin, app routes, and any
   // non-landing path even on the marketing domain — stays out of search.
   const res = NextResponse.next();
