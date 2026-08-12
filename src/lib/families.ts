@@ -31,8 +31,10 @@ const RESERVED_SLUGS = new Set([
 
 export type FamilyContent = {
   kicker?: string;
+  eyebrow?: string; // small line above the name in the hero
   intro_title?: string;
   intro_message?: string;
+  relationship?: string; // e.g. "brother" — used as "a beloved brother"
   hero_image_url?: string;
   memorial_title?: string;
   memorial_intro?: string;
@@ -80,6 +82,7 @@ export type CreateFamilyInput = {
   familyEmail?: string; // the grieving family member — gets sign-up notifications
   displayName: string;
   honoring?: string;
+  relationship?: string;
   town?: string;
   hasKids: boolean;
   isPublic: boolean;
@@ -194,9 +197,9 @@ export async function createFamily(
   const slug = await generateUniqueSlug(input.honoring || input.displayName);
 
   const content: FamilyContent = {
-    kicker: "For the people who love them",
     intro_title: input.displayName,
     intro_message: input.introMessage?.trim() || defaultIntro(input),
+    relationship: input.relationship?.trim() || undefined,
   };
 
   // Sign-up notifications go to the grieving family member when their email is

@@ -80,6 +80,8 @@ export default async function ManagePage({
         contact_email: family.contact_email ?? "",
         edit_token: family.edit_token,
         hero_image_url: family.content?.hero_image_url ?? null,
+        eyebrow: family.content?.eyebrow ?? "",
+        relationship: family.content?.relationship ?? "",
         intro_message: family.content?.intro_message ?? "",
         memories_public: family.content?.memories_public === true,
         memorial_title: family.content?.memorial_title ?? "",

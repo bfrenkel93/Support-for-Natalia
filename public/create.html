@@ -407,8 +407,24 @@
     <form class="rform" id="rform" novalidate>
       <label>Your name<input name="name" required autocomplete="name"></label>
       <label>Your email<input name="email" type="email" required autocomplete="email"></label>
-      <label>What should the page be called?<input name="displayName" required placeholder="e.g. For the Rossi Family"></label>
-      <label>Who are you honoring? <span class="opt">(optional)</span><input name="honoring" placeholder="The person you’ve lost"></label>
+      <label>Name of the person who died<input name="honoring" required placeholder="e.g. Joe"></label>
+      <label>They were a… <span class="opt">(optional)</span>
+        <select name="relationship">
+          <option value="">—</option>
+          <option value="father">Father</option>
+          <option value="mother">Mother</option>
+          <option value="husband">Husband</option>
+          <option value="wife">Wife</option>
+          <option value="partner">Partner</option>
+          <option value="son">Son</option>
+          <option value="daughter">Daughter</option>
+          <option value="brother">Brother</option>
+          <option value="sister">Sister</option>
+          <option value="grandfather">Grandfather</option>
+          <option value="grandmother">Grandmother</option>
+          <option value="friend">Friend</option>
+        </select>
+      </label>
       <label>Family member’s email <span class="opt">(optional — they’ll get an email whenever someone signs up to help)</span><input name="familyEmail" type="email" autocomplete="off" placeholder="e.g. the spouse or parent this is for"></label>
       <label>Town or city <span class="opt">(optional)</span><input name="town" placeholder="e.g. Newton, MA"></label>
       <label class="rcheck"><input type="checkbox" name="hasKids"> There are children in the family</label>
@@ -448,15 +464,16 @@
     e.preventDefault();
     var note = document.getElementById('rnote');
     var btn = f.querySelector('button');
-    var name = val('name'), email = val('email'), displayName = val('displayName');
-    if (!name || !email || !displayName) {
-      note.textContent = 'Please add your name, your email, and a name for the page.';
+    var name = val('name'), email = val('email'), honoring = val('honoring');
+    if (!name || !email || !honoring) {
+      note.textContent = 'Please add your name, your email, and the name of the person who died.';
       note.className = 'rnote err';
       return;
     }
     var data = {
-      name: name, email: email, displayName: displayName,
-      honoring: val('honoring'), town: val('town'), familyEmail: val('familyEmail'),
+      name: name, email: email,
+      honoring: honoring, relationship: val('relationship'),
+      town: val('town'), familyEmail: val('familyEmail'),
       hasKids: !!(f.elements['hasKids'] && f.elements['hasKids'].checked),
       isPublic: val('visibility') === 'public',
       introMessage: val('introMessage')

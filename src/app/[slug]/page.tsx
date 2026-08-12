@@ -94,7 +94,8 @@ export default async function FamilyPage({
   }));
 
   const content: FamilyContent = family.content || {};
-  const title = content.intro_title || family.display_name;
+  const title = content.intro_title?.trim() || family.honoring || family.display_name;
+  const relationship = (content.relationship || "").trim();
   const story = paragraphs(content.intro_message);
   const ways = family.has_kids ? ALL_WAYS : ALL_WAYS.filter((w) => w.key !== "kids");
 
@@ -133,9 +134,13 @@ export default async function FamilyPage({
 
   // Neutral botanical placeholder until the family adds their own photo.
   const heroPhoto = content.hero_image_url?.trim() || "/marketing-hero.jpg";
-  const eyebrow = family.honoring
-    ? `For the people who love ${family.honoring}`
-    : null;
+  const eyebrow =
+    content.eyebrow?.trim() ||
+    (family.honoring ? `For the people who love ${family.honoring}` : null);
+  // Warm, pronoun-free descriptor under the name (e.g. "A beloved brother").
+  const heroMeta = [relationship ? `A beloved ${relationship}` : null, family.town]
+    .filter(Boolean)
+    .join(" · ");
 
   // Numbered sections (subscribe is a quiet closing band, like Natalia's).
   const ordered: string[] = [];
@@ -202,12 +207,8 @@ export default async function FamilyPage({
               <h1 className="font-serif text-[2.7rem] font-light leading-[1.06] text-ink sm:text-[3.4rem]">
                 <Title text={title} />
               </h1>
-              {(family.honoring || family.town) && (
-                <p className="mt-5 text-sm text-ink-soft">
-                  {family.honoring ? `In memory of ${family.honoring}` : null}
-                  {family.honoring && family.town ? " · " : null}
-                  {family.town}
-                </p>
+              {heroMeta && (
+                <p className="mt-5 text-sm text-ink-soft">{heroMeta}</p>
               )}
               {story.length > 0 && (
                 <div className="mt-7 max-w-measure space-y-4 text-[1.05rem] leading-[1.85] text-ink-soft">

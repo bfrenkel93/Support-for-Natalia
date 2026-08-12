@@ -15,6 +15,8 @@ type FamilyLite = {
   contact_email: string;
   edit_token: string;
   hero_image_url: string | null;
+  eyebrow: string;
+  relationship: string;
   intro_message: string;
   memories_public: boolean;
   memorial_title: string;
@@ -118,6 +120,8 @@ export default function ManageFamily({
 }) {
   const [displayName, setDisplayName] = useState(family.display_name);
   const [honoring, setHonoring] = useState(family.honoring || "");
+  const [relationship, setRelationship] = useState(family.relationship || "");
+  const [eyebrow, setEyebrow] = useState(family.eyebrow || "");
   const [town, setTown] = useState(family.town || "");
   const [hasKids, setHasKids] = useState(family.has_kids);
   const [isPublic, setIsPublic] = useState(family.is_public);
@@ -203,6 +207,8 @@ export default function ManageFamily({
           token: family.edit_token,
           displayName,
           honoring,
+          relationship,
+          eyebrow,
           town,
           hasKids,
           isPublic,
@@ -285,16 +291,36 @@ export default function ManageFamily({
 
         <div className="mt-4 grid gap-6 sm:grid-cols-2">
           <div>
-            <label className="field-label">Page name</label>
-            <input className="field" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={200} />
+            <label className="field-label">Name of the person who died</label>
+            <input className="field" value={honoring} onChange={(e) => setHonoring(e.target.value)} maxLength={200} placeholder="e.g. Joe" />
           </div>
           <div>
-            <label className="field-label">Who you’re honoring</label>
-            <input className="field" value={honoring} onChange={(e) => setHonoring(e.target.value)} maxLength={200} placeholder="e.g. Joe" />
+            <label className="field-label">They were a…</label>
+            <select
+              className="field"
+              value={relationship}
+              onChange={(e) => setRelationship(e.target.value)}
+            >
+              <option value="">—</option>
+              {["father","mother","husband","wife","partner","son","daughter","brother","sister","grandfather","grandmother","friend"].map((r) => (
+                <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="field-label">Town or city</label>
             <input className="field" value={town} onChange={(e) => setTown(e.target.value)} maxLength={200} placeholder="e.g. Newton, MA" />
+          </div>
+          <div>
+            <label className="field-label">Page title</label>
+            <input className="field" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={200} placeholder="Defaults to their name" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="field-label">Small line above the name</label>
+            <input className="field" value={eyebrow} onChange={(e) => setEyebrow(e.target.value)} maxLength={120} placeholder={honoring ? `For the people who love ${honoring}` : "For the people who love them"} />
+            <p className="mt-1.5 text-xs text-ink-faint">
+              Leave blank for the default. Or make it your own — e.g. “For the kids,” “For those left behind.”
+            </p>
           </div>
         </div>
 

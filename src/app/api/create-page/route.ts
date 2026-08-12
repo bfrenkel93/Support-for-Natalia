@@ -42,16 +42,19 @@ export async function POST(req: Request) {
   const creatorName = clean(body.name, 200);
   const email = clean(body.email, 200);
   const familyEmail = clean(body.familyEmail, 200);
-  const displayName = clean(body.displayName, 200);
   const honoring = clean(body.honoring, 200);
+  const relationship = clean(body.relationship, 60);
   const town = clean(body.town, 200);
   const hasKids = body.hasKids === true || body.hasKids === "true";
   const isPublic = body.isPublic === true || body.isPublic === "true";
   const introMessage = multiline(body.introMessage, 4000);
 
+  // The page title defaults to the person's name (no separate "page name").
+  const displayName = clean(body.displayName, 200) || honoring;
+
   if (!creatorName || !email || !/.+@.+\..+/.test(email) || !displayName) {
     return NextResponse.json(
-      { ok: false, error: "Please include your name, a valid email, and a name for the page." },
+      { ok: false, error: "Please include your name, a valid email, and the name of the person who died." },
       { status: 400 }
     );
   }
@@ -62,6 +65,7 @@ export async function POST(req: Request) {
     familyEmail: familyEmail || undefined,
     displayName,
     honoring,
+    relationship,
     town,
     hasKids,
     isPublic,
@@ -79,35 +83,13 @@ export async function POST(req: Request) {
   const pageUrl = `${origin}/${family.slug}`;
   const manageUrl = `${origin}/manage?token=${family.edit_token}`;
 
-  // Best-effort emails — never block the creation on email.
+  // Best-effort email — never block the creation on email. Only the warm
+  // welcome email is sent (the old plain "new page created" notice is gone).
   const apiKey = process.env.RESEND_API_KEY;
   if (apiKey) {
     const resend = new Resend(apiKey);
     const from =
       process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
-    const owner = process.env.NOTIFY_EMAIL || "brookefrenkel@gmail.com";
-
-    try {
-      await resend.emails.send({
-        from,
-        to: owner,
-        replyTo: email,
-        subject: `New page created — ${family.display_name}`,
-        text: [
-          `A new family page was just created.`,
-          ``,
-          `Page: ${family.display_name}`,
-          `URL: ${pageUrl}`,
-          `Manage: ${manageUrl}`,
-          `Honoring: ${honoring || "(not specified)"}`,
-          `Children: ${hasKids ? "yes" : "no"}`,
-          `Visibility: ${isPublic ? "public" : "private (link only)"}`,
-          `Created by: ${creatorName} <${email}>`,
-        ].join("\n"),
-      });
-    } catch (err) {
-      console.error("create-page: owner email failed", err);
-    }
 
     try {
       const welcome = creatorWelcomeEmail({
