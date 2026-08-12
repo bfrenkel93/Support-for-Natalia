@@ -318,6 +318,18 @@ export default function ManageFamily({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payloadStr]);
 
+  // Each section is its own card with a Save button. Saving persists the whole
+  // page (auto-save already runs), so any section's Save keeps everything.
+  const cardCls =
+    "mt-8 rounded-lg border border-line/70 bg-bone/25 p-6 sm:p-7";
+  const saveRow = (
+    <div className="mt-6 border-t border-line/50 pt-5">
+      <button type="submit" disabled={saving} className="btn-ghost disabled:opacity-50">
+        {saving ? "Saving…" : "Save"}
+      </button>
+    </div>
+  );
+
   return (
     <main className="mx-auto max-w-2xl px-6 py-14">
       <div className="pointer-events-none sticky top-3 z-40 flex justify-end">
@@ -348,148 +360,140 @@ export default function ManageFamily({
         </a>
       </div>
 
-      {/* Hero photo */}
-      <section className="mt-10">
-        <p className="field-label">Hero photo</p>
-        <div className="mt-2 overflow-hidden rounded-sm border border-line bg-bone/40">
-          {heroUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={heroUrl} alt="" className="h-56 w-full object-cover sm:h-72" />
-          ) : (
-            <div className="flex h-40 items-center justify-center text-sm text-ink-faint">
-              No photo yet
-            </div>
-          )}
-        </div>
-        <label className="btn-ghost mt-3 cursor-pointer">
-          {uploading ? "Uploading…" : heroUrl ? "Change photo" : "Upload a photo"}
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
-            className="hidden"
-            onChange={onPhoto}
-            disabled={uploading}
-          />
-        </label>
-        {uploadErr && <p className="mt-2 text-sm text-bronze">{uploadErr}</p>}
-      </section>
-
-      {/* Details */}
-      <form onSubmit={onSave} className="mt-12">
-        <p className="eyebrow">Page details</p>
-
-        <div className="mt-4 grid gap-6 sm:grid-cols-2">
-          <div>
-            <label className="field-label">Name of the person who died</label>
-            <input className="field" value={honoring} onChange={(e) => setHonoring(e.target.value)} maxLength={200} placeholder="e.g. Joe" />
-          </div>
-          <div>
-            <label className="field-label">Town or city</label>
-            <input className="field" value={town} onChange={(e) => setTown(e.target.value)} maxLength={200} placeholder="e.g. Newton, MA" />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="field-label">Page title</label>
-            <input className="field" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={200} placeholder={honoring ? `e.g. For ${honoring}’s family, or Sarah & the kids` : "e.g. For his family, or Sarah & the kids"} />
-            <p className="mt-1.5 text-xs text-ink-faint">
-              The large title at the top of the page — write the names of those left
-              behind, or anything you like. The page is titled with exactly what you
-              put here. Leave blank to use their name.
-            </p>
-          </div>
-          <div className="sm:col-span-2">
-            <label className="field-label">They were a… <span className="text-ink-faint">(check all that fit)</span></label>
-            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink">
-              {REL_OPTIONS.map((r) => (
-                <label key={r} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={relationships.includes(r)}
-                    onChange={() => toggleRel(r)}
-                    className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40"
-                  />
-                  {r.charAt(0).toUpperCase() + r.slice(1)}
-                </label>
-              ))}
-            </div>
-          </div>
-          <div className="sm:col-span-2">
-            <label className="field-label">Small line above the name</label>
-            <input className="field" value={eyebrow} onChange={(e) => setEyebrow(e.target.value)} maxLength={120} placeholder={honoring ? `For the people who love ${honoring}` : "For the people who love them"} />
-            <p className="mt-1.5 text-xs text-ink-faint">
-              Leave blank for the default. Or make it your own — e.g. “For the kids,” “For those left behind.”
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <label className="field-label">Notification email</label>
-          <input
-            type="email"
-            className="field"
-            value={contactEmail}
-            onChange={(e) => setContactEmail(e.target.value)}
-            maxLength={200}
-            placeholder="name@email.com"
-          />
-          <p className="mt-1.5 text-xs text-ink-faint">
-            Every meal sign-up, RSVP, and shared memory is sent here — use the
-            grieving family member’s address so it reaches them. You can add more
-            than one, separated by commas.
+      <form onSubmit={onSave}>
+        {/* ── The page intro ── */}
+        <section className={cardCls}>
+          <p className="eyebrow">The page intro</p>
+          <p className="mt-1 text-sm text-ink-faint">
+            The photo, name, and opening message at the very top of the page.
           </p>
-        </div>
-
-        <div className="mt-6">
-          <MessageAssist
-            label="Your opening message"
-            value={introMessage}
-            onChange={setIntroMessage}
-            token={family.edit_token}
-            kind="intro"
-            context={aiContext}
-            template={introTemplate}
-            notesHelp="Share a few words about who you’re honoring — a name, what they were like, anything at all. Or leave it blank and we’ll start from the basics."
-            notesPlaceholder="e.g. Joe was a dad of two who coached little league and made the best pancakes…"
-            maxLength={6000}
-            minHeightClass="min-h-[9rem]"
-          />
-        </div>
-
-        <label className="mt-5 flex items-center gap-2.5 text-sm text-ink-soft">
-          <input type="checkbox" checked={hasKids} onChange={(e) => setHasKids(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
-          There are children in the family (adds “time with the kids”)
-        </label>
-
-        <div className="mt-8">
-          <p className="field-label">Who can see this page?</p>
-          <div className="mt-2 space-y-2 text-sm text-ink">
-            <label className="flex items-center gap-2.5">
-              <input type="radio" name="vis" checked={!isPublic} onChange={() => setIsPublic(false)} className="text-bronze focus:ring-bronze/40" />
-              Private — only people with the link
-            </label>
-            <label className="flex items-center gap-2.5">
-              <input type="radio" name="vis" checked={isPublic} onChange={() => setIsPublic(true)} className="text-bronze focus:ring-bronze/40" />
-              Public — listed and findable
-            </label>
-          </div>
 
           <div className="mt-5">
-            <label className="field-label">Access code — optional</label>
-            <input
-              className="field"
-              value={accessCode}
-              onChange={(e) => setAccessCode(e.target.value)}
-              maxLength={100}
-              placeholder="e.g. a word or number only your circle knows"
-              autoComplete="off"
+            <p className="field-label">Hero photo</p>
+            <div className="mt-2 overflow-hidden rounded-sm border border-line bg-bone/40">
+              {heroUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={heroUrl} alt="" className="h-56 w-full object-cover sm:h-72" />
+              ) : (
+                <div className="flex h-40 items-center justify-center text-sm text-ink-faint">
+                  No photo yet
+                </div>
+              )}
+            </div>
+            <label className="btn-ghost mt-3 cursor-pointer">
+              {uploading ? "Uploading…" : heroUrl ? "Change photo" : "Upload a photo"}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                className="hidden"
+                onChange={onPhoto}
+                disabled={uploading}
+              />
+            </label>
+            {uploadErr && <p className="mt-2 text-sm text-bronze">{uploadErr}</p>}
+          </div>
+
+          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+            <div>
+              <label className="field-label">Name of the person who died</label>
+              <input className="field" value={honoring} onChange={(e) => setHonoring(e.target.value)} maxLength={200} placeholder="e.g. Joe" />
+            </div>
+            <div>
+              <label className="field-label">Town or city</label>
+              <input className="field" value={town} onChange={(e) => setTown(e.target.value)} maxLength={200} placeholder="e.g. Newton, MA" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="field-label">Page title</label>
+              <input className="field" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={200} placeholder={honoring ? `e.g. For ${honoring}’s family, or Sarah & the kids` : "e.g. For his family, or Sarah & the kids"} />
+              <p className="mt-1.5 text-xs text-ink-faint">
+                The large title at the top of the page — the names of those left
+                behind, or anything you like. Leave blank to use their name.
+              </p>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="field-label">They were a… <span className="text-ink-faint">(check all that fit)</span></label>
+              <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink">
+                {REL_OPTIONS.map((r) => (
+                  <label key={r} className="flex items-center gap-2">
+                    <input type="checkbox" checked={relationships.includes(r)} onChange={() => toggleRel(r)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="field-label">Small line above the name</label>
+              <input className="field" value={eyebrow} onChange={(e) => setEyebrow(e.target.value)} maxLength={120} placeholder={honoring ? `For the people who love ${honoring}` : "For the people who love them"} />
+              <p className="mt-1.5 text-xs text-ink-faint">
+                Leave blank for the default — or make it your own, e.g. “For the kids.”
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <MessageAssist
+              label="Your opening message"
+              value={introMessage}
+              onChange={setIntroMessage}
+              token={family.edit_token}
+              kind="intro"
+              context={aiContext}
+              template={introTemplate}
+              notesHelp="Share a few words about who you’re honoring — a name, what they were like, anything at all. Or leave it blank and we’ll start from the basics."
+              notesPlaceholder="e.g. Joe was a dad of two who coached little league and made the best pancakes…"
+              maxLength={6000}
+              minHeightClass="min-h-[9rem]"
             />
+          </div>
+
+          <label className="mt-5 flex items-center gap-2.5 text-sm text-ink-soft">
+            <input type="checkbox" checked={hasKids} onChange={(e) => setHasKids(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+            There are children in the family (adds “time with the kids”)
+          </label>
+
+          {saveRow}
+        </section>
+
+        {/* ── Notifications & privacy ── */}
+        <section className={cardCls}>
+          <p className="eyebrow">Notifications &amp; privacy</p>
+
+          <div className="mt-4">
+            <label className="field-label">Notification email</label>
+            <input type="email" className="field" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} maxLength={200} placeholder="name@email.com" />
             <p className="mt-1.5 text-xs text-ink-faint">
-              Set a code and visitors must enter it to see the page — a simple lock
-              for the link. Leave blank for no code.
+              Every meal sign-up, RSVP, and shared memory is sent here — use the
+              grieving family member’s address. You can add more than one, separated
+              by commas.
             </p>
           </div>
-        </div>
 
-        <div className="mt-10 border-t border-line/60 pt-8">
+          <div className="mt-6">
+            <p className="field-label">Who can see this page?</p>
+            <div className="mt-2 space-y-2 text-sm text-ink">
+              <label className="flex items-center gap-2.5">
+                <input type="radio" name="vis" checked={!isPublic} onChange={() => setIsPublic(false)} className="text-bronze focus:ring-bronze/40" />
+                Private — only people with the link
+              </label>
+              <label className="flex items-center gap-2.5">
+                <input type="radio" name="vis" checked={isPublic} onChange={() => setIsPublic(true)} className="text-bronze focus:ring-bronze/40" />
+                Public — listed and findable
+              </label>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <label className="field-label">Access code — optional</label>
+            <input className="field" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} maxLength={100} placeholder="e.g. a word or number only your circle knows" autoComplete="off" />
+            <p className="mt-1.5 text-xs text-ink-faint">
+              Set a code and visitors must enter it to see the page. Leave blank for none.
+            </p>
+          </div>
+
+          {saveRow}
+        </section>
+
+        <section className={cardCls}>
           <p className="eyebrow">Sections on your page</p>
           <p className="mt-1 text-sm text-ink-faint">
             Show only what your family needs — uncheck anything to hide it.
@@ -520,9 +524,10 @@ export default function ManageFamily({
               Come cheer them on (events)
             </label>
           </div>
-        </div>
+          {saveRow}
+        </section>
 
-        <div className="mt-10 border-t border-line/60 pt-8">
+        <section className={cardCls}>
           <p className="eyebrow">When a memory is shared</p>
           <p className="mt-1 text-sm text-ink-faint">
             Choose what happens when someone shares a story or photo.
@@ -543,9 +548,10 @@ export default function ManageFamily({
               </span>
             </label>
           </div>
-        </div>
+          {saveRow}
+        </section>
 
-        <div className="mt-10 border-t border-line/60 pt-8">
+        <section className={cardCls}>
           <p className="eyebrow">Memorial gathering — optional</p>
           <p className="mt-1 text-sm text-ink-faint">
             Fill this in to show a memorial section with RSVPs on your page.
@@ -590,9 +596,10 @@ export default function ManageFamily({
               {gatheringRegrets > 0 ? `, ${gatheringRegrets} can’t make it` : ""}).
             </p>
           )}
-        </div>
+          {saveRow}
+        </section>
 
-        <div className="mt-10 border-t border-line/60 pt-8">
+        <section className={cardCls}>
           <p className="eyebrow">Give a gift — optional</p>
           <p className="mt-1 text-sm text-ink-faint">
             An intro and where people can send money. Add the gift ideas
@@ -627,9 +634,10 @@ export default function ManageFamily({
               <input className="field" value={payZelle} onChange={(e) => setPayZelle(e.target.value)} maxLength={120} />
             </div>
           </div>
-        </div>
+          {saveRow}
+        </section>
 
-        <div className="mt-10 border-t border-line/60 pt-8">
+        <section className={cardCls}>
           <p className="eyebrow">Support &amp; meals — optional</p>
           <p className="mt-1 text-sm text-ink-faint">
             Adds a “Support for …” section with a map of where to bring meals and
@@ -655,17 +663,8 @@ export default function ManageFamily({
               </div>
             </div>
           )}
-        </div>
-
-        <div className="mt-8 flex flex-wrap items-center gap-4">
-          <button type="submit" disabled={saving} className="btn disabled:opacity-50">
-            {saving ? "Saving…" : "Save now"}
-          </button>
-          <span className="text-sm text-ink-faint">
-            Your changes save automatically as you go.
-          </span>
-          {saveErr && <span className="text-sm text-bronze">{saveErr}</span>}
-        </div>
+          {saveRow}
+        </section>
       </form>
 
       <GiftManager token={family.edit_token} initialGifts={gifts} />
