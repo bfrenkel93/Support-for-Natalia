@@ -54,16 +54,20 @@ export function creatorWelcomeEmail(input: WelcomeEmailInput): {
   const displayUrl = pageUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "");
 
   const eyebrow = (t: string) =>
-    `<p style="margin:0; font-family:${SANS}; font-size:11px; line-height:1.4; letter-spacing:0.18em; text-transform:uppercase; color:${BRONZE};">${t}</p>`;
+    `<p style="margin:0; font-family:${SANS}; font-size:10px; line-height:1.4; letter-spacing:0.18em; text-transform:uppercase; color:${BRONZE};">${t}</p>`;
 
   const actionH = (t: string) =>
-    `<h2 class="h2" style="margin:8px 0 0; font-family:${SERIF}; font-size:30px; line-height:1.12; font-weight:normal; color:${INK};">${t}</h2>`;
+    `<h2 class="h2" style="margin:12px 0 0; font-family:${SERIF}; font-size:27px; line-height:1.1; font-weight:normal; color:${INK};">${t}</h2>`;
 
-  const lede = (t: string) =>
-    `<p style="margin:11px 0 0; font-family:${SANS}; font-size:15px; line-height:1.55; color:${INK_SOFT};">${t}</p>`;
+  const desc = (t: string) =>
+    `<p style="margin:12px 0 0; font-family:${SANS}; font-size:14px; line-height:1.55; color:${INK_SOFT};">${t}</p>`;
 
-  // A quiet ring emblem standing in for the logo mark (email-client safe).
-  const ornament = `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="46" height="46" align="center" valign="middle" style="width:46px; height:46px; border:1px solid #CBBEA2; border-radius:50%;"><span style="display:inline-block; width:6px; height:6px; background:${BRONZE}; border-radius:50%; line-height:6px; font-size:0;">&nbsp;</span></td></tr></table>`;
+  const rule = `<div style="border-top:1px solid ${LINE}; line-height:1px; font-size:1px; margin:32px 0;">&nbsp;</div>`;
+
+  const button = (href: string, label: string, outlined: boolean) =>
+    outlined
+      ? `<a href="${esc(href)}" style="display:inline-block; background:${BG_CARD}; color:${BRONZE}; border:1px solid ${BRONZE}; font-family:${SANS}; font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; text-decoration:none; padding:13px 25px; border-radius:2px;">${label}</a>`
+      : `<a href="${esc(href)}" style="display:inline-block; background:${INK}; color:${BG_CARD}; font-family:${SANS}; font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; text-decoration:none; padding:13px 25px; border-radius:2px;">${label}</a>`;
 
   const html = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -75,11 +79,11 @@ export function creatorWelcomeEmail(input: WelcomeEmailInput): {
 <style>
   body { margin:0; padding:0; background:${BG_OUTER}; }
   a { color:${BRONZE}; }
-  @media only screen and (max-width:620px) {
+  @media only screen and (max-width:600px) {
     .container { width:100% !important; }
-    .pad { padding:32px 24px !important; }
-    .h1 { font-size:34px !important; }
-    .h2 { font-size:26px !important; }
+    .pad { padding:30px 24px !important; }
+    .h1 { font-size:30px !important; }
+    .h2 { font-size:24px !important; }
   }
 </style>
 </head>
@@ -87,56 +91,54 @@ export function creatorWelcomeEmail(input: WelcomeEmailInput): {
   <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:${BG_OUTER}; font-size:1px; line-height:1px;">Your page is ready. Share the link, and use your private link to edit it.</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BG_OUTER};">
     <tr>
-      <td align="center" style="padding:36px 16px;">
-        <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; background:${BG_CARD};">
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px; max-width:560px; background:${BG_CARD};">
           <tr>
-            <td class="pad" style="padding:48px;">
+            <td class="pad" style="padding:44px;">
 
               <!-- Masthead (quiet) -->
               <p style="margin:0; font-family:${SANS}; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:${INK_FAINT};">Family Grief Support</p>
 
               <!-- Welcome -->
-              <div style="margin-top:30px;">${eyebrow("Welcome to Family Grief Support")}</div>
-              <h1 class="h1" style="margin:12px 0 0; max-width:520px; font-family:${SERIF}; font-size:45px; line-height:1.05; font-weight:normal; color:${INK};">${headline}</h1>
-              <p style="margin:16px 0 0; max-width:520px; font-family:${SANS}; font-size:17px; line-height:1.5; color:${INK_SOFT};">You created a place for the people who care to know how to show up.</p>
+              <div style="margin-top:48px;">${eyebrow("Welcome")}</div>
+              <h1 class="h1" style="margin:14px 0 0; font-family:${SERIF}; font-size:36px; line-height:1.07; font-weight:normal; color:${INK};">${headline}</h1>
+              <p style="margin:18px 0 0; font-family:${SANS}; font-size:15px; line-height:1.55; color:${INK_SOFT};">You created a place for the people who care to know how to show up.</p>
 
-              <!-- Ornament -->
-              <div style="margin:40px 0 4px;">${ornament}</div>
+              <div style="height:44px; line-height:44px; font-size:1px;">&nbsp;</div>
+              ${rule}
 
-              <!-- 01 · Share -->
-              ${eyebrow("01 &middot; Share")}
+              <!-- 01 / Share -->
+              ${eyebrow("01 / Share")}
               ${actionH("Invite your community.")}
-              ${lede("Send this link to friends and family so they can see what’s needed and find a way to help.")}
-              <a href="${esc(pageUrl)}" style="display:block; margin:18px 0 0; background:${URL_BOX}; border:1px solid ${LINE}; border-radius:2px; padding:13px 16px; font-family:${SANS}; font-size:15px; line-height:1.4; color:${INK}; text-decoration:none; word-break:break-all; overflow-wrap:break-word;">${esc(displayUrl)}</a>
-              <div style="margin-top:20px;"><a href="${esc(pageUrl)}" style="display:inline-block; background:${INK}; color:${BG_CARD}; font-family:${SANS}; font-size:12px; font-weight:600; letter-spacing:0.13em; text-transform:uppercase; text-decoration:none; padding:15px 30px; border-radius:2px;">View &amp; share page &rarr;</a></div>
+              ${desc("Send this link to friends and family so they can see what’s needed and find a way to help.")}
+              <p style="margin:20px 0 0; font-family:${SANS}; font-size:14px; line-height:1.5;"><a href="${esc(pageUrl)}" style="color:${BRONZE}; text-decoration:underline;">${esc(displayUrl)}</a><span style="color:${INK_FAINT};">&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span><a href="${esc(pageUrl)}" style="color:${INK_FAINT}; text-decoration:none; font-size:10px; letter-spacing:0.12em; text-transform:uppercase;">Copy link</a></p>
+              <div style="margin-top:24px;">${button(pageUrl, "View &amp; share &rarr;", false)}</div>
 
-              <!-- separation -->
-              <div style="border-top:1px solid ${LINE}; line-height:1px; font-size:1px; margin:54px 0;">&nbsp;</div>
+              ${rule}
 
-              <!-- 02 · Manage -->
-              ${eyebrow("02 &middot; Manage")}
+              <!-- 02 / Manage -->
+              ${eyebrow("02 / Manage")}
               ${actionH("Make the page theirs.")}
-              ${lede("Add their story, choose what would be helpful, manage sign-ups, and update the page whenever things change.")}
-              <div style="margin-top:20px;"><a href="${esc(manageUrl)}" style="display:inline-block; background:${BG_CARD}; color:${BRONZE}; border:1px solid ${BRONZE}; font-family:${SANS}; font-size:12px; font-weight:600; letter-spacing:0.13em; text-transform:uppercase; text-decoration:none; padding:14px 29px; border-radius:2px;">Edit support page &rarr;</a></div>
+              ${desc("Add their story, choose what would be helpful, manage sign-ups, and update the page whenever things change.")}
+              <div style="margin-top:24px;">${button(manageUrl, "Edit support page &rarr;", true)}</div>
               <p style="margin:16px 0 0; font-family:${SANS}; font-size:12px; line-height:1.55; color:${INK_FAINT};">This is your private admin link. Keep it somewhere safe and don’t share it publicly.</p>
 
-              <!-- separation -->
-              <div style="border-top:1px solid ${LINE}; line-height:1px; font-size:1px; margin:54px 0;">&nbsp;</div>
+              ${rule}
 
               <!-- Closing -->
-              <p style="margin:0; font-family:${SERIF}; font-size:18px; line-height:1.45; color:${INK};">You don’t have to finish everything today.</p>
-              <p style="margin:8px 0 0; font-family:${SANS}; font-size:15px; line-height:1.55; color:${INK_SOFT};">Start with what would help now. You can change the page anytime.</p>
-              <p style="margin:36px 0 0; font-family:${SERIF}; font-size:16px; color:${INK};">Family Grief Support</p>
-              <p style="margin:4px 0 0; font-family:${SANS}; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:${INK_FAINT};">Showing up. Together.</p>
+              <p style="margin:0; font-family:${SANS}; font-size:15px; line-height:1.5; color:${INK};">You don’t have to finish everything today.</p>
+              <p style="margin:6px 0 0; font-family:${SANS}; font-size:14px; line-height:1.55; color:${INK_SOFT};">Start with what would help now. You can change the page anytime.</p>
+              <p style="margin:32px 0 0; font-family:${SANS}; font-size:12px; letter-spacing:0.04em; color:${INK};">Family Grief Support</p>
+              <p style="margin:4px 0 0; font-family:${SANS}; font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:${INK_FAINT};">Showing up. Together.</p>
 
             </td>
           </tr>
         </table>
 
         <!-- Footer -->
-        <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
+        <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px; max-width:560px;">
           <tr>
-            <td style="padding:22px 8px 8px; font-family:${SANS}; font-size:11px; letter-spacing:0.06em; color:${INK_FAINT};" align="center">
+            <td style="padding:20px 8px 8px; font-family:${SANS}; font-size:10px; letter-spacing:0.06em; color:${INK_FAINT};" align="center">
               familygriefsupport.org
             </td>
           </tr>
