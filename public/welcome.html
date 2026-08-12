@@ -350,9 +350,18 @@
   .nos li::before { content: "—"; color: var(--bronze); }
 
   /* final */
-  .final { text-align: center; }
-  .final h2 { font-weight: 400; font-size: clamp(1.7rem, 4.6vw, 2.4rem); line-height: 1.25; margin: 0; text-wrap: balance; }
-  .final .big { font-size: clamp(1.9rem, 5vw, 2.6rem); line-height: 1.25; margin: 1.2rem auto 0; max-width: 22ch; text-wrap: balance; }
+  .final { text-align: center; padding: clamp(4.5rem, 11vw, 7.5rem) 0; }
+  .final-inner { max-width: 940px; margin: 0 auto; padding: 0 1.5rem; }
+  .final h2 {
+    font-weight: 400; font-size: clamp(1.875rem, 3.2vw, 2.125rem); line-height: 1.25;
+    color: var(--ink-soft); margin: 0 auto; max-width: 30ch; text-wrap: balance;
+  }
+  .final .big {
+    font-weight: 400; font-size: clamp(2.2rem, 4.4vw, 3.05rem); line-height: 1.1;
+    color: var(--ink); margin: clamp(1.75rem, 3vw, 2rem) auto 0; max-width: 780px; text-wrap: balance;
+  }
+  .final .cta-row { margin-top: clamp(2.5rem, 4vw, 3rem); }
+  .final .btn { padding: 0.95rem 2rem; font-size: 0.72rem; letter-spacing: 0.14em; }
 
   footer {
     text-align: center; padding: 3.5rem 0; border-top: 1px solid var(--line-soft); background: var(--ivory);
@@ -537,10 +546,10 @@
 
 <!-- FINAL -->
 <section class="final">
-  <div class="wrap">
+  <div class="final-inner">
     <h2>We can’t take away someone’s grief.</h2>
-    <p class="big"><strong style="font-weight:500;">But we can make sure they don’t have to carry everything else alone.</strong></p>
-    <div class="cta-row" style="margin-top:2.6rem;">
+    <p class="big">But we can make sure they don’t have to carry everything else alone.</p>
+    <div class="cta-row">
       <a class="btn" href="/create">Create a page</a>
     </div>
   </div>
