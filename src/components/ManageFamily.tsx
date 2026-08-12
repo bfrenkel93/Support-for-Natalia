@@ -207,8 +207,15 @@ export default function ManageFamily({
 
   const pageUrl = `/${family.slug}`;
 
-  // Shared context handed to the AI drafting helper.
-  const aiContext: AiContext = { displayName, honoring, town, hasKids };
+  // Shared context handed to the AI drafting helper — the family's own details,
+  // so every draft is specific to them, not a template.
+  const aiContext: AiContext = {
+    displayName,
+    honoring,
+    relationship: REL_OPTIONS.filter((r) => relationships.includes(r)).join(", "),
+    town,
+    hasKids,
+  };
   const who = honoring.trim();
   const introTemplate = mkIntro(who);
   const memorialTemplate = mkMemorial(who);

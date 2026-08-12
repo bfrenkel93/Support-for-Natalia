@@ -43,6 +43,8 @@ export async function POST(req: Request) {
   const notes = clean(body.notes, 600);
   const honoring = clean(body.honoring, 200) || family.honoring || "";
   const displayName = clean(body.displayName, 200) || family.display_name;
+  const relationship =
+    clean(body.relationship, 160) || family.content?.relationship || "";
   const town = clean(body.town, 200) || family.town || "";
   const hasKids =
     body.hasKids === true || body.hasKids === "true" || family.has_kids;
@@ -50,14 +52,26 @@ export async function POST(req: Request) {
     ? (String(body.kind) as "intro" | "memorial" | "gift")
     : "intro";
 
+  // Turn "father, husband" into "a father and husband".
+  const relPhrase = relationship
+    ? "a " +
+      relationship
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .join(", ")
+        .replace(/,([^,]*)$/, " and$1")
+    : "";
+
   const facts = [
-    honoring ? `They are honoring / remembering: ${honoring}` : null,
+    honoring ? `The person who died: ${honoring}` : null,
+    relPhrase ? `They were ${relPhrase}.` : null,
     `The page is titled: ${displayName}`,
-    town ? `They are in: ${town}` : null,
+    town ? `The family is in: ${town}` : null,
     hasKids
       ? "There are children in the family."
       : "There are no children mentioned.",
-    notes ? `A few words the family shared: ${notes}` : null,
+    notes ? `A few words shared about them: ${notes}` : null,
   ]
     .filter(Boolean)
     .join("\n");
@@ -76,6 +90,8 @@ Use what you know:
 ${facts}
 
 Guidelines:
+- Write specifically for THIS person and family, using the details above — their name and who they were (${relPhrase || "the person"}). This should read as written for them, never a generic, one-size-fits-all message.
+- Use their name naturally where it fits. If a relationship is given, let it shape the tone (a page for a father of young kids reads differently from one for a grandmother or a friend).
 - Warm, calm, human. Never saccharine, never clichéd ("thoughts and prayers", "in a better place", "everything happens for a reason" are all off-limits).
 - Speak to the reader — the friends and community who love this family and want to help.
 - Plain language. Short paragraphs.

@@ -5,6 +5,7 @@ import { useState } from "react";
 export type AiContext = {
   displayName: string;
   honoring: string;
+  relationship: string;
   town: string;
   hasKids: boolean;
 };
