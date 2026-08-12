@@ -40,6 +40,7 @@ const RESERVED_SLUGS = new Set([
   "resources",
   "about",
   "joe",
+  "keepsake",
   "_next",
   "favicon",
   "favicon.ico",

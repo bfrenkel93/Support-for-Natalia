@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { unstable_noStore as noStore } from "next/cache";
 import type { Metadata } from "next";
 import {
@@ -35,6 +35,11 @@ export async function generateMetadata({
   const family = await getFamilyBySlug(params.slug);
   if (!family) return { title: "Not found" };
 
+  // Build links against the domain the request actually came in on, so the
+  // social-share image resolves to an absolute URL on the right host.
+  const host = headers().get("host") || "familygriefsupport.org";
+  const metadataBase = new URL(`https://${host}`);
+
   // The seeded sample/demo page is a public showcase of the product — give it
   // rich, descriptive metadata so it's a useful search & social result.
   if (family.content?.is_demo) {
@@ -42,6 +47,7 @@ export async function generateMetadata({
     const description =
       "See what a Family Grief Support page looks like: a private place where a community coordinates meals, time with the kids, practical help, and shared memories for a grieving family.";
     return {
+      metadataBase,
       title,
       description,
       alternates: { canonical: "https://familygriefsupport.org/sample" },
@@ -57,11 +63,24 @@ export async function generateMetadata({
     };
   }
 
+  const who = family.honoring?.trim() || family.display_name;
+  const title = family.display_name;
+  const description = `A private place for the people who love ${who} to help — with meals, time with the kids, practical support, and shared memories, for as long as it takes.`;
+
   return {
-    title: family.display_name,
+    metadataBase,
+    title,
+    description,
     robots: family.is_public
       ? undefined
       : { index: false, follow: false, nocache: true },
+    openGraph: {
+      type: "website",
+      siteName: "Family Grief Support",
+      title,
+      description,
+    },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

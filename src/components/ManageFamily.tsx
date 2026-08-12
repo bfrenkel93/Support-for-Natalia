@@ -698,10 +698,24 @@ export default function ManageFamily({
 
       {/* Memories & stories (private to the family) */}
       <section className="mt-14 border-t border-line/60 pt-10">
-        <p className="eyebrow">Memories &amp; stories</p>
-        <p className="mt-1 text-sm text-ink-faint">
-          Private — shared just for your family.
-        </p>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="eyebrow">Memories &amp; stories</p>
+            <p className="mt-1 text-sm text-ink-faint">
+              Private — shared just for your family.
+            </p>
+          </div>
+          {memories.length > 0 && (
+            <a
+              href={`/keepsake?token=${family.edit_token}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-bronze underline underline-offset-2 hover:text-ink"
+            >
+              Download a keepsake →
+            </a>
+          )}
+        </div>
         {memories.length === 0 ? (
           <p className="mt-3 text-sm text-ink-faint">Nothing shared yet.</p>
         ) : (
