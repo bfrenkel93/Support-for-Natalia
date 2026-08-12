@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getFamilyBySlug, type FamilyContent } from "@/lib/families";
+import { getFamilyBookings } from "@/lib/bookings";
+import FamilyToolkit from "@/components/FamilyToolkit";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +36,14 @@ export default async function FamilyPage({
   const family = await getFamilyBySlug(params.slug);
   if (!family) notFound();
 
+  const bookings = await getFamilyBookings(family.id);
+  const bookingsLite = bookings.map((b) => ({
+    event_date: b.event_date,
+    kind: b.kind,
+    name: b.name,
+    private: b.private,
+  }));
+
   const content: FamilyContent = family.content || {};
   const kicker = content.kicker || "For the people who love them";
   const title = content.intro_title || family.display_name;
@@ -57,19 +67,11 @@ export default async function FamilyPage({
           </section>
         ) : null}
 
-        <section className="fp-soon">
-          <p className="fp-eyebrow">Coming to this page</p>
-          <ul className="fp-ways">
-            <li>Bring a meal</li>
-            <li>Spend time together</li>
-            <li>Help with what matters</li>
-            <li>Share a memory</li>
-          </ul>
-          <p className="fp-note">
-            The people who love this family will be able to sign up to show up —
-            with meals, visits, everyday help, and memories worth keeping.
-          </p>
-        </section>
+        <FamilyToolkit
+          slug={family.slug}
+          hasKids={family.has_kids}
+          bookings={bookingsLite}
+        />
 
         <footer className="fp-footer">
           <span>familygriefsupport.org</span>
@@ -128,4 +130,22 @@ const css = `
     text-align: center; font-family: "Avenir Next",system-ui,sans-serif;
     font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint);
   }
+  .ft { max-width: 600px; margin: clamp(2.5rem,6vh,3.5rem) auto 0; padding: 2.2rem 1.5rem 0; border-top: 1px solid var(--line); }
+  .ft-list { list-style: none; margin: 1.4rem 0 2rem; padding: 0; display: grid; gap: 0; }
+  .ft-list li { display: grid; grid-template-columns: 5.5rem 1fr auto; gap: 0.8rem; align-items: baseline; font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.9rem; padding: 0.6rem 0; border-bottom: 1px solid var(--line); }
+  .ft-date { color: var(--bronze); font-weight: 600; }
+  .ft-kind { color: var(--soft); }
+  .ft-name { color: var(--ink); text-align: right; }
+  .ft-form { display: grid; gap: 0.9rem; margin-top: 0.5rem; }
+  .ft-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+  @media (max-width: 460px) { .ft-row { grid-template-columns: 1fr; } }
+  .ft-form label { display: grid; gap: 0.35rem; font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--soft); }
+  .ft-opt { text-transform: none; letter-spacing: 0; color: var(--faint); }
+  .ft-form input, .ft-form select { font-family: "Iowan Old Style",Palatino,Georgia,serif; font-size: 1rem; color: var(--ink); background: #FBF9F3; border: 1px solid var(--line); border-radius: 2px; padding: 0.6rem 0.7rem; width: 100%; }
+  .ft-check { display: flex !important; flex-direction: row !important; align-items: center; gap: 0.5rem; text-transform: none !important; letter-spacing: 0 !important; font-size: 0.9rem !important; color: var(--soft) !important; }
+  .ft-check input { width: auto; }
+  .ft-btn { justify-self: start; font-family: "Avenir Next",system-ui,sans-serif; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.8rem; font-weight: 600; color: #F5F1E8; background: #2A2620; border: 0; border-radius: 2px; padding: 0.85rem 1.8rem; cursor: pointer; }
+  .ft-btn:disabled { opacity: 0.6; }
+  .ft-done { font-family: "Iowan Old Style",Palatino,Georgia,serif; font-size: 1.15rem; line-height: 1.6; color: var(--ink); text-align: center; margin: 1rem 0; }
+  .ft-err { font-family: "Avenir Next",system-ui,sans-serif; font-size: 0.9rem; color: #B0785A; margin: 0.2rem 0 0; }
 `;
