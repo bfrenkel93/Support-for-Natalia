@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getFamilyByEditToken } from "@/lib/families";
+import { getFamilyByEditToken, defaultCreditLine } from "@/lib/families";
 import { getFamilyBookings } from "@/lib/bookings";
 import { getFamilyMemoriesWithUrls } from "@/lib/memories";
 import { getFamilySubscriberCount } from "@/lib/subscribers";
@@ -97,6 +97,9 @@ export default async function ManagePage({
         show_subscribe: family.content?.show_subscribe !== false,
         show_memories: family.content?.show_memories !== false,
         show_events: family.content?.show_events !== false,
+        credit_line: family.content?.credit_line ?? "",
+        credit_placeholder: defaultCreditLine(family.honoring),
+        show_credit: family.content?.show_credit !== false,
       }}
       bookings={bookings.map((b) => ({
         event_date: b.event_date,

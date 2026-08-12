@@ -52,7 +52,21 @@ export type FamilyContent = {
   show_events?: boolean;
   // When true, shared memories are posted publicly on the page (default: private).
   memories_public?: boolean;
+  // A quiet signature line in the footer. credit_line overrides the default.
+  credit_line?: string;
+  show_credit?: boolean;
 };
+
+/**
+ * The quiet "built by a friend" signature line for a family's footer.
+ * Personalized with the person being honored when we know who that is.
+ */
+export function defaultCreditLine(honoring?: string | null): string {
+  const who = (honoring || "").trim();
+  return who
+    ? `Built by a friend, for a friend. In honor of ${who}.`
+    : `Built by a friend, for a friend.`;
+}
 
 export type Family = {
   id: string;

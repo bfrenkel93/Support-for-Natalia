@@ -64,6 +64,8 @@ export async function POST(req: Request) {
     show_memories: body.showMemories !== false,
     show_events: body.showEvents !== false,
     memories_public: body.memoriesPublic === true,
+    credit_line: clean(body.creditLine, 200),
+    show_credit: body.showCredit !== false,
   };
 
   const supabase = getSupabase();

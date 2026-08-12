@@ -32,6 +32,9 @@ type FamilyLite = {
   show_subscribe: boolean;
   show_memories: boolean;
   show_events: boolean;
+  credit_line: string;
+  credit_placeholder: string;
+  show_credit: boolean;
 };
 
 type GiftRow = {
@@ -104,6 +107,8 @@ export default function ManageFamily({
   const [contactEmail, setContactEmail] = useState(family.contact_email || "");
   const [introMessage, setIntroMessage] = useState(family.intro_message);
   const [memoriesPublic, setMemoriesPublic] = useState(family.memories_public);
+  const [creditLine, setCreditLine] = useState(family.credit_line);
+  const [showCredit, setShowCredit] = useState(family.show_credit);
 
   const [memTitle, setMemTitle] = useState(family.memorial_title);
   const [memIntro, setMemIntro] = useState(family.memorial_intro);
@@ -187,6 +192,8 @@ export default function ManageFamily({
           contactEmail,
           introMessage,
           memoriesPublic,
+          creditLine,
+          showCredit,
           memorialTitle: memTitle,
           memorialIntro: memIntro,
           memorialWhen: memWhen,
@@ -460,6 +467,32 @@ export default function ManageFamily({
               <input className="field" value={payZelle} onChange={(e) => setPayZelle(e.target.value)} maxLength={120} />
             </div>
           </div>
+        </div>
+
+        <div className="mt-10 border-t border-line/60 pt-8">
+          <p className="eyebrow">Signature line</p>
+          <p className="mt-1 text-sm text-ink-faint">
+            A quiet line in the footer of your page.
+          </p>
+          <label className="mt-3 flex items-center gap-2.5 text-sm text-ink">
+            <input type="checkbox" checked={showCredit} onChange={(e) => setShowCredit(e.target.checked)} className="h-4 w-4 rounded-none border-line-strong text-bronze focus:ring-bronze/40" />
+            Show a signature line
+          </label>
+          {showCredit && (
+            <div className="mt-4">
+              <input
+                className="field"
+                value={creditLine}
+                onChange={(e) => setCreditLine(e.target.value)}
+                maxLength={200}
+                placeholder={family.credit_placeholder}
+              />
+              <p className="mt-1.5 text-xs text-ink-faint">
+                Leave blank to use “{family.credit_placeholder}”. You can also sign
+                your own name — e.g. “Built by Sarah, in honor of {family.honoring || "them"}.”
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="mt-8 flex items-center gap-5">
