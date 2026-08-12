@@ -224,13 +224,17 @@ export default async function FamilyPage({
   return (
     <>
       {content.is_demo && (
-        <div className="bg-charcoal px-6 py-2.5 text-center text-parchment">
-          <span className="text-xs sm:text-sm text-parchment/85">
-            You’re viewing a sample page.{" "}
-          </span>
-          <a href="/create" className="text-xs font-medium underline underline-offset-2 sm:text-sm">
-            Create one for your family →
-          </a>
+        <div className="bg-charcoal px-4 py-2.5 text-parchment">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs sm:text-sm">
+            <a href="/" className="font-medium text-parchment/90 underline underline-offset-2 hover:text-parchment">
+              ← Back to home
+            </a>
+            <span className="text-parchment/40" aria-hidden="true">·</span>
+            <span className="text-parchment/85">You’re viewing a sample page.</span>
+            <a href="/create" className="font-medium underline underline-offset-2">
+              Create one for your family →
+            </a>
+          </div>
         </div>
       )}
 
