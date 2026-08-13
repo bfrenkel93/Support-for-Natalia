@@ -153,6 +153,31 @@ export async function getFamilyById(id: string): Promise<Family | null> {
   return data as Family;
 }
 
+/**
+ * Find every family whose contact email includes the given address — used by
+ * the "lost your manage link" recovery flow. A contact field can hold more
+ * than one address, so this matches the address anywhere within it. Returns an
+ * empty list when nothing matches (the caller must not reveal which it was).
+ */
+export async function getFamiliesByContactEmail(
+  email: string
+): Promise<Family[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  const clean = email.trim().toLowerCase();
+  if (!clean) return [];
+  const { data, error } = await sb
+    .from("families")
+    .select("*")
+    .ilike("contact_email", `%${clean}%`);
+  if (error || !data) return [];
+  // Belt-and-suspenders: confirm the address really is one of the recipients,
+  // not just a loose substring match.
+  return (data as Family[]).filter((f) =>
+    parseRecipients(f.contact_email).includes(clean)
+  );
+}
+
 /** Look up a family by its secret edit token (the private "manage" link). */
 export async function getFamilyByEditToken(token: string): Promise<Family | null> {
   const sb = getSupabase();

@@ -8,6 +8,7 @@ import { getFamilyGifts } from "@/lib/gifts";
 import { getFamilyEvents } from "@/lib/events";
 import { getFamilyRequests } from "@/lib/requests";
 import ManageFamily from "@/components/ManageFamily";
+import RecoverLink from "@/components/RecoverLink";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,7 @@ export default async function ManagePage({
           The link may be incomplete or out of date. Please open the private
           “manage your page” link from your email, in full.
         </p>
+        <RecoverLink />
       </main>
     );
   }
