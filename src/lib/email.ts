@@ -139,7 +139,11 @@ export async function sendBookingNotification(args: {
   let lead: string;
   let heading: string;
 
-  if (requested) {
+  if (requested && kind === "visit") {
+    heading = "A visit to approve 💛";
+    subject = `Visit request: ${name} — ${dateLabel}`;
+    lead = `${name} would like to come by on ${dateLabel}${noteStr}. Confirm it, or suggest another day, in your dashboard.`;
+  } else if (requested) {
     heading = "A weekend request 💛";
     subject = `Weekend request: ${name} — ${dateLabel}`;
     lead = `${name} would love to spend the weekend of ${dateLabel} with the kids. Confirm it, or suggest another weekend, in your dashboard.`;
@@ -198,19 +202,31 @@ export async function sendRequestDecision(args: {
   confirmed: boolean;
   dateLabel: string;
   note?: string | null;
+  kind?: string; // "visit" | "kids" — tailors the wording
 }): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
   if (!apiKey || !args.to) return;
 
-  const { to, confirmed, dateLabel, note } = args;
+  const { to, confirmed, dateLabel, note, kind } = args;
+  const noteLine = note ? `\n\nA note from Natalia: ${note}` : "";
+  const isVisit = kind === "visit";
+
   const subject = confirmed
-    ? `Your weekend with the kids is confirmed — ${dateLabel}`
-    : `About the weekend of ${dateLabel}`;
+    ? isVisit
+      ? `Your visit is confirmed — ${dateLabel}`
+      : `Your weekend with the kids is confirmed — ${dateLabel}`
+    : isVisit
+      ? `About your visit on ${dateLabel}`
+      : `About the weekend of ${dateLabel}`;
   const body = confirmed
-    ? `Wonderful — you're confirmed to spend the weekend of ${dateLabel} with the kids. Thank you for showing up for them.${note ? `\n\nA note from Natalia: ${note}` : ""}`
-    : `Thank you so much for offering to spend the weekend of ${dateLabel} with the kids. That particular weekend doesn't work, but please pick another — it would mean the world.${note ? `\n\nA note from Natalia: ${note}` : ""}`;
+    ? isVisit
+      ? `Wonderful — you're confirmed to come by on ${dateLabel}. Thank you for showing up.${noteLine}`
+      : `Wonderful — you're confirmed to spend the weekend of ${dateLabel} with the kids. Thank you for showing up for them.${noteLine}`
+    : isVisit
+      ? `Thank you so much for offering to visit on ${dateLabel}. That day doesn't work just now, but please pick another — it would mean a lot.${noteLine}`
+      : `Thank you so much for offering to spend the weekend of ${dateLabel} with the kids. That particular weekend doesn't work, but please pick another — it would mean the world.${noteLine}`;
 
   const html = `<div style="font-family: Georgia, serif; color:#3E3A33; line-height:1.6;"><p>${escapeHtml(
     body

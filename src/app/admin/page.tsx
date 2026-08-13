@@ -162,10 +162,10 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      {/* Weekend requests awaiting confirmation */}
+      {/* Visit & weekend requests awaiting confirmation */}
       <section className="mt-12">
         <h2 className={H2}>
-          Weekend requests
+          Requests to approve
           {pending.length > 0 && (
             <span className="ml-3 align-middle text-sm text-bronze">
               {pending.length} awaiting you
@@ -173,8 +173,9 @@ export default async function AdminPage() {
           )}
         </h2>
         <p className="mt-1 text-sm text-ink-soft">
-          Friends requesting a weekend with the kids. Confirm, or decline with a
-          note suggesting another weekend (they&apos;ll get an email).
+          Friends asking to visit or to spend a weekend with the kids. Confirm,
+          or decline with a note suggesting another time (they&apos;ll get an
+          email either way).
         </p>
         <div className={CARD}>
           {pending.length === 0 ? (
@@ -188,7 +189,7 @@ export default async function AdminPage() {
                   <p className="font-medium text-ink">
                     {b.name}
                     <span className="ml-2 text-sm font-normal text-ink-soft">
-                      {fmt(b.event_date)}
+                      {KIND_LABEL[b.kind]} · {fmt(b.event_date)}
                     </span>
                   </p>
                   {b.email && <p className="text-sm text-ink-soft">{b.email}</p>}

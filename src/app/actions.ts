@@ -92,8 +92,9 @@ export async function addBooking(
     };
   }
 
-  // Kids weekends are a request that Natalia confirms; everything else is instant.
-  const requested = kind === "kids";
+  // Visits and kids weekends are a request that Natalia approves; meals and
+  // errands are instant (no reason to gate a dropped-off meal).
+  const requested = kind === "kids" || kind === "visit";
   const status = requested ? "requested" : "confirmed";
 
   const { error } = await supabase.from("bookings").insert({
@@ -160,7 +161,9 @@ export async function addBooking(
     return {
       ok: true,
       message:
-        "Your request has been sent to Natalia. She'll confirm this weekend or suggest another — thank you for offering to show up for the kids. 💛",
+        kind === "visit"
+          ? "Your request has been sent to Natalia. She'll confirm your visit or suggest another day — thank you for offering to show up. 💛"
+          : "Your request has been sent to Natalia. She'll confirm this weekend or suggest another — thank you for offering to show up for the kids. 💛",
     };
   }
 

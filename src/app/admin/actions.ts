@@ -160,6 +160,7 @@ export async function confirmBooking(formData: FormData): Promise<void> {
       to: b.email,
       confirmed: true,
       dateLabel: prettyDate(b.event_date),
+      kind: b.kind,
     });
   }
   revalidatePath("/");
@@ -188,6 +189,7 @@ export async function declineBooking(formData: FormData): Promise<void> {
       confirmed: false,
       dateLabel: prettyDate(b.event_date),
       note,
+      kind: b.kind,
     });
   }
   revalidatePath("/");
