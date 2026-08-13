@@ -1,6 +1,7 @@
 import { getEvent } from "@/lib/events";
 import { getSettings } from "@/lib/settings";
 import { buildIcs, getEventCalendarInfo } from "@/lib/calendar";
+import { NATALIA_FAMILY_ID } from "@/lib/families";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +15,11 @@ export async function GET(
     return new Response("Event not found.", { status: 404 });
   }
 
-  const settings = await getSettings();
-  const info = getEventCalendarInfo(event, settings.family_address || "");
+  // Only fall back to Natalia's saved home address for HER events — never leak
+  // it into another family's calendar file.
+  const isNatalia = (event as { family_id?: string }).family_id === NATALIA_FAMILY_ID;
+  const addressFallback = isNatalia ? (await getSettings()).family_address || "" : "";
+  const info = getEventCalendarInfo(event, addressFallback);
   if (!info) {
     return new Response("This event has no date to add.", { status: 400 });
   }

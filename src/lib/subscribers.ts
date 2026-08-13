@@ -13,6 +13,7 @@ export async function addSubscriber(
   const { data: existing } = await supabase
     .from("subscribers")
     .select("*")
+    .eq("family_id", NATALIA_FAMILY_ID)
     .ilike("email", email)
     .maybeSingle();
 

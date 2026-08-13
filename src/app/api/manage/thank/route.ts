@@ -17,8 +17,8 @@ function esc(s: string): string {
 
 /**
  * Send a warm one-tap thank-you from a family to a helper. Gated by the
- * family's secret edit token; only sends to an address that was already
- * given on this page.
+ * family's secret edit token, so only the page owner can trigger it. The
+ * recipient address is supplied by that owner (from their helpers list).
  */
 export async function POST(req: Request) {
   let body: Record<string, unknown> = {};

@@ -45,6 +45,7 @@ type FamilyRow = {
   display_name: string | null;
   honoring: string | null;
   contact_email: string | null;
+  content: { is_demo?: boolean } | null;
 };
 
 function esc(s: string): string {
@@ -88,18 +89,24 @@ export async function sendDueReminders(
     .neq("status", "declined")
     .is("reminder_sent_at", null);
 
-  const bookings = (bookingsData || []) as BookingRow[];
+  let bookings = (bookingsData || []) as BookingRow[];
   if (bookings.length === 0) return { volunteers: 0, families: 0, skipped: false };
 
   // Pull the families these sign-ups belong to.
   const familyIds = Array.from(new Set(bookings.map((b) => b.family_id)));
   const { data: familiesData } = await sb
     .from("families")
-    .select("id, slug, display_name, honoring, contact_email")
+    .select("id, slug, display_name, honoring, contact_email, content")
     .in("id", familyIds);
   const families = new Map(
-    ((familiesData || []) as FamilyRow[]).map((f) => [f.id, f])
+    ((familiesData || []) as FamilyRow[])
+      .filter((f) => !f.content?.is_demo)
+      .map((f) => [f.id, f])
   );
+
+  // Never remind (or stamp) the demo/sample family's bookings.
+  bookings = bookings.filter((b) => families.has(b.family_id));
+  if (bookings.length === 0) return { volunteers: 0, families: 0, skipped: false };
 
   const apiKey = process.env.RESEND_API_KEY;
   const from =

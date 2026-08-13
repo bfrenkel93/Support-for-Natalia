@@ -34,6 +34,24 @@ export const FAMILY_KIND_LABEL: Record<Booking["kind"], string> = {
   errand: "An errand / help",
 };
 
+/** All non-declined bookings for one family, past and upcoming (e.g. for
+ * thanking everyone who has helped, not just those still to come). */
+export async function getAllFamilyBookings(familyId: string): Promise<Booking[]> {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("family_id", familyId)
+    .neq("status", "declined")
+    .order("event_date", { ascending: true });
+  if (error || !data) {
+    if (error) console.error("[getAllFamilyBookings]", error);
+    return [];
+  }
+  return data as Booking[];
+}
+
 /** Upcoming (today onward), non-declined bookings for one family. */
 export async function getFamilyBookings(familyId: string): Promise<Booking[]> {
   const supabase = getSupabase();

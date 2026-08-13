@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 // carries a family_id (migration 001), so all are scoped by it.
 const CHILD_TABLES = [
   "gift_pledges", "gifts", "memory_media", "memories", "event_rsvps", "events",
-  "bookings", "subscribers", "gathering_rsvps", "activity_ideas",
+  "bookings", "subscribers", "gathering_rsvps", "activity_ideas", "requests",
 ];
 
 export async function POST(req: Request) {

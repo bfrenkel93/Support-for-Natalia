@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getFamilyByEditToken } from "@/lib/families";
-import { getFamilyBookings } from "@/lib/bookings";
+import { getFamilyBookings, getAllFamilyBookings } from "@/lib/bookings";
 import { getFamilyMemoriesWithUrls } from "@/lib/memories";
 import { getFamilySubscriberCount } from "@/lib/subscribers";
 import { getFamilyGathering } from "@/lib/gathering";
@@ -47,8 +47,10 @@ export default async function ManagePage({
   const requests = await getFamilyRequests(family.id);
 
   // Everyone who signed up and left an email — for the one-tap thank-you tool.
+  // Use ALL bookings (past + upcoming) so people who already helped are included.
+  const allBookings = await getAllFamilyBookings(family.id);
   const helperMap = new Map<string, { name: string; email: string }>();
-  for (const b of bookings) {
+  for (const b of allBookings) {
     const em = (b.email || "").trim();
     const key = em.toLowerCase();
     if (em && !helperMap.has(key)) helperMap.set(key, { name: b.name || "", email: em });
