@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { getFamilyBySlug } from "@/lib/families";
 
 // Dynamic social-share preview card for a family page. When someone shares
@@ -22,6 +24,25 @@ export default async function OgImage({
   const eyebrow =
     content.eyebrow?.trim() || "A place to show up for a grieving family";
 
+  // Bundle the brand serif (Lora) so the card matches the site's typography.
+  // If the files can't be read for any reason, fall back to the default font
+  // so the card still renders rather than erroring.
+  let fonts:
+    | { name: string; data: Buffer; style: "normal"; weight: 500 | 600 }[]
+    | undefined;
+  try {
+    const [lora500, lora600] = await Promise.all([
+      readFile(join(process.cwd(), "assets/lora-500.woff")),
+      readFile(join(process.cwd(), "assets/lora-600.woff")),
+    ]);
+    fonts = [
+      { name: "Lora", data: lora500, style: "normal", weight: 500 },
+      { name: "Lora", data: lora600, style: "normal", weight: 600 },
+    ];
+  } catch {
+    fonts = undefined;
+  }
+
   return new ImageResponse(
     (
       <div
@@ -34,13 +55,14 @@ export default async function OgImage({
           backgroundColor: "#F5F1E8",
           color: "#2E2A23",
           padding: "72px 84px",
+          fontFamily: "Lora",
         }}
       >
         <div
           style={{
             display: "flex",
-            fontSize: 24,
-            letterSpacing: 6,
+            fontSize: 23,
+            letterSpacing: 5,
             textTransform: "uppercase",
             color: "#8B6A43",
             fontWeight: 600,
@@ -51,9 +73,9 @@ export default async function OgImage({
         <div
           style={{
             display: "flex",
-            fontSize: 84,
+            fontSize: 86,
             lineHeight: 1.05,
-            fontWeight: 500,
+            fontWeight: 600,
             maxWidth: 980,
           }}
         >
@@ -65,6 +87,7 @@ export default async function OgImage({
             justifyContent: "space-between",
             alignItems: "center",
             fontSize: 26,
+            fontWeight: 500,
             color: "#675f52",
           }}
         >
@@ -75,6 +98,9 @@ export default async function OgImage({
         </div>
       </div>
     ),
-    { ...size }
+    {
+      ...size,
+      ...(fonts ? { fonts } : {}),
+    }
   );
 }

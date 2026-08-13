@@ -5,6 +5,7 @@ import GiftManager from "./GiftManager";
 import EventManager from "./EventManager";
 import RequestManager, { type RequestRow } from "./RequestManager";
 import MessageAssist, { type AiContext } from "./MessageAssist";
+import ThankHelpers from "./ThankHelpers";
 
 type FamilyLite = {
   slug: string;
@@ -117,6 +118,7 @@ export default function ManageFamily({
   gifts,
   events,
   requests,
+  helpers,
 }: {
   family: FamilyLite;
   bookings: BookingLite[];
@@ -128,6 +130,7 @@ export default function ManageFamily({
   gifts: GiftRow[];
   events: EventRow[];
   requests: RequestRow[];
+  helpers: { name: string; email: string }[];
 }) {
   const [displayName, setDisplayName] = useState(family.display_name);
   const [honoring, setHonoring] = useState(family.honoring || "");
@@ -750,6 +753,9 @@ export default function ManageFamily({
           </ul>
         )}
       </section>
+
+      {/* Thank your helpers */}
+      <ThankHelpers helpers={helpers} token={family.edit_token} />
 
       {/* Danger zone */}
       <section className="mt-14 border-t border-line/60 pt-10">

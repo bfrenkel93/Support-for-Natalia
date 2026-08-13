@@ -46,8 +46,25 @@ export default async function ManagePage({
   const events = await getFamilyEvents(family.id);
   const requests = await getFamilyRequests(family.id);
 
+  // Everyone who signed up and left an email — for the one-tap thank-you tool.
+  const helperMap = new Map<string, { name: string; email: string }>();
+  for (const b of bookings) {
+    const em = (b.email || "").trim();
+    const key = em.toLowerCase();
+    if (em && !helperMap.has(key)) helperMap.set(key, { name: b.name || "", email: em });
+  }
+  for (const g of gifts) {
+    for (const p of g.pledges || []) {
+      const em = (p.email || "").trim();
+      const key = em.toLowerCase();
+      if (em && !helperMap.has(key)) helperMap.set(key, { name: p.name || "", email: em });
+    }
+  }
+  const helpers = Array.from(helperMap.values());
+
   return (
     <ManageFamily
+      helpers={helpers}
       requests={requests.map((r) => ({
         id: r.id,
         title: r.title,
