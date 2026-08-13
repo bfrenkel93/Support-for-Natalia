@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabase, type Gift } from "./supabase";
+import { NATALIA_FAMILY_ID } from "./families";
 
 /**
  * "Give a Gift" — ideas like a private-chef week, a massage, or a manicure that
@@ -14,6 +15,7 @@ export async function getGifts(): Promise<Gift[]> {
   const { data, error } = await supabase
     .from("gifts")
     .select("*, pledges:gift_pledges(*)")
+    .eq("family_id", NATALIA_FAMILY_ID)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
 

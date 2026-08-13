@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabase, type FamilyEvent } from "./supabase";
+import { NATALIA_FAMILY_ID } from "./families";
 
 /**
  * Family events ("Come cheer them on") — games, recitals, milestones that
@@ -14,6 +15,7 @@ export async function getEvents(): Promise<FamilyEvent[]> {
   const { data, error } = await supabase
     .from("events")
     .select("*, rsvps:event_rsvps(*)")
+    .eq("family_id", NATALIA_FAMILY_ID)
     .order("sort_order", { ascending: true })
     .order("event_date", { ascending: true });
 

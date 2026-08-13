@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabase, type GatheringRsvp } from "./supabase";
+import { NATALIA_FAMILY_ID } from "./families";
 
 /** All gathering RSVPs plus the running headcount (sum of party sizes). */
 export async function getGatheringRsvps(): Promise<{
@@ -12,6 +13,7 @@ export async function getGatheringRsvps(): Promise<{
   const { data, error } = await supabase
     .from("gathering_rsvps")
     .select("*")
+    .eq("family_id", NATALIA_FAMILY_ID)
     .order("created_at", { ascending: true });
   if (error || !data) return { rows: [], total: 0, parties: 0 };
   const rows = data as GatheringRsvp[];

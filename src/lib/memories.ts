@@ -2,6 +2,7 @@ import "server-only";
 import crypto from "crypto";
 import { getSupabase } from "./supabase";
 import { isAdmin } from "./auth";
+import { NATALIA_FAMILY_ID } from "./families";
 
 /**
  * Private "memories" feature — stories + photos shared for the kids.
@@ -167,6 +168,7 @@ export async function listMemories(): Promise<Memory[]> {
   const { data, error } = await supabase
     .from("memories")
     .select("*, media:memory_media(*)")
+    .eq("family_id", NATALIA_FAMILY_ID)
     .order("created_at", { ascending: false });
 
   if (error || !data) {

@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabase, type Subscriber } from "./supabase";
+import { NATALIA_FAMILY_ID } from "./families";
 
 /** Add (or re-activate) a subscriber. Returns their unsubscribe token. */
 export async function addSubscriber(
@@ -104,6 +105,7 @@ export async function getActiveSubscribers(): Promise<Subscriber[]> {
   const { data } = await supabase
     .from("subscribers")
     .select("*")
+    .eq("family_id", NATALIA_FAMILY_ID)
     .is("unsubscribed_at", null)
     .order("created_at", { ascending: true });
   return (data as Subscriber[]) ?? [];
@@ -115,6 +117,7 @@ export async function getAllSubscribers(): Promise<Subscriber[]> {
   const { data } = await supabase
     .from("subscribers")
     .select("*")
+    .eq("family_id", NATALIA_FAMILY_ID)
     .order("created_at", { ascending: true });
   return (data as Subscriber[]) ?? [];
 }

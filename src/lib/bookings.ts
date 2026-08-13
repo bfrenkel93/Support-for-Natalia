@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabase, type Booking } from "./supabase";
+import { NATALIA_FAMILY_ID } from "./families";
 
 export const KIND_LABEL: Record<Booking["kind"], string> = {
   kids: "Time with the kids",
@@ -15,6 +16,7 @@ export async function getBookings(): Promise<Booking[]> {
   const { data, error } = await supabase
     .from("bookings")
     .select("*")
+    .eq("family_id", NATALIA_FAMILY_ID)
     .order("event_date", { ascending: true })
     .order("created_at", { ascending: true });
   if (error || !data) {
