@@ -15,6 +15,56 @@ export function notifyList(): string[] {
   );
 }
 
+/**
+ * Send one email through Resend and actually surface failures.
+ *
+ * The Resend SDK does NOT throw when the API rejects a send — it resolves with
+ * `{ data: null, error }`. So a rejected send (unverified domain, a recipient
+ * that isn't allowed in test mode, a bad key) looks exactly like success unless
+ * you inspect `error`. Every notification used to ignore it, which is why sends
+ * could fail with no bounce, no log, and no clue. This wrapper logs the real
+ * reason and returns it so nothing fails silently again.
+ */
+export async function sendEmail(payload: {
+  from?: string;
+  to: string[];
+  subject: string;
+  text?: string;
+  html?: string;
+  replyTo?: string;
+}): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { ok: false, error: "RESEND_API_KEY is not set." };
+  if (!payload.to || payload.to.length === 0) {
+    return { ok: false, error: "No recipient email is set (NOTIFY_EMAIL)." };
+  }
+  const from =
+    payload.from ||
+    process.env.RESEND_FROM ||
+    "Support for Natalia <onboarding@resend.dev>";
+  try {
+    const resend = new Resend(apiKey);
+    const { data, error } = await resend.emails.send({
+      from,
+      to: payload.to,
+      subject: payload.subject,
+      text: payload.text,
+      html: payload.html,
+      ...(payload.replyTo ? { replyTo: payload.replyTo } : {}),
+    } as Parameters<typeof resend.emails.send>[0]);
+    if (error) {
+      const msg = `${error.name || "error"}: ${error.message || "unknown error"}`;
+      console.error("[email] Resend rejected send:", msg, "· subject:", payload.subject);
+      return { ok: false, error: msg };
+    }
+    return { ok: true, id: data?.id };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[email] send threw:", msg, "· subject:", payload.subject);
+    return { ok: false, error: msg };
+  }
+}
+
 type NotifyArgs = {
   slot: Slot;
   name: string;
@@ -286,12 +336,7 @@ export async function sendGatheringRsvpNotification(args: {
   note?: string | null;
   total: number;
 }): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
   const to = notifyList();
-  const from =
-    process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
-  if (!apiKey || to.length === 0) return;
-
   const { name, partySize, email, note, total } = args;
   const guests = partySize === 1 ? "1 guest" : `${partySize} guests`;
   const text = [
@@ -313,18 +358,41 @@ export async function sendGatheringRsvpNotification(args: {
       <p style="margin-top:10px;"><strong>Running headcount: ${total} attending.</strong></p>
     </div>`;
 
-  try {
-    const resend = new Resend(apiKey);
-    await resend.emails.send({
-      from,
-      to,
-      subject: `RSVP: ${name} (+${partySize}) — ${total} total`,
-      text,
-      html,
-    });
-  } catch (err) {
-    console.error("[email] Failed to send gathering RSVP notification:", err);
-  }
+  await sendEmail({
+    to,
+    subject: `RSVP: ${name} (+${partySize}) — ${total} total`,
+    text,
+    html,
+  });
+}
+
+/**
+ * Sends a real test email to the notification list and returns the exact
+ * outcome — used by the admin "Send test email" button so the true Resend
+ * error (or success id) is visible without digging through server logs.
+ */
+export async function sendTestNotification(): Promise<{
+  ok: boolean;
+  id?: string;
+  error?: string;
+  to: string[];
+  from: string;
+}> {
+  const to = notifyList();
+  const from =
+    process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
+  const result = await sendEmail({
+    to,
+    subject: "Test — notifications are working 💛",
+    text:
+      "This is a test from your Family Grief Support admin page. If you're " +
+      "reading this in your inbox, sign-up and RSVP alerts are working.",
+    html: `<div style="font-family: Georgia, serif; color:#3E3A33; line-height:1.6;">
+      <h2 style="color:#8B6A43;">Notifications are working 💛</h2>
+      <p>This is a test from your admin page. If you're reading this in your
+      inbox, sign-up and RSVP alerts will reach you here too.</p></div>`,
+  });
+  return { ...result, to, from };
 }
 
 /** Emails the full gathering guest list + headcount to the organizer on demand. */

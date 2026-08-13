@@ -18,6 +18,7 @@ import {
   sendGatheringList,
   sendSubscriberEventBlast,
   sendSubscriberDigest,
+  sendTestNotification,
 } from "@/lib/email";
 import { getActiveSubscribers } from "@/lib/subscribers";
 import { buildHighlights } from "@/lib/digest";
@@ -223,6 +224,31 @@ export async function emailGatheringList(
     return { ok: false, message: result.reason || "Couldn't send the list." };
   }
   return { ok: true, message: `Sent — ${total} attending across ${rows.length} RSVPs.` };
+}
+
+export async function sendTestEmail(
+  _prev: AdminState,
+  _formData: FormData
+): Promise<AdminState> {
+  requireAdmin();
+  const r = await sendTestNotification();
+  if (r.to.length === 0) {
+    return {
+      ok: false,
+      message:
+        "No notification email is set. Add NOTIFY_EMAIL in Vercel (Production) and redeploy.",
+    };
+  }
+  if (r.ok) {
+    return {
+      ok: true,
+      message: `Sent to ${r.to.join(", ")} (from ${r.from}). Check your inbox — and spam, just in case.`,
+    };
+  }
+  return {
+    ok: false,
+    message: `Resend rejected it → ${r.error} · from: ${r.from} · to: ${r.to.join(", ")}`,
+  };
 }
 
 // ---- Subscribers ("stay involved" updates) -------------------------

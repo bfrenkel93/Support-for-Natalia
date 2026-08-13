@@ -29,6 +29,7 @@ import {
   unpinEvent,
 } from "./actions";
 import EmailGatheringListButton from "@/components/admin/EmailGatheringListButton";
+import SendTestEmailButton from "@/components/admin/SendTestEmailButton";
 import SendUpdateButton from "@/components/admin/SendUpdateButton";
 import LoginForm from "@/components/admin/LoginForm";
 import SettingsForm from "@/components/admin/SettingsForm";
@@ -98,7 +99,7 @@ export default async function AdminPage() {
       {(() => {
         const alertsTo = notifyList();
         return (
-          <p
+          <div
             className={`mt-6 border-l-2 px-5 py-4 text-sm ${
               alertsTo.length
                 ? "border-bronze/50 bg-bone/40 text-ink-soft"
@@ -107,17 +108,24 @@ export default async function AdminPage() {
           >
             {alertsTo.length ? (
               <>
-                Sign-up &amp; RSVP alerts are sent to:{" "}
-                <strong className="text-ink">{alertsTo.join(", ")}</strong>
+                <p>
+                  Sign-up &amp; RSVP alerts are sent to:{" "}
+                  <strong className="text-ink">{alertsTo.join(", ")}</strong>
+                </p>
+                <p className="mt-1 text-xs text-ink-faint">
+                  Not arriving? Send a test — if Resend rejects it, the exact
+                  reason shows here.
+                </p>
+                <SendTestEmailButton />
               </>
             ) : (
-              <>
+              <p>
                 ⚠️ No notification email is set, so you won&apos;t get sign-up or
                 RSVP alerts. Add <code>NOTIFY_EMAIL</code> in your Vercel
                 environment variables (Production), then redeploy.
-              </>
+              </p>
             )}
-          </p>
+          </div>
         );
       })()}
 
