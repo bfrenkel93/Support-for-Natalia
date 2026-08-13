@@ -407,9 +407,13 @@
       <h3 class="rdone-title">Your page is ready.</h3>
       <p class="rdone-sub">Your page’s link — share it with the people you’d like to invite:</p>
       <a class="rdone-link" id="rdone-link" href="#">your page</a>
-      <p class="rdone-sub" style="margin-top:1.4rem;">Your private link to edit and manage the page. Save it somewhere safe — bookmark it or write it down. Anyone with this link can edit your page, so keep it just for you:</p>
-      <a class="rdone-link" id="rdone-manage" href="#">manage link</a>
-      <p class="rdone-note">We’ve also emailed both links to you.</p>
+      <p class="rdone-sub" style="margin-top:1.4rem;">And here’s your private link to manage and edit your page — add photos, update details, and see who’s signed up:</p>
+      <a class="btn" id="rdone-manage" href="#" style="margin-bottom:0.9rem;">Manage your page →</a>
+      <p class="rdone-sub" id="rdone-manage-url" style="font-size:0.85rem; color:var(--ink-faint); word-break:break-all; margin:0 0 1rem;"></p>
+      <p class="rdone-note" style="line-height:1.6;">
+        <strong style="color:var(--ink-soft);">Please save this link for now</strong> — bookmark it or write it down. It’s private to you, and anyone with it can edit your page.<br><br>
+        Family Grief Support is still under construction and will be fully up and running by September. Automatic email delivery of these links is being set up now — until then, saving your manage link above is the way to get back to your page.
+      </p>
     </div>
   </div>
 </section>
@@ -454,7 +458,9 @@
       var link = document.getElementById('rdone-link');
       link.href = out.pageUrl; link.textContent = out.pageUrl;
       var manage = document.getElementById('rdone-manage');
-      if (manage && out.manageUrl) { manage.href = out.manageUrl; manage.textContent = out.manageUrl; }
+      if (manage && out.manageUrl) { manage.href = out.manageUrl; }
+      var manageUrl = document.getElementById('rdone-manage-url');
+      if (manageUrl && out.manageUrl) { manageUrl.textContent = out.manageUrl; }
       f.hidden = true; note.textContent = '';
       var done = document.getElementById('rdone');
       done.hidden = false;
