@@ -1,5 +1,5 @@
 import { adminPasswordIsSet, isAdmin } from "@/lib/auth";
-import { notifyList } from "@/lib/email";
+import { notifyList, organizerList } from "@/lib/email";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { getSettings } from "@/lib/settings";
 import { getBookings, KIND_LABEL } from "@/lib/bookings";
@@ -98,6 +98,7 @@ export default async function AdminPage() {
 
       {(() => {
         const alertsTo = notifyList();
+        const organizerTo = organizerList();
         return (
           <div
             className={`mt-6 border-l-2 px-5 py-4 text-sm ${
@@ -109,12 +110,18 @@ export default async function AdminPage() {
             {alertsTo.length ? (
               <>
                 <p>
-                  Sign-up &amp; RSVP alerts are sent to:{" "}
+                  Food, visits, kids, events, gifts &amp; memories are sent to:{" "}
                   <strong className="text-ink">{alertsTo.join(", ")}</strong>
                 </p>
-                <p className="mt-1 text-xs text-ink-faint">
-                  Not arriving? Send a test — if Resend rejects it, the exact
-                  reason shows here.
+                <p className="mt-1">
+                  Memorial (Gathering) RSVPs go to you only:{" "}
+                  <strong className="text-ink">
+                    {organizerTo.join(", ") || "—"}
+                  </strong>
+                </p>
+                <p className="mt-2 text-xs text-ink-faint">
+                  Not arriving? Send a test (goes to you only) — if Resend
+                  rejects it, the exact reason shows here.
                 </p>
                 <SendTestEmailButton />
               </>

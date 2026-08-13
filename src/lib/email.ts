@@ -16,6 +16,18 @@ export function notifyList(): string[] {
 }
 
 /**
+ * The organizer only (you) — deliberately NOT the grieving family member.
+ * Used for the memorial "Gathering" RSVPs, which are a high-volume headcount
+ * the family shouldn't be pinged for one-by-one. Reads NOTIFY_EMAIL alone;
+ * NATALIA_EMAIL (the family member) is intentionally excluded here, while
+ * every other notification — food, visits, kids, events, gifts, memories —
+ * still goes to the full notifyList().
+ */
+export function organizerList(): string[] {
+  return parseRecipients(process.env.NOTIFY_EMAIL);
+}
+
+/**
  * Send one email through Resend and actually surface failures.
  *
  * The Resend SDK does NOT throw when the API rejects a send — it resolves with
@@ -336,7 +348,8 @@ export async function sendGatheringRsvpNotification(args: {
   note?: string | null;
   total: number;
 }): Promise<void> {
-  const to = notifyList();
+  // Memorial headcount — organizer only, not the family member.
+  const to = organizerList();
   const { name, partySize, email, note, total } = args;
   const guests = partySize === 1 ? "1 guest" : `${partySize} guests`;
   const text = [
@@ -378,7 +391,8 @@ export async function sendTestNotification(): Promise<{
   to: string[];
   from: string;
 }> {
-  const to = notifyList();
+  // Test only goes to you (the organizer), never the family member.
+  const to = organizerList();
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
   const result = await sendEmail({
@@ -401,7 +415,8 @@ export async function sendGatheringList(args: {
   total: number;
 }): Promise<{ ok: boolean; reason?: string }> {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = notifyList();
+  // Memorial guest list — organizer only, not the family member.
+  const to = organizerList();
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
   if (!apiKey) return { ok: false, reason: "Email isn't set up (RESEND_API_KEY)." };
