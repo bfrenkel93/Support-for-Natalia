@@ -405,9 +405,11 @@
     </form>
     <div class="rdone" id="rdone" hidden>
       <h3 class="rdone-title">Your page is ready.</h3>
-      <p class="rdone-sub">This is its private link — share it with the people you’d like to invite:</p>
+      <p class="rdone-sub">Your page’s link — share it with the people you’d like to invite:</p>
       <a class="rdone-link" id="rdone-link" href="#">your page</a>
-      <p class="rdone-note">We’ve emailed you this link and a private link to manage the page. Keep that email safe.</p>
+      <p class="rdone-sub" style="margin-top:1.4rem;">Your private link to edit and manage the page. Save it somewhere safe — bookmark it or write it down. Anyone with this link can edit your page, so keep it just for you:</p>
+      <a class="rdone-link" id="rdone-manage" href="#">manage link</a>
+      <p class="rdone-note">We’ve also emailed both links to you.</p>
     </div>
   </div>
 </section>
@@ -451,6 +453,8 @@
       if (!res.ok || !out.ok) throw new Error((out && out.error) || 'bad');
       var link = document.getElementById('rdone-link');
       link.href = out.pageUrl; link.textContent = out.pageUrl;
+      var manage = document.getElementById('rdone-manage');
+      if (manage && out.manageUrl) { manage.href = out.manageUrl; manage.textContent = out.manageUrl; }
       f.hidden = true; note.textContent = '';
       var done = document.getElementById('rdone');
       done.hidden = false;
