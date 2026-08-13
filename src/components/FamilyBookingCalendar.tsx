@@ -285,6 +285,7 @@ export default function FamilyBookingCalendar({
                 <button type="button" onClick={() => setSelected(null)}
                   className="text-xs uppercase tracking-wide text-ink-faint underline underline-offset-4 hover:text-ink">Cancel</button>
               </div>
+              <p className="mt-4 text-xs text-ink-faint">The family will be notified when you sign up.</p>
             </form>
           )}
         </div>
