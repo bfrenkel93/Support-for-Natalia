@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { getSupabase } from "@/lib/supabase";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
+import { sendEmail } from "@/lib/email";
 import { FAMILY_KIND_LABEL } from "@/lib/bookings";
 import { resolveBaseUrl } from "@/lib/urls";
 
@@ -100,36 +100,29 @@ export async function POST(req: Request) {
 
   // Let the family know someone signed up (best-effort). Requests ask them to
   // approve in their dashboard; instant sign-ups are a warm heads-up.
-  const apiKey = process.env.RESEND_API_KEY;
   const recipients = parseRecipients(family.contact_email);
-  if (apiKey && recipients.length) {
+  if (recipients.length) {
     const manageUrl = `${resolveBaseUrl(req)}/manage?token=${family.edit_token}`;
-    try {
-      const resend = new Resend(apiKey);
-      const from = process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
-      await resend.emails.send({
-        from,
-        to: recipients,
-        replyTo: email || undefined,
-        subject: requested
-          ? `A request to approve — ${FAMILY_KIND_LABEL[kind]} on ${prettyDate(eventDate)}`
-          : `New sign-up — ${FAMILY_KIND_LABEL[kind]} on ${prettyDate(eventDate)}`,
-        text: [
-          requested
-            ? `${name} would like to help — this one is yours to approve.`
-            : `${name} just signed up on your page "${family.display_name}".`,
-          ``,
-          `What: ${FAMILY_KIND_LABEL[kind]}`,
-          `When: ${prettyDate(eventDate)}`,
-          email ? `Email: ${email}` : `Email: (not provided)`,
-          note ? `Note: ${note}` : ``,
-          requested ? `` : ``,
-          requested ? `Approve it or suggest another day here:\n${manageUrl}` : ``,
-        ].filter(Boolean).join("\n"),
-      });
-    } catch (err) {
-      console.error("[book] notification failed:", err);
-    }
+    const r = await sendEmail({
+      to: recipients,
+      replyTo: email || undefined,
+      subject: requested
+        ? `A request to approve — ${FAMILY_KIND_LABEL[kind]} on ${prettyDate(eventDate)}`
+        : `New sign-up — ${FAMILY_KIND_LABEL[kind]} on ${prettyDate(eventDate)}`,
+      text: [
+        requested
+          ? `${name} would like to help — this one is yours to approve.`
+          : `${name} just signed up on your page "${family.display_name}".`,
+        ``,
+        `What: ${FAMILY_KIND_LABEL[kind]}`,
+        `When: ${prettyDate(eventDate)}`,
+        email ? `Email: ${email}` : `Email: (not provided)`,
+        note ? `Note: ${note}` : ``,
+        requested ? `` : ``,
+        requested ? `Approve it or suggest another day here:\n${manageUrl}` : ``,
+      ].filter(Boolean).join("\n"),
+    });
+    if (!r.ok) console.error("[book] notification failed:", r.error);
   }
 
   return NextResponse.json({

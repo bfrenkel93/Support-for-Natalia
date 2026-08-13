@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { getSupabase } from "@/lib/supabase";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
+import { sendEmail } from "@/lib/email";
 import { getFamilyGathering } from "@/lib/gathering";
 
 // Public: RSVP to a family's memorial gathering.
@@ -61,32 +61,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Sorry — we couldn't save that. Please try again." }, { status: 500 });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
   const recipients = parseRecipients(family.contact_email);
-  if (apiKey && recipients.length) {
+  if (recipients.length) {
+    let total = partySize;
     try {
-      const { total } = await getFamilyGathering(family.id);
-      const resend = new Resend(apiKey);
-      const from = process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
-      await resend.emails.send({
-        from,
-        to: recipients,
-        replyTo: email || undefined,
-        subject: attending
-          ? `New RSVP — ${name} (${partySize})`
-          : `RSVP — ${name} can't make it`,
-        text: [
-          attending
-            ? `${name} RSVP'd to your gathering with a party of ${partySize}.`
-            : `${name} let you know they can't make the gathering.`,
-          note ? `Note: ${note}` : ``,
-          ``,
-          `Running headcount: ${total}`,
-        ].filter(Boolean).join("\n"),
-      });
-    } catch (err) {
-      console.error("[gathering] notification failed:", err);
+      total = (await getFamilyGathering(family.id)).total;
+    } catch {
+      // fall back to this party size
     }
+    const r = await sendEmail({
+      to: recipients,
+      replyTo: email || undefined,
+      subject: attending
+        ? `New RSVP — ${name} (${partySize})`
+        : `RSVP — ${name} can't make it`,
+      text: [
+        attending
+          ? `${name} RSVP'd to your gathering with a party of ${partySize}.`
+          : `${name} let you know they can't make the gathering.`,
+        note ? `Note: ${note}` : ``,
+        ``,
+        `Running headcount: ${total}`,
+      ].filter(Boolean).join("\n"),
+    });
+    if (!r.ok) console.error("[gathering] notification failed:", r.error);
   }
 
   return NextResponse.json({

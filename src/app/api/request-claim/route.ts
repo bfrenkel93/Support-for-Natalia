@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
+import { sendEmail } from "@/lib/email";
 import { getSupabase } from "@/lib/supabase";
 
 // A supporter claims one of the family's posted needs. Public, by slug.
@@ -60,25 +60,18 @@ export async function POST(req: Request) {
   }
 
   // Notify the family.
-  const apiKey = process.env.RESEND_API_KEY;
   const recipients = parseRecipients(family.contact_email);
-  if (apiKey && recipients.length) {
-    try {
-      const resend = new Resend(apiKey);
-      const from = process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
-      await resend.emails.send({
-        from,
-        to: recipients,
-        replyTo: email || undefined,
-        subject: `Someone’s helping — ${data.title}`,
-        text: [
-          `${name} just offered to help with "${data.title}" on your page.`,
-          email ? `Email: ${email}` : `Email: (not provided)`,
-        ].join("\n"),
-      });
-    } catch (err) {
-      console.error("[request-claim] notification failed:", err);
-    }
+  if (recipients.length) {
+    const r = await sendEmail({
+      to: recipients,
+      replyTo: email || undefined,
+      subject: `Someone’s helping — ${data.title}`,
+      text: [
+        `${name} just offered to help with "${data.title}" on your page.`,
+        email ? `Email: ${email}` : `Email: (not provided)`,
+      ].join("\n"),
+    });
+    if (!r.ok) console.error("[request-claim] notification failed:", r.error);
   }
 
   return NextResponse.json({ ok: true, message: "Thank you for stepping in. 💛" });

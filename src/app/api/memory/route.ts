@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
+import { sendEmail } from "@/lib/email";
 import { stripJpegMetadata } from "@/lib/image";
 import {
   saveFamilyMemory,
@@ -103,29 +103,22 @@ export async function POST(req: Request) {
   }
 
   // Notify the family that something was shared — never the content itself.
-  const apiKey = process.env.RESEND_API_KEY;
   const recipients = parseRecipients(family.contact_email);
-  if (apiKey && recipients.length) {
-    try {
-      const resend = new Resend(apiKey);
-      const from = process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
-      const origin = new URL(req.url).origin;
-      await resend.emails.send({
-        from,
-        to: recipients,
-        subject: `A new memory was shared 💛`,
-        text: [
-          `${name || "Someone"} just shared ${
-            result.photoCount > 0 ? `a memory with ${result.photoCount} photo(s)` : "a memory"
-          } on your page.`,
-          ``,
-          `You can read it privately here:`,
-          `${origin}/manage?token=${family.edit_token}`,
-        ].join("\n"),
-      });
-    } catch (err) {
-      console.error("[memory] notification failed:", err);
-    }
+  if (recipients.length) {
+    const origin = new URL(req.url).origin;
+    const r = await sendEmail({
+      to: recipients,
+      subject: `A new memory was shared 💛`,
+      text: [
+        `${name || "Someone"} just shared ${
+          result.photoCount > 0 ? `a memory with ${result.photoCount} photo(s)` : "a memory"
+        } on your page.`,
+        ``,
+        `You can read it privately here:`,
+        `${origin}/manage?token=${family.edit_token}`,
+      ].join("\n"),
+    });
+    if (!r.ok) console.error("[memory] notification failed:", r.error);
   }
 
   return NextResponse.json({

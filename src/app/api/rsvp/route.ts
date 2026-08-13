@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { getSupabase } from "@/lib/supabase";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
+import { sendEmail } from "@/lib/email";
 
 // Public: RSVP to a family's event ("come cheer them on").
 export const runtime = "nodejs";
@@ -50,25 +50,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Sorry — we couldn't save that. Please try again." }, { status: 500 });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
   const recipients = parseRecipients(family.contact_email);
-  if (apiKey && recipients.length) {
-    try {
-      const resend = new Resend(apiKey);
-      const from = process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
-      await resend.emails.send({
-        from,
-        to: recipients,
-        replyTo: email || undefined,
-        subject: `New RSVP — ${name} for "${(event as { title: string }).title}"`,
-        text: [
-          `${name} is coming to "${(event as { title: string }).title}".`,
-          note ? `Note: ${note}` : ``,
-        ].filter(Boolean).join("\n"),
-      });
-    } catch (err) {
-      console.error("[rsvp] notification failed:", err);
-    }
+  if (recipients.length) {
+    const r = await sendEmail({
+      to: recipients,
+      replyTo: email || undefined,
+      subject: `New RSVP — ${name} for "${(event as { title: string }).title}"`,
+      text: [
+        `${name} is coming to "${(event as { title: string }).title}".`,
+        note ? `Note: ${note}` : ``,
+      ].filter(Boolean).join("\n"),
+    });
+    if (!r.ok) console.error("[rsvp] notification failed:", r.error);
   }
 
   return NextResponse.json({ ok: true, message: "You're on the list — thank you for showing up for them. 💛" });

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { getFamilyByEditToken } from "@/lib/families";
+import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -54,8 +54,6 @@ export async function POST(req: Request) {
 
   const who = family.honoring?.trim() || family.display_name;
   const fromName = family.display_name || `${who}'s family`;
-  const from =
-    process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
   const first = name ? name.split(" ")[0] : "there";
 
   const text =
@@ -70,17 +68,14 @@ export async function POST(req: Request) {
     `your kindness meant more than you know.</p>` +
     `<p style="margin-top:18px;">With love,<br/>${esc(fromName)}</p></div>`;
 
-  try {
-    const resend = new Resend(apiKey);
-    await resend.emails.send({
-      from,
-      to: email,
-      subject: "Thank you 💛",
-      text,
-      html,
-    });
-  } catch (err) {
-    console.error("[thank] send failed", err);
+  const r = await sendEmail({
+    to: [email],
+    subject: "Thank you 💛",
+    text,
+    html,
+  });
+  if (!r.ok) {
+    console.error("[thank] send failed:", r.error);
     return NextResponse.json({ ok: false, error: "Couldn't send. Please try again." }, { status: 500 });
   }
 

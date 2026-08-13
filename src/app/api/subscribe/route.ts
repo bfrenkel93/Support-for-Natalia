@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { getFamilyBySlug } from "@/lib/families";
+import { sendEmail } from "@/lib/email";
 import { addFamilySubscriber } from "@/lib/subscribers";
 
 // Public: someone opts in to occasional updates for a specific family.
@@ -31,28 +31,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Sorry — that didn't go through. Please try again." }, { status: 500 });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (apiKey && result.token) {
-    try {
-      const resend = new Resend(apiKey);
-      const from = process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
-      const origin = new URL(req.url).origin;
-      await resend.emails.send({
-        from,
-        to: email,
-        subject: `You're following updates for ${family.display_name}`,
-        text: [
-          `Thank you for staying close.`,
-          ``,
-          `You'll get an occasional, gentle note about ways to show up for ${family.display_name}.`,
-          ``,
-          `You can unsubscribe anytime here:`,
-          `${origin}/unsubscribe?token=${result.token}`,
-        ].join("\n"),
-      });
-    } catch (err) {
-      console.error("[subscribe] confirmation failed:", err);
-    }
+  if (result.token) {
+    const origin = new URL(req.url).origin;
+    const r = await sendEmail({
+      to: [email],
+      subject: `You're following updates for ${family.display_name}`,
+      text: [
+        `Thank you for staying close.`,
+        ``,
+        `You'll get an occasional, gentle note about ways to show up for ${family.display_name}.`,
+        ``,
+        `You can unsubscribe anytime here:`,
+        `${origin}/unsubscribe?token=${result.token}`,
+      ].join("\n"),
+    });
+    if (!r.ok) console.error("[subscribe] confirmation failed:", r.error);
   }
 
   return NextResponse.json({

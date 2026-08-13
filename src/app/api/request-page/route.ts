@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
+import { sendEmail, organizerList } from "@/lib/email";
 
 // Public marketing form ("Start a page") submissions land here and are emailed
 // to the owner. Reuses the same Resend config as the rest of the app.
@@ -29,10 +29,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL || "support@familygriefsupport.org";
-  const from =
-    process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
+  // Goes to the platform owner (you) — the "Start a page" inbox.
+  const recipients = organizerList();
+  const to = recipients.length ? recipients : ["support@familygriefsupport.org"];
 
   const text = [
     `New page request from the familygriefsupport.org landing page.`,
@@ -45,26 +44,15 @@ export async function POST(req: Request) {
     message || "(none)",
   ].join("\n");
 
-  if (apiKey) {
-    try {
-      const resend = new Resend(apiKey);
-      await resend.emails.send({
-        from,
-        to,
-        replyTo: email,
-        subject: `New page request — ${name}`,
-        text,
-      });
-    } catch (err) {
-      // Log but don't fail the request — we never want the person to hit an error.
-      console.error("request-page: email send failed", err);
-    }
-  } else {
-    console.warn("request-page: RESEND_API_KEY not set — request not emailed", {
-      name,
-      email,
-      honoring,
-    });
+  const r = await sendEmail({
+    to,
+    replyTo: email,
+    subject: `New page request — ${name}`,
+    text,
+  });
+  if (!r.ok) {
+    // Log but don't fail the request — we never want the person to hit an error.
+    console.error("request-page: email send failed:", r.error);
   }
 
   return NextResponse.json({ ok: true });

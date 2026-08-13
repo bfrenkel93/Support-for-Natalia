@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { createFamily } from "@/lib/families";
 import { creatorWelcomeEmail } from "@/lib/emails";
+import { sendEmail } from "@/lib/email";
 import { resolveBaseUrl } from "@/lib/urls";
 
 // Public self-serve endpoint: turns the "create your page" form into a real,
@@ -69,30 +69,20 @@ export async function POST(req: Request) {
 
   // Best-effort email — never block the creation on email. Only the warm
   // welcome email is sent (the old plain "new page created" notice is gone).
-  const apiKey = process.env.RESEND_API_KEY;
-  if (apiKey) {
-    const resend = new Resend(apiKey);
-    const from =
-      process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
-
-    try {
-      const welcome = creatorWelcomeEmail({
-        displayName: family.display_name,
-        pageUrl,
-        manageUrl,
-      });
-      await resend.emails.send({
-        from,
-        to: email,
-        subject: welcome.subject,
-        html: welcome.html,
-        text: welcome.text,
-      });
-    } catch (err) {
-      console.error("create-page: creator email failed", err);
-    }
-  } else {
-    console.warn("create-page: RESEND_API_KEY not set — no emails sent");
+  // Goes to the page creator only — never to the platform's own inbox.
+  const welcome = creatorWelcomeEmail({
+    displayName: family.display_name,
+    pageUrl,
+    manageUrl,
+  });
+  const emailResult = await sendEmail({
+    to: [email],
+    subject: welcome.subject,
+    html: welcome.html,
+    text: welcome.text,
+  });
+  if (!emailResult.ok) {
+    console.error("create-page: welcome email failed:", emailResult.error);
   }
 
   return NextResponse.json({
