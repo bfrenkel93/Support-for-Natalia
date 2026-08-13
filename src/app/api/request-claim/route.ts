@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
 import { sendEmail } from "@/lib/email";
 import { getSupabase } from "@/lib/supabase";
+import { rateLimit, clientIp, TOO_MANY } from "@/lib/ratelimit";
 
 // A supporter claims one of the family's posted needs. Public, by slug.
 export const runtime = "nodejs";
@@ -11,6 +12,9 @@ function clean(v: unknown, max: number): string {
 }
 
 export async function POST(req: Request) {
+  if (!(await rateLimit("request-claim", clientIp(req), 20, 3600))) {
+    return NextResponse.json(TOO_MANY, { status: 429 });
+  }
   const body = await req.json().catch(() => ({}));
   const slug = clean(body.slug, 200).toLowerCase();
   const requestId = clean(body.requestId, 100);

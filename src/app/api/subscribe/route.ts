@@ -2,11 +2,15 @@ import { NextResponse } from "next/server";
 import { getFamilyBySlug } from "@/lib/families";
 import { sendEmail } from "@/lib/email";
 import { addFamilySubscriber } from "@/lib/subscribers";
+import { rateLimit, clientIp, TOO_MANY } from "@/lib/ratelimit";
 
 // Public: someone opts in to occasional updates for a specific family.
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  if (!(await rateLimit("subscribe", clientIp(req), 12, 3600))) {
+    return NextResponse.json(TOO_MANY, { status: 429 });
+  }
   let body: Record<string, unknown> = {};
   try {
     body = await req.json();

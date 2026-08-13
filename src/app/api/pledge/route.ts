@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
 import { sendEmail } from "@/lib/email";
+import { rateLimit, clientIp, TOO_MANY } from "@/lib/ratelimit";
 
 // Public: someone pledges toward one of a family's gift ideas (coordination
 // only — money moves off-site via the family's payment handles).
@@ -12,6 +13,9 @@ function clean(v: unknown, max: number): string {
 }
 
 export async function POST(req: Request) {
+  if (!(await rateLimit("pledge", clientIp(req), 20, 3600))) {
+    return NextResponse.json(TOO_MANY, { status: 429 });
+  }
   const body = await req.json().catch(() => ({}));
   const slug = clean(body.slug, 60).toLowerCase();
   const giftId = clean(body.giftId, 100);

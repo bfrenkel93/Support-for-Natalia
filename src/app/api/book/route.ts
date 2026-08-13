@@ -4,6 +4,7 @@ import { getFamilyBySlug, parseRecipients } from "@/lib/families";
 import { sendEmail } from "@/lib/email";
 import { FAMILY_KIND_LABEL } from "@/lib/bookings";
 import { resolveBaseUrl } from "@/lib/urls";
+import { rateLimit, clientIp, TOO_MANY } from "@/lib/ratelimit";
 
 // A supporter signs up to show up for a specific family (meal / visit / errand /
 // time with the kids). Scoped to that family; the family gets an email.
@@ -28,6 +29,9 @@ function prettyDate(ymd: string): string {
 }
 
 export async function POST(req: Request) {
+  if (!(await rateLimit("book", clientIp(req), 20, 3600))) {
+    return NextResponse.json(TOO_MANY, { status: 429 });
+  }
   let body: Record<string, unknown> = {};
   try {
     body = await req.json();

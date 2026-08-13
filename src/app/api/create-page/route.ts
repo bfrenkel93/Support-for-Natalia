@@ -3,6 +3,7 @@ import { createFamily } from "@/lib/families";
 import { creatorWelcomeEmail } from "@/lib/emails";
 import { sendEmail } from "@/lib/email";
 import { resolveBaseUrl } from "@/lib/urls";
+import { rateLimit, clientIp, TOO_MANY } from "@/lib/ratelimit";
 
 // Public self-serve endpoint: turns the "create your page" form into a real,
 // live family page. No approval — the page exists the moment this returns.
@@ -16,11 +17,22 @@ function multiline(v: unknown, max: number): string {
 }
 
 export async function POST(req: Request) {
+  // No one legitimately creates many pages a day from one place.
+  if (!(await rateLimit("create-page", clientIp(req), 8, 86400))) {
+    return NextResponse.json(TOO_MANY, { status: 429 });
+  }
+
   let body: Record<string, unknown> = {};
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+  }
+
+  // Honeypot: a hidden field real people never fill. Bots do. Pretend success
+  // so they don't learn they were caught — but create nothing.
+  if (clean(body.company, 200)) {
+    return NextResponse.json({ ok: true, slug: "", pageUrl: "", manageUrl: "" });
   }
 
   const creatorName = clean(body.name, 200);

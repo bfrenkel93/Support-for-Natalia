@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getFamiliesByContactEmail } from "@/lib/families";
 import { sendEmail } from "@/lib/email";
 import { resolveBaseUrl } from "@/lib/urls";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
 
 // Public: "I lost my manage link." Looks up pages by the email on file and
 // re-sends the private manage link — only ever to that on-file address.
@@ -23,6 +24,12 @@ export async function POST(req: Request) {
     message:
       "If we have a page connected to that email, we’ve just sent the manage link there. Please check your inbox (and spam).",
   };
+
+  // Cap how many recovery emails one place can trigger (keeps this from being
+  // used to spam a family's inbox). Same generic response, so nothing leaks.
+  if (!(await rateLimit("recover", clientIp(req), 5, 3600))) {
+    return NextResponse.json(generic);
+  }
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     // Don't leak validation state — respond the same either way.

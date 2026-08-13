@@ -3,11 +3,15 @@ import { getSupabase } from "@/lib/supabase";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
 import { sendEmail } from "@/lib/email";
 import { getFamilyGathering } from "@/lib/gathering";
+import { rateLimit, clientIp, TOO_MANY } from "@/lib/ratelimit";
 
 // Public: RSVP to a family's memorial gathering.
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  if (!(await rateLimit("gathering", clientIp(req), 20, 3600))) {
+    return NextResponse.json(TOO_MANY, { status: 429 });
+  }
   let body: Record<string, unknown> = {};
   try {
     body = await req.json();

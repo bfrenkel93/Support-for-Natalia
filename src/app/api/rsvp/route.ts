@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
 import { sendEmail } from "@/lib/email";
+import { rateLimit, clientIp, TOO_MANY } from "@/lib/ratelimit";
 
 // Public: RSVP to a family's event ("come cheer them on").
 export const runtime = "nodejs";
@@ -11,6 +12,9 @@ function clean(v: unknown, max: number): string {
 }
 
 export async function POST(req: Request) {
+  if (!(await rateLimit("rsvp", clientIp(req), 20, 3600))) {
+    return NextResponse.json(TOO_MANY, { status: 429 });
+  }
   const body = await req.json().catch(() => ({}));
   const slug = clean(body.slug, 60).toLowerCase();
   const eventId = clean(body.eventId, 100);

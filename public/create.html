@@ -371,6 +371,7 @@
     <h2 class="head">Create a page for someone you love</h2>
     <p class="body measure" style="margin-left:auto;margin-right:auto;">Fill this in and the family’s private page is ready in seconds — no approval, no waiting. You can change any of it later.</p>
     <form class="rform" id="rform" novalidate>
+      <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
       <label>Your name<input name="name" required autocomplete="name"></label>
       <label>Your email<input name="email" type="email" required autocomplete="email"></label>
       <label>Name of the person who died<input name="honoring" required placeholder="e.g. Joe"></label>
@@ -443,6 +444,7 @@
     }
     var data = {
       name: name, email: email,
+      company: val('company'),
       honoring: honoring,
       relationship: Array.prototype.slice.call(f.querySelectorAll('input[name="relationship"]:checked')).map(function (el) { return el.value; }).join(', '),
       town: val('town'), familyEmail: val('familyEmail'),
