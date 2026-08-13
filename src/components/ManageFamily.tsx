@@ -103,7 +103,7 @@ function mkMemorial(who: string): string {
     : `We’ll be gathering to remember someone dear to us and to hold one another close. If they touched your life, you are warmly welcome — come just as you are.\n\nThere’s nothing you need to bring but yourself, and, if you’d like, a memory to share.`;
 }
 function mkGift(): string {
-  return `If you’d like to help in a more tangible way, anything shared here goes directly to the family — for meals, everyday costs, or simply a little breathing room. There’s no expected amount, and every bit is felt.`;
+  return `A few practical ways to make the days ahead a little lighter. Every gift goes directly toward something the family needs.`;
 }
 
 export default function ManageFamily({

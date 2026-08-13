@@ -25,7 +25,7 @@ values (
     'memorial_when', to_char(current_date + 20, 'FMDay, FMMonth FMDD') || ' · 11am',
     'memorial_where', 'Ridgewood Community Church, 200 E Ridgewood Ave',
     'memorial_intro', 'We''ll gather to remember Michael and to hold one another close. If he touched your life, you are warmly welcome — come just as you are.',
-    'gifts_intro', 'If you''d like to help in a more tangible way, anything shared here goes directly to the family — for meals, everyday costs, or a little breathing room.',
+    'gifts_intro', 'A few practical ways to make the days ahead a little lighter. Every gift goes directly toward something the family needs.',
     'pay_venmo', '@bennett-family',
     'support_name', 'the Bennett family',
     'support_address', 'Ridgewood, NJ',
