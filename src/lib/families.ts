@@ -113,19 +113,18 @@ export type CreateFamilyInput = {
 };
 
 /**
- * Turn a notification-email field into a clean list of recipients. Supports one
- * address or several (comma / semicolon / space separated) so both the family
- * member and the friend who set the page up can be notified.
+ * Turn a notification-email field into a clean list of recipients. Extracts
+ * every email-like token no matter how they're separated — commas, spaces,
+ * semicolons, slashes, "and", quotes, newlines — so a value like
+ * "a@x.com, b@y.com" (or messier) always yields the real addresses instead of
+ * silently producing none. So both the family member and the friend who set
+ * the page up can be notified.
  */
 export function parseRecipients(raw: string | null | undefined): string[] {
-  return Array.from(
-    new Set(
-      String(raw || "")
-        .split(/[,;\s]+/)
-        .map((s) => s.trim())
-        .filter((s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s))
-    )
-  );
+  const matches = String(raw || "")
+    .toLowerCase()
+    .match(/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/g);
+  return Array.from(new Set(matches || []));
 }
 
 /** Look up a family by its URL slug (e.g. "natalia"). */
