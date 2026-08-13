@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Ctext%20y=%22.9em%22%20font-size=%2290%22%3E%F0%9F%92%9B%3C/text%3E%3C/svg%3E">
 <title>Create a page · Family Grief Support</title>
 <meta name="description" content="Create a free, private support page for a grieving family in a few minutes — a single place to coordinate meals, help with the kids, practical needs, and shared memories.">
@@ -37,46 +38,7 @@
     --errand: #8A7CA0;
     --memory: #8B6A43;
   }
-  :root:not([data-theme="light"]) {
-    @media (prefers-color-scheme: dark) {
-      --paper: #14110A;
-      --ivory: #1c1810;
-      --limestone: #211d14;
-      --surface: #1e1a12;
-      --ink: #ece4d4;
-      --ink-soft: #b3a993;
-      --ink-faint: #837a66;
-      --bronze: #c59c68;
-      --line: #332d21;
-      --line-soft: #2a2519;
-      --btn-bg: #e9e0cf;
-      --btn-fg: #1a1710;
-      --kids: #93a473;
-      --meal: #85a2ac;
-      --visit: #c58f6f;
-      --errand: #a294b7;
-      --memory: #c59c68;
-    }
-  }
-  :root[data-theme="dark"] {
-    --paper: #14110A;
-    --ivory: #1c1810;
-    --limestone: #211d14;
-    --surface: #1e1a12;
-    --ink: #ece4d4;
-    --ink-soft: #b3a993;
-    --ink-faint: #837a66;
-    --bronze: #c59c68;
-    --line: #332d21;
-    --line-soft: #2a2519;
-    --btn-bg: #e9e0cf;
-    --btn-fg: #1a1710;
-    --kids: #93a473;
-    --meal: #85a2ac;
-    --visit: #c58f6f;
-    --errand: #a294b7;
-    --memory: #c59c68;
-  }
+  /* Locked to the light parchment palette (see color-scheme:light in head). */
 
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
