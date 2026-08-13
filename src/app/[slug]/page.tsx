@@ -379,7 +379,7 @@ export default async function FamilyPage({
               <FamilyBookingCalendar
                 slug={family.slug}
                 hasKids={family.has_kids}
-                bookings={bookings}
+                bookings={bookings.filter((b) => b.status === "confirmed")}
               />
             </div>
           </SectionShell>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getFamilyByEditToken } from "@/lib/families";
-import { getFamilyBookings, getAllFamilyBookings } from "@/lib/bookings";
+import { getFamilyBookings, getAllFamilyBookings, getFamilyPendingRequests } from "@/lib/bookings";
 import { getFamilyMemoriesWithUrls } from "@/lib/memories";
 import { getFamilySubscriberCount } from "@/lib/subscribers";
 import { getFamilyGathering } from "@/lib/gathering";
@@ -45,6 +45,14 @@ export default async function ManagePage({
   const gifts = await getFamilyGifts(family.id);
   const events = await getFamilyEvents(family.id);
   const requests = await getFamilyRequests(family.id);
+  const pendingRequests = (await getFamilyPendingRequests(family.id)).map((b) => ({
+    id: b.id,
+    kind: b.kind,
+    name: b.name,
+    event_date: b.event_date,
+    email: b.email,
+    note: b.note,
+  }));
 
   // Everyone who signed up and left an email — for the one-tap thank-you tool.
   // Use ALL bookings (past + upcoming) so people who already helped are included.
@@ -66,6 +74,7 @@ export default async function ManagePage({
 
   return (
     <ManageFamily
+      pendingRequests={pendingRequests}
       helpers={helpers}
       requests={requests.map((r) => ({
         id: r.id,
@@ -134,12 +143,14 @@ export default async function ManagePage({
         support_note: family.content?.support_note ?? "",
         show_support: family.content?.show_support !== false,
       }}
-      bookings={bookings.map((b) => ({
-        event_date: b.event_date,
-        kind: b.kind,
-        name: b.name,
-        private: b.private,
-      }))}
+      bookings={bookings
+        .filter((b) => b.status === "confirmed")
+        .map((b) => ({
+          event_date: b.event_date,
+          kind: b.kind,
+          name: b.name,
+          private: b.private,
+        }))}
     />
   );
 }

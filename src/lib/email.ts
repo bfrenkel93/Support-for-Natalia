@@ -240,6 +240,44 @@ export async function sendRequestDecision(args: {
   }
 }
 
+/**
+ * The multi-tenant version: emails a supporter after a family approves or
+ * declines their visit / time-with-the-kids request. Family-branded copy.
+ */
+export async function sendFamilyRequestDecision(args: {
+  to: string;
+  confirmed: boolean;
+  dateLabel: string;
+  kind?: string;
+  familyName: string;
+  note?: string | null;
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from =
+    process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
+  if (!apiKey || !args.to) return;
+
+  const { to, confirmed, dateLabel, kind, familyName, note } = args;
+  const noteLine = note ? `\n\nA note: ${note}` : "";
+  const what = kind === "visit" ? "visit" : "time with the kids";
+  const subject = confirmed
+    ? `Your ${what} is confirmed — ${dateLabel}`
+    : `About your ${what} on ${dateLabel}`;
+  const body = confirmed
+    ? `Wonderful — you're confirmed for ${dateLabel}. Thank you for showing up for ${familyName}.${noteLine}`
+    : `Thank you so much for offering to help ${familyName} on ${dateLabel}. That day doesn't work just now, but please pick another — it would mean a lot.${noteLine}`;
+  const html = `<div style="font-family:Georgia,serif;color:#332F28;line-height:1.7;"><p>${escapeHtml(
+    body
+  ).replace(/\n/g, "<br>")}</p></div>`;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({ from, to, subject, text: body, html });
+  } catch (err) {
+    console.error("[email] family request decision failed:", err);
+  }
+}
+
 /** Notifies the organizer when someone RSVPs to the gathering. */
 export async function sendGatheringRsvpNotification(args: {
   name: string;

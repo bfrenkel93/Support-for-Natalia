@@ -34,6 +34,25 @@ export const FAMILY_KIND_LABEL: Record<Booking["kind"], string> = {
   errand: "An errand / help",
 };
 
+/** A family's pending requests (visits / time with the kids) awaiting their
+ * approval, soonest-dated first. */
+export async function getFamilyPendingRequests(familyId: string): Promise<Booking[]> {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("family_id", familyId)
+    .eq("status", "requested")
+    .order("event_date", { ascending: true })
+    .order("created_at", { ascending: true });
+  if (error || !data) {
+    if (error) console.error("[getFamilyPendingRequests]", error);
+    return [];
+  }
+  return data as Booking[];
+}
+
 /** All non-declined bookings for one family, past and upcoming (e.g. for
  * thanking everyone who has helped, not just those still to come). */
 export async function getAllFamilyBookings(familyId: string): Promise<Booking[]> {

@@ -135,20 +135,24 @@ export default function FamilyBookingCalendar({
       const out = await res.json().catch(() => ({}));
       if (!res.ok || !out.ok) throw new Error(out?.error || "bad");
 
-      setBookings((prev) => [
-        ...prev,
-        {
-          id: `local-${prev.length}-${selected}`,
-          event_date: selected,
-          kind,
-          status: "confirmed",
-          name,
-          email: email || null,
-          note: note || null,
-          private: isPrivate,
-          created_at: new Date().toISOString(),
-        } as Booking,
-      ]);
+      // Only show it on the calendar right away if it's instantly confirmed.
+      // Requests (visits, time with the kids) wait for the family's approval.
+      if (!out.pending) {
+        setBookings((prev) => [
+          ...prev,
+          {
+            id: `local-${prev.length}-${selected}`,
+            event_date: selected,
+            kind,
+            status: "confirmed",
+            name,
+            email: email || null,
+            note: note || null,
+            private: isPrivate,
+            created_at: new Date().toISOString(),
+          } as Booking,
+        ]);
+      }
       setStatus("done");
       setMessage(out.message || "Thank you for showing up for them. 💛");
     } catch (err) {

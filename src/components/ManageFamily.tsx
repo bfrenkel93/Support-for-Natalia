@@ -6,6 +6,7 @@ import EventManager from "./EventManager";
 import RequestManager, { type RequestRow } from "./RequestManager";
 import MessageAssist, { type AiContext } from "./MessageAssist";
 import ThankHelpers from "./ThankHelpers";
+import RequestApprovals, { type PendingRequest } from "./RequestApprovals";
 
 type FamilyLite = {
   slug: string;
@@ -119,6 +120,7 @@ export default function ManageFamily({
   events,
   requests,
   helpers,
+  pendingRequests,
 }: {
   family: FamilyLite;
   bookings: BookingLite[];
@@ -131,6 +133,7 @@ export default function ManageFamily({
   events: EventRow[];
   requests: RequestRow[];
   helpers: { name: string; email: string }[];
+  pendingRequests: PendingRequest[];
 }) {
   const [displayName, setDisplayName] = useState(family.display_name);
   const [honoring, setHonoring] = useState(family.honoring || "");
@@ -362,6 +365,9 @@ export default function ManageFamily({
           View page ↗
         </a>
       </div>
+
+      {/* Pending visit / kids requests waiting on the family — top priority. */}
+      <RequestApprovals requests={pendingRequests} token={family.edit_token} />
 
       <form onSubmit={onSave}>
         {/* ── The page intro ── */}

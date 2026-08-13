@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { getSupabase } from "@/lib/supabase";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
 import { FAMILY_KIND_LABEL } from "@/lib/bookings";
+import { resolveBaseUrl } from "@/lib/urls";
 
 // A supporter signs up to show up for a specific family (meal / visit / errand /
 // time with the kids). Scoped to that family; the family gets an email.
@@ -71,11 +72,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Sign-ups aren't connected yet." }, { status: 503 });
   }
 
+  // Visits and time with the kids are a request the family approves; meals and
+  // errands are instant (no reason to gate a dropped-off meal).
+  const requested = kind === "visit" || kind === "kids";
+
   const { error } = await supabase.from("bookings").insert({
     family_id: family.id,
     event_date: eventDate,
     kind,
-    status: "confirmed",
+    status: requested ? "requested" : "confirmed",
     name,
     email: email || null,
     note: note || null,
@@ -93,10 +98,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Sorry — we couldn't save that. Please try again." }, { status: 500 });
   }
 
-  // Let the family know someone signed up (best-effort).
+  // Let the family know someone signed up (best-effort). Requests ask them to
+  // approve in their dashboard; instant sign-ups are a warm heads-up.
   const apiKey = process.env.RESEND_API_KEY;
   const recipients = parseRecipients(family.contact_email);
   if (apiKey && recipients.length) {
+    const manageUrl = `${resolveBaseUrl(req)}/manage?token=${family.edit_token}`;
     try {
       const resend = new Resend(apiKey);
       const from = process.env.RESEND_FROM || "Family Grief Support <onboarding@resend.dev>";
@@ -104,14 +111,20 @@ export async function POST(req: Request) {
         from,
         to: recipients,
         replyTo: email || undefined,
-        subject: `New sign-up — ${FAMILY_KIND_LABEL[kind]} on ${prettyDate(eventDate)}`,
+        subject: requested
+          ? `A request to approve — ${FAMILY_KIND_LABEL[kind]} on ${prettyDate(eventDate)}`
+          : `New sign-up — ${FAMILY_KIND_LABEL[kind]} on ${prettyDate(eventDate)}`,
         text: [
-          `${name} just signed up on your page "${family.display_name}".`,
+          requested
+            ? `${name} would like to help — this one is yours to approve.`
+            : `${name} just signed up on your page "${family.display_name}".`,
           ``,
           `What: ${FAMILY_KIND_LABEL[kind]}`,
           `When: ${prettyDate(eventDate)}`,
           email ? `Email: ${email}` : `Email: (not provided)`,
           note ? `Note: ${note}` : ``,
+          requested ? `` : ``,
+          requested ? `Approve it or suggest another day here:\n${manageUrl}` : ``,
         ].filter(Boolean).join("\n"),
       });
     } catch (err) {
@@ -121,6 +134,9 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     ok: true,
-    message: "Thank you for showing up for them. Your day is saved. 💛",
+    pending: requested,
+    message: requested
+      ? "Your request has been sent. The family will confirm it or suggest another time — thank you for offering to show up. 💛"
+      : "Thank you for showing up for them. Your day is saved. 💛",
   });
 }
