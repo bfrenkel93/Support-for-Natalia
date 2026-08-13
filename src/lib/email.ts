@@ -9,7 +9,7 @@ import { parseRecipients } from "./families";
  * by commas — and returns a clean, de-duplicated list. Set two (or more) to
  * notify both you and the family.
  */
-function notifyList(): string[] {
+export function notifyList(): string[] {
   return parseRecipients(
     [process.env.NOTIFY_EMAIL, process.env.NATALIA_EMAIL].filter(Boolean).join(",")
   );

@@ -1,4 +1,5 @@
 import { adminPasswordIsSet, isAdmin } from "@/lib/auth";
+import { notifyList } from "@/lib/email";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { getSettings } from "@/lib/settings";
 import { getBookings, KIND_LABEL } from "@/lib/bookings";
@@ -93,6 +94,32 @@ export default async function AdminPage() {
           </form>
         </div>
       </div>
+
+      {(() => {
+        const alertsTo = notifyList();
+        return (
+          <p
+            className={`mt-6 border-l-2 px-5 py-4 text-sm ${
+              alertsTo.length
+                ? "border-bronze/50 bg-bone/40 text-ink-soft"
+                : "border-red-500 bg-red-50 text-red-800"
+            }`}
+          >
+            {alertsTo.length ? (
+              <>
+                Sign-up &amp; RSVP alerts are sent to:{" "}
+                <strong className="text-ink">{alertsTo.join(", ")}</strong>
+              </>
+            ) : (
+              <>
+                ⚠️ No notification email is set, so you won&apos;t get sign-up or
+                RSVP alerts. Add <code>NOTIFY_EMAIL</code> in your Vercel
+                environment variables (Production), then redeploy.
+              </>
+            )}
+          </p>
+        );
+      })()}
 
       {!isSupabaseConfigured() && (
         <p className="mt-6 border-l-2 border-bronze/50 bg-bone/60 px-5 py-4 text-sm text-ink-soft">
