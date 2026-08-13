@@ -1,6 +1,19 @@
 import "server-only";
 import { Resend } from "resend";
 import type { Slot } from "./supabase";
+import { parseRecipients } from "./families";
+
+/**
+ * All addresses that should receive Natalia's site notifications. Reads
+ * NOTIFY_EMAIL and NATALIA_EMAIL — either may hold several addresses separated
+ * by commas — and returns a clean, de-duplicated list. Set two (or more) to
+ * notify both you and the family.
+ */
+function notifyList(): string[] {
+  return parseRecipients(
+    [process.env.NOTIFY_EMAIL, process.env.NATALIA_EMAIL].filter(Boolean).join(",")
+  );
+}
 
 type NotifyArgs = {
   slot: Slot;
@@ -22,11 +35,11 @@ const SECTION_NAME: Record<Slot["category"], string> = {
  */
 export async function sendClaimNotification(args: NotifyArgs): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL;
+  const to = notifyList();
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
 
-  if (!apiKey || !to) {
+  if (!apiKey || to.length === 0) {
     // Not configured — quietly skip.
     return;
   }
@@ -117,13 +130,7 @@ export async function sendBookingNotification(args: {
 
   // Natalia + the organizer both get a note. Weekend-with-the-kids is a request
   // she confirms; everything else is a warm, no-action "it's handled" heads-up.
-  const recipients = Array.from(
-    new Set(
-      [process.env.NOTIFY_EMAIL, process.env.NATALIA_EMAIL].filter(
-        Boolean
-      ) as string[]
-    )
-  );
+  const recipients = notifyList();
   if (!apiKey || recipients.length === 0) return;
   const link = baseUrl ? `${baseUrl.replace(/\/$/, "")}/admin` : "";
   const noteStr = note ? ` — “${note}”` : "";
@@ -226,10 +233,10 @@ export async function sendGatheringRsvpNotification(args: {
   total: number;
 }): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL;
+  const to = notifyList();
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
-  if (!apiKey || !to) return;
+  if (!apiKey || to.length === 0) return;
 
   const { name, partySize, email, note, total } = args;
   const guests = partySize === 1 ? "1 guest" : `${partySize} guests`;
@@ -272,11 +279,11 @@ export async function sendGatheringList(args: {
   total: number;
 }): Promise<{ ok: boolean; reason?: string }> {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL;
+  const to = notifyList();
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
   if (!apiKey) return { ok: false, reason: "Email isn't set up (RESEND_API_KEY)." };
-  if (!to) return { ok: false, reason: "No NOTIFY_EMAIL is set." };
+  if (to.length === 0) return { ok: false, reason: "No NOTIFY_EMAIL is set." };
 
   const { rows, total } = args;
   const lines = rows.map(
@@ -332,10 +339,10 @@ export async function sendGiftNotification(args: {
   note?: string | null;
 }): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL;
+  const to = notifyList();
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
-  if (!apiKey || !to) return;
+  if (!apiKey || to.length === 0) return;
 
   const { giftTitle, name, email, amount, note } = args;
   const amountStr =
@@ -383,10 +390,10 @@ export async function sendRsvpNotification(args: {
   note?: string | null;
 }): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL;
+  const to = notifyList();
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
-  if (!apiKey || !to) return;
+  if (!apiKey || to.length === 0) return;
 
   const { eventTitle, name, email, note } = args;
   const text = [
@@ -435,13 +442,7 @@ export async function sendMemoryNotification(args: {
   const from =
     process.env.RESEND_FROM || "Support for Natalia <onboarding@resend.dev>";
 
-  const recipients = Array.from(
-    new Set(
-      [process.env.NOTIFY_EMAIL, process.env.NATALIA_EMAIL].filter(
-        Boolean
-      ) as string[]
-    )
-  );
+  const recipients = notifyList();
 
   if (!apiKey || recipients.length === 0) return;
 
