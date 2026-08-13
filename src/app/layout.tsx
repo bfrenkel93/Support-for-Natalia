@@ -1,6 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Spectral, Archivo } from "next/font/google";
 import "./globals.css";
+
+// The site is a light, art-directed design — always render in the light
+// palette so a device's dark mode never alters the intended look.
+export const viewport: Viewport = { colorScheme: "light" };
 
 // Editorial serif for headings & pull-quotes — calm, architectural, not romantic.
 const spectral = Spectral({
