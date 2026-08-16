@@ -340,6 +340,40 @@ export async function sendFamilyRequestDecision(args: {
   }
 }
 
+/**
+ * Confirms an RSVP to the person who RSVP'd and gives them a self-service
+ * cancel link. Sent to the guest (not the family). No-ops silently if they
+ * didn't leave an email.
+ */
+export async function sendRsvpConfirmation(args: {
+  to?: string | null;
+  eventLabel: string;
+  name?: string | null;
+  detail?: string | null;
+  cancelUrl: string;
+}): Promise<void> {
+  const to = (args.to || "").trim();
+  if (!to) return;
+  const first = args.name?.trim() ? args.name.trim().split(" ")[0] : "there";
+  const text = [
+    `${first}, thank you — your RSVP to ${args.eventLabel} is confirmed. 💛`,
+    args.detail || "",
+    ``,
+    `Plans change, and that's okay. If you can no longer make it, you can cancel anytime here:`,
+    args.cancelUrl,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const html = `
+    <div style="font-family: Georgia, serif; color: #3E3A33; line-height: 1.7; font-size:16px;">
+      <p>${escapeHtml(first)}, thank you — your RSVP to <strong>${escapeHtml(args.eventLabel)}</strong> is confirmed. 💛</p>
+      ${args.detail ? `<p style="color:#6E6858;">${escapeHtml(args.detail)}</p>` : ""}
+      <p style="margin-top:16px;">Plans change, and that's okay. If you can no longer make it, you can cancel anytime:</p>
+      <p><a href="${args.cancelUrl}" style="color:#8B6A43;">Cancel my RSVP</a></p>
+    </div>`;
+  await sendEmail({ to: [to], subject: "Your RSVP is confirmed 💛", text, html });
+}
+
 /** Notifies the organizer when someone RSVPs to the gathering. */
 export async function sendGatheringRsvpNotification(args: {
   name: string;

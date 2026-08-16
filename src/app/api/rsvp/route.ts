@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, sendRsvpConfirmation } from "@/lib/email";
 import { rateLimit, clientIp, TOO_MANY } from "@/lib/ratelimit";
+import { resolveBaseUrl } from "@/lib/urls";
+import { insertRsvpWithToken } from "@/lib/rsvp";
 
 // Public: RSVP to a family's event ("come cheer them on").
 export const runtime = "nodejs";
@@ -42,7 +44,7 @@ export async function POST(req: Request) {
     .single();
   if (!event) return NextResponse.json({ ok: false, error: "That event isn't available anymore." }, { status: 404 });
 
-  const { error } = await supabase.from("event_rsvps").insert({
+  const { cancelToken, error } = await insertRsvpWithToken(supabase, "event_rsvps", {
     family_id: family.id,
     event_id: eventId,
     name,
@@ -52,6 +54,17 @@ export async function POST(req: Request) {
   if (error) {
     console.error("[rsvp] insert failed:", error);
     return NextResponse.json({ ok: false, error: "Sorry — we couldn't save that. Please try again." }, { status: 500 });
+  }
+
+  // Confirmation + self-service cancel link to the guest.
+  if (email && cancelToken) {
+    const cancelUrl = `${resolveBaseUrl(req)}/rsvp/cancel?token=${cancelToken}&t=e`;
+    await sendRsvpConfirmation({
+      to: email,
+      eventLabel: `"${(event as { title: string }).title}"`,
+      name,
+      cancelUrl,
+    });
   }
 
   const recipients = parseRecipients(family.contact_email);

@@ -11,8 +11,10 @@ import {
   sendBookingNotification,
   sendGatheringRsvpNotification,
   sendSubscribeConfirmation,
+  sendRsvpConfirmation,
 } from "@/lib/email";
 import { getGatheringRsvps } from "@/lib/gathering";
+import { insertRsvpWithToken } from "@/lib/rsvp";
 import { addSubscriber } from "@/lib/subscribers";
 
 function requestBaseUrl(): string {
@@ -330,7 +332,7 @@ export async function rsvpGathering(
     return { ok: false, message: "RSVPs aren't connected yet. Please check back soon." };
   }
 
-  const { error } = await supabase.from("gathering_rsvps").insert({
+  const { cancelToken, error } = await insertRsvpWithToken(supabase, "gathering_rsvps", {
     name,
     email: email || null,
     party_size: partySize,
@@ -351,6 +353,20 @@ export async function rsvpGathering(
   }
 
   await sendGatheringRsvpNotification({ name, partySize, email, note, total });
+
+  // Confirmation + self-service cancel link to the guest.
+  if (email && cancelToken) {
+    const baseUrl = requestBaseUrl();
+    if (baseUrl) {
+      await sendRsvpConfirmation({
+        to: email,
+        eventLabel: "the gathering in memory of Joe",
+        name,
+        detail: partySize > 1 ? `Party of ${partySize}` : undefined,
+        cancelUrl: `${baseUrl}/rsvp/cancel?token=${cancelToken}&t=g`,
+      });
+    }
+  }
 
   if (email && formData.get("subscribe") === "on") {
     try {

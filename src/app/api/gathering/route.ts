@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { getFamilyBySlug, parseRecipients } from "@/lib/families";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, sendRsvpConfirmation } from "@/lib/email";
 import { getFamilyGathering } from "@/lib/gathering";
 import { rateLimit, clientIp, TOO_MANY } from "@/lib/ratelimit";
+import { resolveBaseUrl } from "@/lib/urls";
+import { insertRsvpWithToken } from "@/lib/rsvp";
 
 // Public: RSVP to a family's memorial gathering.
 export const runtime = "nodejs";
@@ -52,7 +54,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Not connected yet." }, { status: 503 });
   }
 
-  const { error } = await supabase.from("gathering_rsvps").insert({
+  const { cancelToken, error } = await insertRsvpWithToken(supabase, "gathering_rsvps", {
     family_id: family.id,
     name,
     email: email || null,
@@ -63,6 +65,19 @@ export async function POST(req: Request) {
   if (error) {
     console.error("[gathering] insert failed:", error);
     return NextResponse.json({ ok: false, error: "Sorry — we couldn't save that. Please try again." }, { status: 500 });
+  }
+
+  // Confirmation + self-service cancel link to the guest (only if attending).
+  if (attending && email && cancelToken) {
+    const who = family.honoring?.trim() || family.display_name;
+    const cancelUrl = `${resolveBaseUrl(req)}/rsvp/cancel?token=${cancelToken}&t=g`;
+    await sendRsvpConfirmation({
+      to: email,
+      eventLabel: `the gathering for ${who}`,
+      name,
+      detail: partySize > 1 ? `Party of ${partySize}` : undefined,
+      cancelUrl,
+    });
   }
 
   const recipients = parseRecipients(family.contact_email);
