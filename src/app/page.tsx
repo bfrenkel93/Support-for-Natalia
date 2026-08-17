@@ -11,6 +11,7 @@ import GiftsSection from "@/components/GiftsSection";
 import SubscribeForm from "@/components/SubscribeForm";
 import SubscribeModal from "@/components/SubscribeModal";
 import Reveal from "@/components/Reveal";
+import ClosedPage from "@/components/ClosedPage";
 import { getSettings } from "@/lib/settings";
 import { getBookings } from "@/lib/bookings";
 import { getEvents } from "@/lib/events";
@@ -19,10 +20,20 @@ import { isSupabaseConfigured } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
+const DEFAULT_CLOSING_MESSAGE =
+  "The memorial has passed.\n\nThank you to everyone who showed up for Natalia and the kids — in honor of Joe. 💛";
+
 export async function generateMetadata() {
   // Natalia's own page keeps its editable browser-tab title.
   try {
     const settings = await getSettings();
+    // A closed page shouldn't be indexed while it's wound down.
+    if (settings.page_closed === "true") {
+      return {
+        title: settings.site_title || "Thank you",
+        robots: { index: false, follow: false },
+      };
+    }
     if (settings.site_title) return { title: settings.site_title };
   } catch {
     // ignore — fall back to the layout default
@@ -37,6 +48,14 @@ export default async function Home() {
     getEvents(),
     getGifts(),
   ]);
+
+  // Wound down after the memorial — show only a warm closing note. All data is
+  // kept; reopening from the dashboard restores the full page instantly.
+  if (settings.page_closed === "true") {
+    return (
+      <ClosedPage message={settings.closing_message || DEFAULT_CLOSING_MESSAGE} />
+    );
+  }
 
   const familyAddress = settings.family_address || "";
   // The public calendar shows everything except declined requests.

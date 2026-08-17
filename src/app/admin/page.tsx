@@ -25,6 +25,7 @@ import {
   removePledge,
   removeRsvp,
   deleteSubscriber,
+  setPageClosed,
   unhideEvent,
   unpinEvent,
 } from "./actions";
@@ -143,6 +144,37 @@ export default async function AdminPage() {
           <code>SUPABASE_SERVICE_ROLE_KEY</code>, then reload.
         </p>
       )}
+
+      {/* Close / reopen the page */}
+      {(() => {
+        const closed = settings.page_closed === "true";
+        return (
+          <div className="mt-6 rounded-lg border border-line bg-bone/40 px-5 py-4">
+            <p className="text-sm text-ink">
+              {closed ? (
+                <>
+                  <strong>This page is closed.</strong> Visitors see a warm
+                  closing note — no calendar or forms. All your data is safe, and
+                  reopening restores everything instantly.
+                </>
+              ) : (
+                <>
+                  <strong>Your page is live.</strong> When the time comes (say,
+                  after the memorial), you can gently close it — visitors will see
+                  a thank-you note instead of the sign-up page. Nothing is deleted,
+                  and you can reopen anytime.
+                </>
+              )}
+            </p>
+            <form action={setPageClosed} className="mt-3">
+              <input type="hidden" name="close" value={closed ? "false" : "true"} />
+              <button className={DEL}>
+                {closed ? "Reopen the page" : "Close the page"}
+              </button>
+            </form>
+          </div>
+        );
+      })()}
 
       {/* Gathering RSVPs */}
       <section className="mt-12">

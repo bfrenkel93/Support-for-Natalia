@@ -128,6 +128,20 @@ export async function saveSettings(
   return { ok: true, message: "Saved. Your changes are live. 💛" };
 }
 
+// ---- Close / reopen the page ---------------------------------------
+
+export async function setPageClosed(formData: FormData): Promise<void> {
+  requireAdmin();
+  const supabase = getSupabase();
+  if (!supabase) return;
+  const close = String(formData.get("close") || "") === "true";
+  await supabase
+    .from("settings")
+    .upsert({ key: "page_closed", value: close ? "true" : "" }, { onConflict: "key" });
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
 // ---- Bookings (the shared calendar) --------------------------------
 
 export async function deleteBooking(formData: FormData): Promise<void> {
