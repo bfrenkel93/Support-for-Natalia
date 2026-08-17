@@ -121,6 +121,60 @@ export function getEventCalendarInfo(
   };
 }
 
+const BOOKING_TITLE: Record<string, string> = {
+  kids: "Time with the kids",
+  meal: "Bring a meal",
+  visit: "Visit / company",
+  errand: "Errand / help",
+  support: "Support",
+};
+
+/**
+ * Calendar info for a single sign-up someone just made on the calendar (a meal,
+ * a visit, time with the kids, an errand). All-day on the chosen date. Pure and
+ * client-safe, so both the success screen and the .ics endpoint can build it.
+ */
+export function getBookingCalendarInfo(args: {
+  date: string; // YYYY-MM-DD
+  kind: string;
+  forName?: string;
+  note?: string;
+}): CalendarInfo | null {
+  const { date, kind, forName, note } = args;
+  const [y, m, d] = (date || "").split("-").map(Number);
+  if (!y || !m || !d) return null;
+
+  const base = BOOKING_TITLE[kind] || "A way to help";
+  const title = forName ? `${base} — ${forName}` : base;
+  const startYmd = ymdCompact(y, m, d);
+  const endYmd = addDaysCompact(date, 1);
+
+  const detailParts: string[] = [];
+  if (note) detailParts.push(note);
+  detailParts.push("Showing up for the family — via familygriefsupport.org 💛");
+  const details = detailParts.join("\n\n");
+
+  const params = new URLSearchParams({ d: date, k: kind });
+  if (forName) params.set("f", forName);
+  if (note) params.set("n", note);
+
+  const googleUrl =
+    "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+    `&text=${encodeURIComponent(title)}` +
+    `&dates=${startYmd}/${endYmd}` +
+    `&details=${encodeURIComponent(details)}`;
+
+  return {
+    title,
+    details,
+    location: "",
+    startYmd,
+    endYmd,
+    googleUrl,
+    icsPath: `/api/calendar/booking?${params.toString()}`,
+  };
+}
+
 /** Escape a value for an iCalendar text field. */
 function icsEscape(text: string): string {
   return text

@@ -2,6 +2,8 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import type { Booking, BookingKind } from "@/lib/supabase";
+import { getBookingCalendarInfo } from "@/lib/calendar";
+import CalendarButtons from "@/components/CalendarButtons";
 
 type KindDef = {
   key: BookingKind;
@@ -44,10 +46,12 @@ export default function FamilyBookingCalendar({
   slug,
   hasKids,
   bookings: initialBookings,
+  forName,
 }: {
   slug: string;
   hasKids: boolean;
   bookings: Booking[];
+  forName?: string;
 }) {
   const kinds = hasKids ? ALL_KINDS : ALL_KINDS.filter((k) => k.key !== "kids");
 
@@ -232,7 +236,15 @@ export default function FamilyBookingCalendar({
           {status === "done" ? (
             <div className="max-w-md">
               <p className="whitespace-pre-line border-l-2 border-bronze/40 pl-4 leading-relaxed text-bronze">{message}</p>
-              <button type="button" onClick={() => { setSelected(null); setStatus("idle"); }} className="btn-link mt-4">Done</button>
+              {(() => {
+                const cal = getBookingCalendarInfo({ date: selected, kind, forName });
+                return cal ? (
+                  <div className="mt-5">
+                    <CalendarButtons googleUrl={cal.googleUrl} icsPath={cal.icsPath} />
+                  </div>
+                ) : null;
+              })()}
+              <button type="button" onClick={() => { setSelected(null); setStatus("idle"); }} className="btn-link mt-5">Done</button>
             </div>
           ) : (
             <form onSubmit={submit} className="max-w-xl">

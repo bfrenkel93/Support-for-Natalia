@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { addBooking, type BookingState } from "@/app/actions";
 import type { Booking, BookingKind } from "@/lib/supabase";
+import { getBookingCalendarInfo } from "@/lib/calendar";
+import CalendarButtons from "@/components/CalendarButtons";
 
 type EventMarker = { id: string; title: string; event_date: string | null };
 
@@ -232,10 +234,18 @@ export default function BookingCalendar({
               <p className="whitespace-pre-line border-l-2 border-bronze/40 pl-4 leading-relaxed text-bronze">
                 {state.message}
               </p>
+              {selected && (() => {
+                const cal = getBookingCalendarInfo({ date: selected, kind, forName: "Natalia" });
+                return cal ? (
+                  <div className="mt-5">
+                    <CalendarButtons googleUrl={cal.googleUrl} icsPath={cal.icsPath} />
+                  </div>
+                ) : null;
+              })()}
               <button
                 type="button"
                 onClick={() => setSelected(null)}
-                className="btn-link mt-4"
+                className="btn-link mt-5"
               >
                 Done
               </button>
