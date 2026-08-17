@@ -17,6 +17,14 @@ function clean(v: unknown, max: number): string {
   return String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function prettyDate(ymd: string): string {
   const [y, m, d] = ymd.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
@@ -80,16 +88,20 @@ export async function POST(req: Request) {
   // errands are instant (no reason to gate a dropped-off meal).
   const requested = kind === "visit" || kind === "kids";
 
-  const { error } = await supabase.from("bookings").insert({
-    family_id: family.id,
-    event_date: eventDate,
-    kind,
-    status: requested ? "requested" : "confirmed",
-    name,
-    email: email || null,
-    note: note || null,
-    private: isPrivate,
-  });
+  const { data: inserted, error } = await supabase
+    .from("bookings")
+    .insert({
+      family_id: family.id,
+      event_date: eventDate,
+      kind,
+      status: requested ? "requested" : "confirmed",
+      name,
+      email: email || null,
+      note: note || null,
+      private: isPrivate,
+    })
+    .select("id")
+    .single();
 
   if (error) {
     if ((error as { code?: string }).code === "23505") {
@@ -102,29 +114,55 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Sorry — we couldn't save that. Please try again." }, { status: 500 });
   }
 
-  // Let the family know someone signed up (best-effort). Requests ask them to
-  // approve in their dashboard; instant sign-ups are a warm heads-up.
+  // Let the family know someone signed up (best-effort). Requests get one-tap
+  // Approve / Decline links right in the email — no login, no dashboard.
+  // Instant sign-ups (meals, errands) are just a warm heads-up.
   const recipients = parseRecipients(family.contact_email);
   if (recipients.length) {
-    const manageUrl = `${resolveBaseUrl(req)}/manage?token=${family.edit_token}`;
+    const base = resolveBaseUrl(req);
+    const bookingId = inserted?.id;
+    const approveUrl = `${base}/manage/approve?token=${family.edit_token}&id=${bookingId}&do=confirm`;
+    const declineUrl = `${base}/manage/approve?token=${family.edit_token}&id=${bookingId}&do=decline`;
+    const kindLabel = FAMILY_KIND_LABEL[kind];
+    const dateLabel = prettyDate(eventDate);
+
+    const text = [
+      requested
+        ? `${name} would like to help — this one is yours to approve.`
+        : `${name} just signed up on your page "${family.display_name}".`,
+      ``,
+      `What: ${kindLabel}`,
+      `When: ${dateLabel}`,
+      email ? `Email: ${email}` : `Email: (not provided)`,
+      note ? `Note: ${note}` : ``,
+      requested && bookingId ? `` : ``,
+      requested && bookingId ? `Approve: ${approveUrl}` : ``,
+      requested && bookingId ? `Decline: ${declineUrl}` : ``,
+    ].filter(Boolean).join("\n");
+
+    const html =
+      requested && bookingId
+        ? `<div style="font-family:Georgia,serif;color:#3E3A33;line-height:1.7;font-size:16px;">
+             <p><strong>${escapeHtml(name)}</strong> would like to help — this one is yours to approve.</p>
+             <p style="color:#6E6858;">${escapeHtml(kindLabel)} · ${escapeHtml(dateLabel)}${email ? ` · ${escapeHtml(email)}` : ""}</p>
+             ${note ? `<p style="color:#6E6858;">“${escapeHtml(note)}”</p>` : ""}
+             <p style="margin-top:18px;">
+               <a href="${approveUrl}" style="display:inline-block;background:#2A2620;color:#F7F4ED;text-decoration:none;padding:11px 22px;border-radius:3px;font-size:14px;">Approve</a>
+               &nbsp;&nbsp;
+               <a href="${declineUrl}" style="display:inline-block;border:1px solid #C6B99F;color:#3E3A33;text-decoration:none;padding:10px 22px;border-radius:3px;font-size:14px;">Decline</a>
+             </p>
+             <p style="color:#9A9082;font-size:13px;margin-top:14px;">One tap — no login needed. It’ll ask you to confirm.</p>
+           </div>`
+        : undefined;
+
     const r = await sendEmail({
       to: recipients,
       replyTo: email || undefined,
       subject: requested
-        ? `A request to approve — ${FAMILY_KIND_LABEL[kind]} on ${prettyDate(eventDate)}`
-        : `New sign-up — ${FAMILY_KIND_LABEL[kind]} on ${prettyDate(eventDate)}`,
-      text: [
-        requested
-          ? `${name} would like to help — this one is yours to approve.`
-          : `${name} just signed up on your page "${family.display_name}".`,
-        ``,
-        `What: ${FAMILY_KIND_LABEL[kind]}`,
-        `When: ${prettyDate(eventDate)}`,
-        email ? `Email: ${email}` : `Email: (not provided)`,
-        note ? `Note: ${note}` : ``,
-        requested ? `` : ``,
-        requested ? `Approve it or suggest another day here:\n${manageUrl}` : ``,
-      ].filter(Boolean).join("\n"),
+        ? `A request to approve — ${kindLabel} on ${dateLabel}`
+        : `New sign-up — ${kindLabel} on ${dateLabel}`,
+      text,
+      html,
     });
     if (!r.ok) console.error("[book] notification failed:", r.error);
   }
