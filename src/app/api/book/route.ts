@@ -88,6 +88,16 @@ export async function POST(req: Request) {
   // errands are instant (no reason to gate a dropped-off meal).
   const requested = kind === "visit" || kind === "kids";
 
+  // The family can pause new visit/kids requests when it's a lot right now.
+  // Meals and other help still go through.
+  if (requested && family.content?.pause_requests) {
+    return NextResponse.json({
+      ok: false,
+      error:
+        "The family is taking a little breathing room and isn’t accepting new visit requests right now. Meals and other help are still welcome — thank you. 💛",
+    });
+  }
+
   const { data: inserted, error } = await supabase
     .from("bookings")
     .insert({

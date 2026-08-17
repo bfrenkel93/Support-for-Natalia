@@ -120,6 +120,7 @@ export default async function ManagePage({
         access_code: family.content?.access_code ?? "",
         contact_email: family.contact_email ?? "",
         edit_token: family.edit_token,
+        pause_requests: family.content?.pause_requests === true,
         hero_image_url: family.content?.hero_image_url ?? null,
         eyebrow: family.content?.eyebrow ?? "",
         relationship: family.content?.relationship ?? "",

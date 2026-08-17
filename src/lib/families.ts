@@ -77,6 +77,9 @@ export type FamilyContent = {
   access_code?: string;
   // Marks the built-in "See a sample" demo page.
   is_demo?: boolean;
+  // When true, the page stops taking NEW visit / kids requests (a breather).
+  // Meals, errands, gifts, and everything else keep working.
+  pause_requests?: boolean;
   // "Support for ___" section: who support is for, an address for the map, and a note.
   support_name?: string;
   support_address?: string;

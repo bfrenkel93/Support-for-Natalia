@@ -7,6 +7,7 @@ import RequestManager, { type RequestRow } from "./RequestManager";
 import MessageAssist, { type AiContext } from "./MessageAssist";
 import ThankHelpers from "./ThankHelpers";
 import RequestApprovals, { type PendingRequest } from "./RequestApprovals";
+import PauseRequests from "./PauseRequests";
 
 type FamilyLite = {
   slug: string;
@@ -18,6 +19,7 @@ type FamilyLite = {
   access_code: string;
   contact_email: string;
   edit_token: string;
+  pause_requests: boolean;
   hero_image_url: string | null;
   eyebrow: string;
   relationship: string;
@@ -368,6 +370,7 @@ export default function ManageFamily({
 
       {/* Pending visit / kids requests waiting on the family — top priority. */}
       <RequestApprovals requests={pendingRequests} token={family.edit_token} />
+      <PauseRequests token={family.edit_token} initialPaused={family.pause_requests} />
 
       <form onSubmit={onSave}>
         {/* ── The page intro ── */}
