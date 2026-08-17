@@ -380,7 +380,7 @@ export default async function FamilyPage({
                 slug={family.slug}
                 hasKids={family.has_kids}
                 bookings={bookings.filter((b) => b.status === "confirmed")}
-                forName={family.honoring || family.display_name}
+                forName={family.content?.support_name || family.display_name}
               />
             </div>
           </SectionShell>
