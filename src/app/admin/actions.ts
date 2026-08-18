@@ -285,7 +285,7 @@ export async function messageEveryone(
 
   const subject =
     String(formData.get("subject") || "").replace(/\s+/g, " ").trim().slice(0, 200) ||
-    "An update about Joe’s memorial";
+    "Joe’s memorial — changes to the event, please read";
   const message = String(formData.get("message") || "").trim().slice(0, 8000);
   if (!message) return { ok: false, message: "Please write a message first." };
 

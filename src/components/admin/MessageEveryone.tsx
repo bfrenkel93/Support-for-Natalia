@@ -25,7 +25,7 @@ export default function MessageEveryone() {
       <label className="field-label">Subject</label>
       <input
         name="subject"
-        defaultValue="An update about Joe’s memorial"
+        defaultValue="Joe’s memorial — changes to the event, please read"
         maxLength={200}
         className="field mb-4"
       />
