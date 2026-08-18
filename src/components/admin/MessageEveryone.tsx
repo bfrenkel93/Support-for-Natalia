@@ -25,7 +25,7 @@ export default function MessageEveryone() {
       <label className="field-label">Subject</label>
       <input
         name="subject"
-        defaultValue="An update about the gathering"
+        defaultValue="An update about Joe’s memorial"
         maxLength={200}
         className="field mb-4"
       />
@@ -35,7 +35,7 @@ export default function MessageEveryone() {
         rows={5}
         required
         maxLength={8000}
-        placeholder="e.g. The memorial start time has changed — it's now 3:00pm on Saturday, same place. Everything else is the same. See you there. 💛"
+        placeholder="e.g. Joe's memorial start time has changed — it's now 3:00pm on Saturday, same place. Everything else is the same. See you there. 💛"
         className="field mb-4"
       />
       <div className="flex flex-wrap items-center gap-4">

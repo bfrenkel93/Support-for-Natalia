@@ -285,7 +285,7 @@ export async function messageEveryone(
 
   const subject =
     String(formData.get("subject") || "").replace(/\s+/g, " ").trim().slice(0, 200) ||
-    "An update about the gathering";
+    "An update about Joe’s memorial";
   const message = String(formData.get("message") || "").trim().slice(0, 8000);
   if (!message) return { ok: false, message: "Please write a message first." };
 
@@ -315,17 +315,27 @@ export async function messageEveryone(
   const to = organizer.length ? organizer : [list[0]];
   const replyTo = organizer[0];
 
+  // A recognizable sender name so it doesn't read as spam. Reuses the verified
+  // sending address from RESEND_FROM, just with a clearer display name.
+  const rawFrom = process.env.RESEND_FROM || "notifications@familygriefsupport.org";
+  const addrMatch = rawFrom.match(/<([^>]+)>/);
+  const sendAddress = addrMatch ? addrMatch[1] : rawFrom.trim();
+  const from = `Joe’s Memorial <${sendAddress}>`;
+
+  const footer =
+    "You're receiving this because you RSVP'd to Joe's memorial or asked to follow updates.";
   const html = `<div style="font-family: Georgia, serif; color:#3E3A33; line-height:1.7; font-size:16px;">
     ${escapeHtmlText(message).replace(/\n/g, "<br>")}
-    <p style="color:#9A9082; font-size:13px; margin-top:22px;">You're receiving this because you RSVP'd or asked to follow updates. 💛</p>
+    <p style="color:#9A9082; font-size:13px; margin-top:22px;">${footer} 💛</p>
   </div>`;
 
   const r = await sendEmail({
+    from,
     to,
     bcc: list,
     replyTo,
     subject,
-    text: `${message}\n\nYou're receiving this because you RSVP'd or asked to follow updates.`,
+    text: `${message}\n\n${footer}`,
     html,
   });
 
