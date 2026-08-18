@@ -40,6 +40,7 @@ export function organizerList(): string[] {
 export async function sendEmail(payload: {
   from?: string;
   to: string[];
+  bcc?: string[];
   subject: string;
   text?: string;
   html?: string;
@@ -62,6 +63,7 @@ export async function sendEmail(payload: {
       subject: payload.subject,
       text: payload.text,
       html: payload.html,
+      ...(payload.bcc && payload.bcc.length ? { bcc: payload.bcc } : {}),
       ...(payload.replyTo ? { replyTo: payload.replyTo } : {}),
     } as Parameters<typeof resend.emails.send>[0]);
     if (error) {

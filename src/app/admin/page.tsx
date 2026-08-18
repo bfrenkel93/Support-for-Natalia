@@ -31,6 +31,7 @@ import {
 } from "./actions";
 import EmailGatheringListButton from "@/components/admin/EmailGatheringListButton";
 import SendTestEmailButton from "@/components/admin/SendTestEmailButton";
+import MessageEveryone from "@/components/admin/MessageEveryone";
 import SendUpdateButton from "@/components/admin/SendUpdateButton";
 import LoginForm from "@/components/admin/LoginForm";
 import SettingsForm from "@/components/admin/SettingsForm";
@@ -233,6 +234,16 @@ export default async function AdminPage() {
               ))}
             </ul>
           )}
+        </div>
+
+        <div className="mt-6 rounded-lg border border-bronze/40 bg-bronze/[0.06] p-6 sm:p-7">
+          <p className="eyebrow text-bronze">Message everyone</p>
+          <p className="mt-1 max-w-xl text-sm text-ink-soft">
+            Need to tell people something — a time change, a location, a weather
+            call? This reaches everyone who RSVP&apos;d and everyone following
+            updates, in one email.
+          </p>
+          <MessageEveryone />
         </div>
       </section>
 

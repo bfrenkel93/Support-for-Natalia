@@ -19,8 +19,18 @@ import {
   sendSubscriberEventBlast,
   sendSubscriberDigest,
   sendTestNotification,
+  sendEmail,
+  notifyList,
 } from "@/lib/email";
 import { getActiveSubscribers } from "@/lib/subscribers";
+
+function escapeHtmlText(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 import { buildHighlights } from "@/lib/digest";
 
 function adminBaseUrl(): string {
@@ -262,6 +272,69 @@ export async function sendTestEmail(
   return {
     ok: false,
     message: `Resend rejected it → ${r.error} · from: ${r.from} · to: ${r.to.join(", ")}`,
+  };
+}
+
+// ---- Message everyone (RSVP-ers + subscribers) ---------------------
+
+export async function messageEveryone(
+  _prev: AdminState,
+  formData: FormData
+): Promise<AdminState> {
+  requireAdmin();
+
+  const subject =
+    String(formData.get("subject") || "").replace(/\s+/g, " ").trim().slice(0, 200) ||
+    "An update about the gathering";
+  const message = String(formData.get("message") || "").trim().slice(0, 8000);
+  if (!message) return { ok: false, message: "Please write a message first." };
+
+  // Merge everyone who RSVP'd (and left an email) with active subscribers,
+  // de-duplicated so no one gets it twice.
+  const [{ rows }, subs] = await Promise.all([
+    getGatheringRsvps(),
+    getActiveSubscribers(),
+  ]);
+  const emails = new Set<string>();
+  for (const r of rows) {
+    const e = (r.email || "").trim().toLowerCase();
+    if (e) emails.add(e);
+  }
+  for (const s of subs) {
+    const e = (s.email || "").trim().toLowerCase();
+    if (e) emails.add(e);
+  }
+  const list = Array.from(emails);
+  if (list.length === 0) {
+    return { ok: false, message: "No email addresses on file yet." };
+  }
+
+  // Send one email, everyone on BCC so addresses stay private. A copy goes to
+  // the organizer's inbox (the visible "to"); replies come back to them.
+  const organizer = notifyList();
+  const to = organizer.length ? organizer : [list[0]];
+  const replyTo = organizer[0];
+
+  const html = `<div style="font-family: Georgia, serif; color:#3E3A33; line-height:1.7; font-size:16px;">
+    ${escapeHtmlText(message).replace(/\n/g, "<br>")}
+    <p style="color:#9A9082; font-size:13px; margin-top:22px;">You're receiving this because you RSVP'd or asked to follow updates. 💛</p>
+  </div>`;
+
+  const r = await sendEmail({
+    to,
+    bcc: list,
+    replyTo,
+    subject,
+    text: `${message}\n\nYou're receiving this because you RSVP'd or asked to follow updates.`,
+    html,
+  });
+
+  if (!r.ok) {
+    return { ok: false, message: `Couldn't send — ${r.error}` };
+  }
+  return {
+    ok: true,
+    message: `Sent to ${list.length} ${list.length === 1 ? "person" : "people"} (RSVP-ers + subscribers, no duplicates).`,
   };
 }
 
